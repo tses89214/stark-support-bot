@@ -1,0 +1,9 @@
+## Stark 11
+- **Description**: A luxury cruiser built for honeymoons and VIP sightseeing, with panoramic observation decks.  
+- **Size**: 48 meters in length.  
+- **Weight**: 70 metric tons.  
+- **Capacity**: 6 passengers.  
+- **Color**: Pearl White.  
+- **Price**: $19,500,000.  
+- **Compatible Accessories**: Champagne Cooling Bar, Holographic Fireplace, Private Chef Module.  
+- **Notes**: Observation deck glass must be re-polarized every 6 months to stay clear of cosmic dust haze.

@@ -1,0 +1,9 @@
+## Stark 15
+- **Description**: A rugged explorer with reinforced landing gear for rough planetary surfaces.  
+- **Size**: 28 meters in length.  
+- **Weight**: 45 metric tons.  
+- **Capacity**: 5 passengers.  
+- **Color**: Desert Sand.  
+- **Price**: $6,500,000.  
+- **Compatible Accessories**: Rover Bay, All-Terrain Landing Skids, Dust Filter Kit.  
+- **Notes**: Replace dust filters after every 3 landings on dusty worlds.

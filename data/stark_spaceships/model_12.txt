@@ -1,0 +1,9 @@
+## Stark 12
+- **Description**: A heavy-duty cargo hauler for moving freight between orbital stations.  
+- **Size**: 80 meters in length.  
+- **Weight**: 400 metric tons.  
+- **Capacity**: 3 crew, 250 tons of cargo.  
+- **Color**: Industrial Gray.  
+- **Price**: $12,000,000.  
+- **Compatible Accessories**: Cargo Crane Arm, Magnetic Container Locks.  
+- **Notes**: Not licensed for passengers. Cargo must be balanced within 5% across both holds before takeoff.

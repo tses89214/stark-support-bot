@@ -1,0 +1,9 @@
+## Stark 13
+- **Description**: A compact single-seat racer tuned for speed and tight turns.  
+- **Size**: 9 meters in length.  
+- **Weight**: 6 metric tons.  
+- **Capacity**: 1 pilot.  
+- **Color**: Flame Red.  
+- **Price**: $2,800,000.  
+- **Compatible Accessories**: Turbo Booster, Racing Harness, Heads-Up Display Visor.  
+- **Notes**: Not designed for trips longer than 12 hours. Engines need a full inspection after every 20 hours of flight.

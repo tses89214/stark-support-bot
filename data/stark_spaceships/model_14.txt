@@ -1,0 +1,9 @@
+## Stark 14
+- **Description**: A research vessel equipped with laboratories for deep-space science missions.  
+- **Size**: 55 meters in length.  
+- **Weight**: 90 metric tons.  
+- **Capacity**: 8 researchers.  
+- **Color**: Teal Green.  
+- **Price**: $15,000,000.  
+- **Compatible Accessories**: Sample Containment Chamber, Telescope Array, Radiation Shield Upgrade.  
+- **Notes**: Lab modules require a clean-room reset before each new mission to avoid sample contamination.

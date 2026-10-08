@@ -7,7 +7,7 @@ This is a small proof-of-concept for learning and demonstration, not a productio
 
 ## The scenario
 
-A customer-service chatbot for **Stark Spaceships**, a fake line of consumer-level spaceships (models 1–10) that differ in size, color, price and target customer. Product data lives in `data/stark_spaceships/`.
+A customer-service chatbot for **Stark Spaceships**, a fake line of consumer-level spaceships (models 1–15) that differ in size, color, price and target customer. Product data lives in `data/stark_spaceships/`.
 
 ## The chatbot
 

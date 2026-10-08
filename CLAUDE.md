@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-Customer-service chatbot (`app.py`, RAG over `data/stark_spaceships/`) plus `demo.ipynb`, a hands-on demo comparing three ways to give an LLM domain knowledge, using fake product data for "Stark Spaceships" (models 1–10). No build system, tests, or linter — the project is `build_index.py`, `app.py`, `demo.ipynb` and data.
+Customer-service chatbot (`app.py`, RAG over `data/stark_spaceships/`) plus `demo.ipynb`, a hands-on demo comparing three ways to give an LLM domain knowledge, using fake product data for "Stark Spaceships" (models 1–15). No build system, tests, or linter — the project is `build_index.py`, `app.py`, `demo.ipynb` and data.
 
 ## Running
 
