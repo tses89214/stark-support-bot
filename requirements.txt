@@ -2,3 +2,5 @@ openai
 sentence-transformers
 numpy
 jupyter
+fastapi
+uvicorn

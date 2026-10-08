@@ -1,6 +1,6 @@
-# llm-rag-tuning
+# Stark Support Bot
 
-A **customer-service chatbot that answers questions from product documents** (RAG), plus a notebook comparing it with two alternatives: prompt stuffing and fine-tuning.
+A RAG customer-service chatbot with guardrails (off-topic filtering, prompt-injection refusal, hand-off to human agents) and a minimal web UI, plus a notebook comparing prompt stuffing, RAG and fine-tuning.
 This is a small proof-of-concept for learning and demonstration, not a production system.
 
 > All data (Stark Spaceships, prices, the support email address) is **fictional**.
@@ -11,16 +11,23 @@ A customer-service chatbot for **Stark Spaceships**, a fake line of consumer-lev
 
 ## The chatbot
 
-[`chatbot.py`](chatbot.py) is a command-line chat loop:
+Two parts, one command each:
 
-1. Embed the question and retrieve the top-3 matching product docs (`all-MiniLM-L6-v2`, cosine similarity).
-2. Send them to the chat model (default `gpt-4o`) with a system prompt that says to answer **only** from those docs, or admit it doesn't know and point to support.
-3. Keep chat history for follow-up questions, and print which docs each answer came from.
+| Part | File | Run | What it does |
+|---|---|---|---|
+| Embedding (offline) | `build_index.py` | `python build_index.py` | Embeds every doc with `all-MiniLM-L6-v2` and saves `index.npz`. Re-run when the docs change. |
+| Serving (online) | `app.py` + `static/index.html` | `uvicorn app:app` | FastAPI server and a one-page chat UI at http://localhost:8000. |
 
-```bash
-python chatbot.py
-You: Which ship fits two kids and grandparents?
-```
+What happens to each message in `app.py`:
+
+1. **Classify** — an LLM labels it `ANSWER`, `OFF_TOPIC`, `ABUSIVE`, `ESCALATE` or `INJECTION` (fails closed to `ESCALATE`).
+2. **Route** — off-topic and injection get a fixed refusal. Abusive and escalation cases open a ticket for a human agent (written to `tickets.jsonl`, a stand-in for a helpdesk API) and reply with the ticket number.
+3. **Retrieve** — for `ANSWER`, embed the question (plus the previous user turn, for follow-ups) and take the top-3 docs by cosine similarity. If the best score is under `MIN_SCORE`, reply "not in our documents".
+4. **Answer** — send the docs to the chat model with a prompt that says to answer only from them.
+
+The chat history lives in the browser and is sent with each request, so the server keeps no state. The UI shows the route and source docs under each reply.
+
+`python eval_guardrails.py` runs the classifier on 15 labeled messages (English and Chinese).
 
 ## Three methods, one notebook
 
@@ -53,12 +60,14 @@ pip install -r requirements.txt
 export OPENAI_API_KEY=...        # paid API; fine-tuning (Method 3) also incurs training cost
 # chatbot.py works with any OpenAI-compatible endpoint, e.g. a LiteLLM gateway serving Claude:
 # export OPENAI_BASE_URL=https://<your-gateway>/v1 CHAT_MODEL=<model-name>
-python chatbot.py                # the chatbot, run from the repo root
+python build_index.py            # once, and after docs change
+uvicorn app:app                  # chatbot at http://localhost:8000 (run from the repo root)
 jupyter notebook demo.ipynb      # the method comparison
 ```
 
 ## Known simplifications
 
-- The chatbot has no chunking (one file = one doc), vector database, reranking, query rewriting or evaluation; the notebook RAG returns only top-1.
+- The chatbot has no chunking (one file = one doc), vector database, reranking or query rewriting; no streaming or authentication; tickets go to a local file.
+- The only evaluation is the 15-case classifier check; retrieval and answer quality are untested, and `MIN_SCORE` is a rough guess.
 - Training set is only 20 examples, enough to show the workflow, not to measure improvement.
 - No automated tests or retrieval/answer quality metrics.
