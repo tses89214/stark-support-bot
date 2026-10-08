@@ -16,7 +16,7 @@ from build_index import DOCS_DIR, EMBED_MODEL, INDEX
 
 SUPPORT = "customer_service@stack_spaceship.com"
 TOP_K = 3
-MIN_SCORE = 0.25  # best doc below this = nothing relevant; tune on real questions
+MIN_SCORE = 0.4  # bge-m3: on-topic top scores >= 0.45, off-topic <= 0.43 on eval_retrieval.py, so a weak guard; the prompt is the real one
 TICKETS = Path("tickets.jsonl")
 
 # reads OPENAI_API_KEY and OPENAI_BASE_URL, so any OpenAI-compatible endpoint (e.g. a LiteLLM gateway) works

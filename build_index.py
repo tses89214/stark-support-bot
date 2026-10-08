@@ -4,7 +4,7 @@ from pathlib import Path
 import numpy as np
 from sentence_transformers import SentenceTransformer
 
-EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+EMBED_MODEL = "BAAI/bge-m3"  # multilingual; see eval_retrieval.py for the comparison
 DOCS_DIR = Path("data/stark_spaceships")
 INDEX = Path("index.npz")
 

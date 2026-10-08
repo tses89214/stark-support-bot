@@ -15,7 +15,7 @@ Two parts, one command each:
 
 | Part | File | Run | What it does |
 |---|---|---|---|
-| Embedding (offline) | `build_index.py` | `python build_index.py` | Embeds every doc with `all-MiniLM-L6-v2` and saves `index.npz`. Re-run when the docs change. |
+| Embedding (offline) | `build_index.py` | `python build_index.py` | Embeds every doc with `BAAI/bge-m3` (multilingual; chosen with `eval_retrieval.py`) and saves `index.npz`. Re-run when the docs change. |
 | Serving (online) | `app.py` + `static/index.html` | `uvicorn app:app` | FastAPI server and a one-page chat UI at http://localhost:8000. |
 
 What happens to each message in `app.py`:
@@ -27,7 +27,7 @@ What happens to each message in `app.py`:
 
 The chat history lives in the browser and is sent with each request, so the server keeps no state. The UI shows the route and source docs under each reply.
 
-`python eval_guardrails.py` runs the classifier on 15 labeled messages (English and Chinese).
+`python eval_guardrails.py` runs the classifier on 15 labeled messages (English and Chinese). `python eval_retrieval.py` compares embedding models by hit@3 on 20 labeled questions (free, no LLM calls); bge-m3 scored 20/20 vs 11/20 for MiniLM, which found no Chinese questions.
 
 ## Three methods, one notebook
 

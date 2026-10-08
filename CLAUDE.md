@@ -8,7 +8,7 @@ Customer-service chatbot (`app.py`, RAG over `data/stark_spaceships/`) plus `dem
 
 ## Running
 
-- `python build_index.py` then `uvicorn app:app` (web chat at :8000); `python eval_guardrails.py` checks the input classifier (live LLM calls). `app.py` is the whole serving path: classify -> route/ticket -> retrieve -> answer; `static/index.html` is the UI. Set `OPENAI_BASE_URL` and `CHAT_MODEL` to use another OpenAI-compatible endpoint (e.g. a LiteLLM gateway serving Claude). Never commit gateway URLs or tokens.
+- `python build_index.py` then `uvicorn app:app` (web chat at :8000); `python eval_guardrails.py` checks the input classifier (live LLM calls); `python eval_retrieval.py` compares embedding models by hit@3 (no LLM calls). `app.py` embeds with bge-m3 (`build_index.py`), which is ~2GB. `app.py` is the whole serving path: classify -> route/ticket -> retrieve -> answer; `static/index.html` is the UI. Set `OPENAI_BASE_URL` and `CHAT_MODEL` to use another OpenAI-compatible endpoint (e.g. a LiteLLM gateway serving Claude). Never commit gateway URLs or tokens.
 - Run `demo.ipynb` from the repo root (data paths are relative: `data/stark_spaceships/...`).
 - Needs `OPENAI_API_KEY` in env. Python deps (not pinned anywhere): `openai`, `sentence-transformers`, `numpy`.
 - Notebook calls paid OpenAI APIs (`gpt-4o` for chat, `gpt-4o-mini-2024-07-18` for fine-tuning). The fine-tuning cell uploads a file, starts a job and polls every 30s.
