@@ -7,4 +7,4 @@
 - LLM 走 OpenRouter `:free` 模型（`llm()`），無 OpenAI；HF Inference Providers 要付費額度（402）。
 - 評測方法：從刻意最爛的 baseline 起，一次加一個改進，固定題目重跑，每步至少跑 2 次，一步一個 commit。
 - `google/embeddinggemma-2` 卡在版本（需 transformers 5.x → 新 torch → Intel Mac 沒有），不是 CPU/RAM。使用者 2026-10-12 起找別台機器（Colab / Apple Silicon / Linux）跑 `eval_retrieval.py`，拿到數字後補進 `RESULTS.md` 的 embedding 表；app 檢索不換。
-- `embeddinggemma-300m` 是 gated，需使用者的 HF token 與授權，尚未提供。
+- 使用者 2026-10-12 決定不用 `embeddinggemma-300m`（gated 太麻煩），只試 gemma-2（ungated，不需 HF token）。

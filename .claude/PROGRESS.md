@@ -27,7 +27,7 @@
 - embedding 比較已寫入 RESULTS.md：bge-m3 30/30、MRR 0.95；MiniLM 中文僅 1/13；各模型分數皆無法分離離題（MIN_SCORE 為弱防線）。
 
 ## 需要你決定／提供
-- [x] EmbeddingGemma 試驗：`embeddinggemma-2` 已實測，transformers 5 在 torch 2.2.2 載入即 `NameError: nn`，此機器跑不動，放棄。`embeddinggemma-300m` 需 HF token 與授權（使用者未提供），待提供再補進 RESULTS.md
+- [x] EmbeddingGemma 試驗：`embeddinggemma-2` 已實測，transformers 5 在 torch 2.2.2 載入即 `NameError: nn`，此機器跑不動，放棄。使用者後來決定不做 `embeddinggemma-300m`，只試 gemma-2（需別台機器）
 - [x] `PLAN.md`／`INTERVIEW.md`（本機，gitignored）OpenAI 說明已改成 OpenRouter
 - [x] Rule 6 改為單任務 50k／單會話 500k
 
