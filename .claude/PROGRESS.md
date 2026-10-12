@@ -31,17 +31,21 @@
 - [x] `PLAN.md`／`INTERVIEW.md`（本機，gitignored）OpenAI 說明已改成 OpenRouter
 - [x] Rule 6 改為單任務 50k／單會話 500k
 
-## 下一步（使用者端，2026-10-12 下班）
-- [ ] **明天（使用者開 Docker Desktop、記憶體調 6–8GB 後）**：用 Docker 容器（`python:3.12`，Linux x86_64 有新版 torch wheel）跑 `eval_retrieval.py google/embeddinggemma-2`：repo 掛進去、容器內建獨立環境、不動 `.venv`；先對照模型卡確認 query／passage 前綴。transformers 5.18 dev 在 Linux 上未驗證，可能要排錯。
-- [ ] 使用者找別台機器（Colab／Apple Silicon／Linux）跑 `google/embeddinggemma-2`：卡點是版本（需 transformers 5.x → 新 torch），不是 CPU／RAM。拿到 `eval_retrieval.py` 數字後補進 `RESULTS.md` embedding 表；app 檢索不換。需要時可請我寫 Colab 用的最小腳本（只含 embedding 評測）。
-
-- [ ] **RESULTS.md 補真實回覆範例（使用者要求，2026-10-12）**：讓讀者看到每層的輸入、輸出，以及哪些攻擊攔住、哪些沒攔住。
-  - 輸入端已完成：「What each level sends to the model」（L0–L4 實際送給模型的內容，已在 RESULTS.md）。
-  - 輸出端待補：「Examples (one real run)」與「Attacks that still got through」，程式已加在 `eval_ladder.py`，需要真實 LLM 輸出，額度重置後跑一次 `python eval_ladder.py 2` 才會寫進 RESULTS.md。
-  - 完成標準：RESULTS.md 內每層至少一個 `blocked` 與（若有）一個 `LOST` 的真實回覆；L3／L4 的 canned 拒絕文字可見；沒有 LLM 失敗列（有就重跑）。
-  - 若某層全擋住，不要硬湊漏洞範例，照實寫 `nothing beyond the examples above.`。
-- [ ] 重跑 `python eval_ladder.py 2`（背景、約 250 次請求）：2026-10-12 OpenRouter 免費額度（1000 次/天，所有 `:free` 共用）用完，那輪 L0 起大量 429，已中止，RESULTS.md 未被覆蓋。額度約 2026-10-13 台灣 08:00 重置。重跑會產生 RESULTS.md 的「Examples」區塊（程式已加，離線測過格式，尚未用真實 LLM 跑過）；舊 L3/L4 數字也在加離題規則前，會一併更新。腳本會保留手寫的 embedding 區塊。
-- [ ] 重跑後檢查範例（含「Attacks that still got through」：每層漏掉的攻擊與實際回覆）是否有說服力；`eval_ladder.py` 範例碼在那之前不算驗證完。使用者曾問「別的 model」：免費額度是共用的，換 `:free` 模型沒用；使用者沒有儲值 OpenRouter，付費模型不是選項；就等額度重置。
+## TODO（2026-10-13 起）
+1. [ ] **使用者**：開 Docker Desktop，Settings → Resources 記憶體調到 6–8GB。
+2. [ ] **embeddinggemma-2 進比較表**（依賴 1）
+   - 用 Docker（`python:3.12`，Linux x86_64 有新版 torch wheel）；repo 掛進容器、容器內建獨立環境、不動 `.venv`。
+   - 先對照模型卡確認 query／passage 前綴（現在是從 300m 抄的，未驗證）。
+   - 跑 `eval_retrieval.py google/embeddinggemma-2`；transformers 5.18 dev 在 Linux 上未驗證，可能要排錯。
+   - 完成：`RESULTS.md` embedding 表多一列（hit@3、中英、MRR、分數分界），並改掉「Not run: ...」那段；app 檢索不換。
+3. [ ] **RESULTS.md 補真實回覆範例**（使用者要求）：讓讀者看到每層的輸入、輸出，哪些攻擊攔住、哪些沒攔住。
+   - 輸入端已完成（「What each level sends to the model」）。
+   - 輸出端待補：台灣時間 08:00 後（OpenRouter 免費額度 1000 次/天、所有 `:free` 共用，2026-10-12 用完）背景跑 `python eval_ladder.py 2`（約 250 次請求、約 30 分鐘）。會一併更新舊的 L3／L4 數字（舊值在加離題規則前跑的），並寫入「Examples」與「Attacks that still got through」；腳本保留手寫的 embedding 區塊。
+   - 完成標準：每層至少一個 `blocked`、（若有）一個 `LOST` 的真實回覆；L3／L4 的罐頭拒絕可見；沒有 LLM 失敗列（有就重跑）。
+   - 某層全擋住就照實寫 `nothing beyond the examples above.`，不硬湊漏洞。
+   - 範例碼只用假資料測過格式，真實輸出看過才算驗證完。
+   - 使用者沒有儲值 OpenRouter：換 `:free` 模型沒用（額度共用），付費模型不可用；只能等重置。
+4. [ ] 以上完成後 commit，使用者說要推再推。
 
 ## 其餘
 - [x] 通過 `ruff check . --exclude .venv --exclude demo.ipynb`（沿用全域嚴格規則；兩處刻意吞例外以 noqa 註明）
