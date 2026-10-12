@@ -24,6 +24,16 @@ Run 2026-10-12 with `python eval_retrieval.py <models>` (local, no LLM calls, de
 | multilingual-e5-base | 29/30 | 16/17 | 13/13 | 0.78 | 0.77 vs 0.78, overlaps |
 | **bge-m3 (used by the bot)** | **30/30** | 17/17 | 13/13 | **0.95** | 0.45 vs 0.43, barely separates |
 
+Examples (top 3 docs returned, correct doc in **bold**; `model_N` = Stark N, `guide_*` = process guides):
+
+| Question | all-MiniLM-L6-v2 | multilingual-e5-small | bge-m3 |
+|---|---|---|---|
+| 哪一款太空船可以載 30 個人? (which ship carries 30 people; answer Stark 8) | model_15, model_6, model_1: miss | model_1, **model_8**, model_10 | **model_8**, model_4, model_1 |
+| 我想買一艘貨船來做貿易 (I want a cargo ship for trading; answer Stark 5) | model_15, model_4, model_3: miss | guide_ordering_delivery, model_11, guide_troubleshooting: miss | **model_5**, model_12, model_1 |
+| 可以退貨嗎?要等多久才會到貨? (returns and delivery time) | model_6, model_2, model_8: miss | **guide_ordering_delivery**, model_12, model_15 | **guide_ordering_delivery**, guide_troubleshooting, model_7 |
+
+The English-only model returns near-random ships for Chinese questions. e5-small finds some but ranks the right doc lower or misses (the cargo-ship question). Wrong retrieval means the answer step never sees the right facts.
+
 Not run: `google/embeddinggemma-300m` (gated, needs an HF token and license acceptance) and `google/embeddinggemma-2` (config requires transformers 5, which does not load on this Intel Mac's torch 2.2.2).
 
 Takeaways: the English-only model fails Chinese almost completely (1/13). Only bge-m3 gets every question right. No model separates on-topic from off-topic by score alone (the gap is 0.02 for bge-m3 and negative for the rest), so the score floor `MIN_SCORE` is a weak guard and the classifier does the real filtering.
