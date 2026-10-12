@@ -23,6 +23,8 @@
 - README 已重寫。
 - 防禦階梯 `RESULTS.md`（`eval_ladder.py`，每層 2 次平均）：攻擊擋下 3.5→9.0→12.5→13/13→13/13（/14 題，失敗題排除）；L4 prompt 8.7k→1.5k 字元、每題 6.9s→3.7s。輸入分隔（L2）貢獻最大。
 - 工單附 `reason`；ruff 通過。
+- L3 正常題 5.0/6：分類器對 6 題各 3 次皆判 ANSWER，沒有誤擋；掉分來自回答階段措辭波動。
+- embedding 比較已寫入 RESULTS.md：bge-m3 30/30、MRR 0.95；MiniLM 中文僅 1/13；各模型分數皆無法分離離題（MIN_SCORE 為弱防線）。
 
 ## 需要你決定／提供
 - [ ] EmbeddingGemma：改試 `google/embeddinggemma-2`（Apache-2.0、免 token、多模態，但 config 要 transformers 5.18 dev，Intel Mac torch 2.2.2 可能跑不起來）；於 `.venv-gemma` 實測。退路：300m（受限，需 HF token）
