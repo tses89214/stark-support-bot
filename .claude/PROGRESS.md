@@ -4,7 +4,7 @@
 - 定位：作品集為主、學習實驗為輔；目標是「先做出能動的」（見 DECISIONS.md）。
 - LLM 後端：OpenRouter 免費模型（`llm()` in `app.py`），不再用 OpenAI / HF Inference（HF 需付費額度，402）。
 - 目前模型：`nvidia/nemotron-3-super-120b-a12b:free`（Gemma 免費版曾被上游 429 限流）。
-- `eval_guardrails.py`：15/15（只跑一次；免費層可能限流，需看 stderr 的 `classify failed`）。
+- `eval_guardrails.py`：30 題，29/29（另 1 題因模型回空內容無法評）；免費層可能限流，需看 stderr 的 `classify failed`。
 - 完整服務與 bge-m3 檢索評測已驗證（見下）。
 - `demo.ipynb` 與 fine-tuning 檔擱置（CLAUDE.md 已標註）。
 
@@ -45,7 +45,13 @@
    - 某層全擋住就照實寫 `nothing beyond the examples above.`，不硬湊漏洞。
    - 範例碼只用假資料測過格式，真實輸出看過才算驗證完。
    - 使用者沒有儲值 OpenRouter：換 `:free` 模型沒用（額度共用），付費模型不可用；只能等重置。
-4. [ ] 以上完成後 commit，使用者說要推再推。
+4. [ ] 以上完成後把 README「Results at a glance」表更新成重跑後的數字（現在抄的是舊值；L3/L4 在加離題規則前跑的）。
+5. [ ] 擴充評測集（外部審閱建議）：分類器標註集 30 → 約 100（含模稜兩可客訴、包裝過的注入）；每設定多跑幾次，報平均與信賴區間；攻擊／正常題也擴充（改題要整個階梯重跑）。
+6. [ ] 畫「`MIN_SCORE` 門檻 vs 誤答率／拒答率」曲線；`TOP_K = 3` 也補比較（top-1/3/5）。現在 README 已誠實註明這兩個參數沒有曲線佐證。
+7. [ ] 端到端評測寫明限制或加抽樣人工驗證（現為關鍵字比對，未答案題檢查偏寬鬆）。
+8. [ ] **使用者決定**：「Stark」會讓人聯想漫威 Stark Industries，要不要換原創品牌名？（牽涉 `data/`、評測 canary、README、測試，改動面大，未動。）另外審閱建議不要在作品裡放「demo.ipynb 已擱置」；README 已拿掉那行，檔案與 CLAUDE.md 註記保留，待你決定要重寫還是移除。
+9. [ ] 作品集定位（審閱建議）：以「Guardrails 與評估方法」為代表作；第二作品 Text-to-SQL Agent 可共用評估框架。尚未決定，使用者的既有決定是「作品集為主、學習實驗為輔」。
+10. [ ] 以上完成後 commit，使用者說要推再推。
 
 ## 其餘
 - [x] 通過 `ruff check . --exclude .venv --exclude demo.ipynb`（沿用全域嚴格規則；兩處刻意吞例外以 noqa 註明）

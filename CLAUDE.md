@@ -4,14 +4,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-Customer-service chatbot (`app.py`, RAG over `data/stark_spaceships/`) plus `demo.ipynb`, a hands-on demo comparing three ways to give an LLM domain knowledge, using fake product data for "Stark Spaceships" (models 1–15). No build system, tests, or linter — the project is `build_index.py`, `app.py`, `demo.ipynb` and data.
+Customer-service chatbot (`app.py`, RAG over `data/stark_spaceships/`) plus `demo.ipynb`, a hands-on demo comparing three ways to give an LLM domain knowledge, using fake product data for "Stark Spaceships" (models 1–15). No build system. Offline tests are in `test_app.py`, evals are `eval_*.py`, lint is `ruff check . --exclude .venv --exclude demo.ipynb`; results are in `RESULTS.md`.
 
 ## Running
 
 - `python build_index.py` then `uvicorn app:app` (web chat at :8000); `python eval_guardrails.py` checks the input classifier (live LLM calls); `python eval_retrieval.py` compares embedding models by hit@3 (no LLM calls). `app.py` embeds with bge-m3 (`build_index.py`), which is ~2GB. `app.py` is the whole serving path: classify -> route/ticket -> retrieve -> answer; `static/index.html` is the UI. LLM calls go to OpenRouter (`llm()` in `app.py`, free `:free` models; HF Inference Providers needs paid credits); copy `.env.example` to `.env` and run `uvicorn app:app --env-file .env`. Never commit tokens.
 - Run `demo.ipynb` from the repo root (data paths are relative: `data/stark_spaceships/...`).
-- Needs `OPENROUTER_API_KEY` and `CHAT_MODEL` in env. Python deps (not pinned): `requests`, `sentence-transformers`, `numpy`, `fastapi`, `uvicorn`, `python-dotenv`.
-- Notebook calls paid OpenAI APIs (`gpt-4o` for chat, `gpt-4o-mini-2024-07-18` for fine-tuning). The fine-tuning cell uploads a file, starts a job and polls every 30s.
+- Needs `OPENROUTER_API_KEY` and `CHAT_MODEL` in env. Python deps are pinned in `requirements.txt` (Intel Mac: torch tops out at 2.2.2, so sentence-transformers 3.3.1 / transformers 4.46.3); use `.venv` and `PIP_USER=0` when installing.
+- `demo.ipynb` (shelved) calls paid OpenAI APIs (`gpt-4o` for chat, `gpt-4o-mini-2024-07-18` for fine-tuning). The fine-tuning cell uploads a file, starts a job and polls every 30s.
 
 ## Structure
 

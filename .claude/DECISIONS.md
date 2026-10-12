@@ -18,15 +18,15 @@
 - 重點：demo 完整、有數據的實驗（檢索評測、embedding／供應商比較）。
 - 降優先或不做：Docker、速率限制、請求記錄等維運項目。
 
-## 2026-10-12 EmbeddingGemma 走 sentence-transformers（尚未實作）
+## 2026-10-12 EmbeddingGemma 走 sentence-transformers（尚未實作；300m 已被使用者放棄，只試 gemma-2，見文末）
 - 直接載入 `google/embeddinggemma-300m`，加進 `eval_retrieval.py` 比 hit@3；不走 llama.cpp。
 - 原因：與 bge-m3 載入方式一致、出數據最快；使用者為 macOS，貼文的 Vulkan 路線不適用（Mac 為 Metal）。
 - 注意：該模型在 HF 為受限模型，需接受授權並用 HF token。
 - llama.cpp（Metal）+ GGUF 等 hit@3 證明值得換、且在意速度時再評估。
 
-## 2026-10-12 demo.ipynb 擱置；HF 全面取代 OpenAI；目標改為「先做出能動的」
+## 2026-10-12 demo.ipynb 擱置；目標改為「先做出能動的」（HF 取代 OpenAI 的部分已作廢，見「LLM 後端：OpenRouter」）
 - 不再比較三種方法（prompt stuffing／RAG／fine-tuning），demo.ipynb 未來再重寫。
-- 全面改走 HF Inference Providers（OpenAI 相容端點），不保留 OpenAI 路徑。
+- ~~全面改走 HF Inference Providers~~（作廢：HF 回 402）；不保留 OpenAI 路徑這點仍成立。
 - 優先順序：能動的 RAG 客服 > 評測數據 > 其餘。
 - 因此作廢：notebook 重跑驗證、`data/fine-tuning-job-example.jsonl` 相關工作。
 
@@ -67,4 +67,5 @@
 
 ## 2026-10-12 EmbeddingGemma 在此機器不可行
 - `google/embeddinggemma-2`：實測 transformers 5 + torch 2.2.2 載入即失敗；Intel Mac 無更新的 torch 輪子，無解。
-- `embeddinggemma-300m`：理論上可跑（transformers 4.56 可載入），但為受限模型，需使用者提供 HF token；未提供前不列入比較表。
+- `embeddinggemma-300m`：受限模型；使用者 2026-10-12 決定不做（太麻煩），只試 gemma-2。
+- gemma-2 改走 Docker（Linux x86_64 容器有新版 torch wheel），見 PROGRESS.md TODO。
