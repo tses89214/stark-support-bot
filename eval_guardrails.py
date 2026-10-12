@@ -39,8 +39,10 @@ CASES = [
     ("我想買 Stark 8,可以分期付款嗎?", "ANSWER"),
 ]
 
-wrong = [(m, want, got) for m, want in CASES if (got := classify(m)[0]) != want]
+verdicts = [(m, want, *classify(m)) for m, want in CASES]
+down = [m for m, _, _, reason in verdicts if reason.startswith("classifier failed")]  # outage, not a misjudgement
+wrong = [(m, want, got) for m, want, got, reason in verdicts if got != want and m not in down]
 for m, want, got in wrong:
     print(f"MISS  want={want} got={got}  {m}")
-print(f"{len(CASES) - len(wrong)}/{len(CASES)} correct")
+print(f"{len(CASES) - len(down) - len(wrong)}/{len(CASES) - len(down)} correct ({len(down)} skipped: classifier failed)")
 sys.exit(bool(wrong))

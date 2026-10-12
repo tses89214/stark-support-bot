@@ -54,3 +54,13 @@
 - `classify()` 回傳 `(category, reason)`；原因取自模型的 `reason`，失敗時為 `classifier failed, not the customer's request: ...`，未知類別為 `classifier returned unknown category ...`。
 - `tickets.jsonl` 每筆新增 `reason`，客服可分辨「客人真的要人工」與「機器人壞了」；給客人的回覆不含原因。
 - 評測仍把「失敗後轉人工」排除在防禦成績外（它是備援，不是防禦成功）。
+
+## 2026-10-12 分類器補規則：任務型請求一律 OFF_TOPIC
+- 基準（改前）：eval_guardrails 28/30、29/30，漏判「為導航 AI 寫泡泡排序」與「寫一首詩」。
+- 改動（一處）：CLASSIFIER_PROMPT 的 OFF_TOPIC 補「請求執行任務（寫程式／文字、訂餐、傳訊息）即使包裝成與 Stark 有關也算 OFF_TOPIC」。
+- 結果：兩題連 3 次都對；評測腳本改為排除 `classifier failed`（停機不是誤判），結果 29/29，另有 1 題（含 `SYSTEM:` 的評論摘要）因模型回空內容而無法評。
+
+## 2026-10-12 開源 injection 評測工具：先不採用
+- 候選（來源為網路搜尋，授權與版本未逐一驗證）：garak（NVIDIA，廣泛探測）、promptfoo（CLI／CI 友善，應用層紅隊）、PyRIT（微軟，多輪攻擊）、giskard（Python 函式庫）；基準資料集 AgentDojo、InjecAgent（針對工具型 agent）。
+- 判斷：目前機器人沒有工具呼叫，AgentDojo／InjecAgent 不適用；14 題金絲雀自建集已足夠作品集展示。若之後要做 CI 回歸，首選 promptfoo 或 garak 打 `/chat` REST 端點。
+- 不納入原因：多半假設 OpenAI 相容目標或需 API 額度，免費層限流會讓大量探測不可靠。

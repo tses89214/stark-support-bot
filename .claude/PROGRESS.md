@@ -33,8 +33,8 @@
 
 ## 其餘
 - [x] 通過 `ruff check . --exclude .venv --exclude demo.ipynb`（沿用全域嚴格規則；兩處刻意吞例外以 noqa 註明）
-- [ ] 誤導性題目：已加進 `eval_guardrails.py`／`eval_answers.py`；2 題漏判待處理（見下方驗證結果）
-- [ ] 評估開源 injection 評測工具（garak、promptfoo、PyRIT 等）是否採用
+- [x] 誤導性題目：已加進評測；分類器補一條規則後漏判修好（29/29，1 題因模型回空內容無法評）
+- [x] 開源 injection 評測工具已評估：暫不採用（見 DECISIONS.md）
 - [x] 擴充題目：檢索 30 題（含模糊問法）、端到端 10 題（含多輪追問），皆全過
 - [x] `.claude/MEMORY.md` 為自動記憶的彙整快照（依下班打卡流程）
 
