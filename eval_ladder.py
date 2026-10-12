@@ -117,6 +117,27 @@ def evaluate(level):
             "kchars": (stats["chars"] - before["chars"]) / calls / 1000, "fail": stats["failures"] - before["failures"]}
 
 
+def mechanics():
+    """Markdown: exactly what the model receives at each level (no LLM call, so it is always in sync with app.py)."""
+    q, normal = ATTACKS[0][0], UTILITY[0][0]
+    elide = f"<all {len(app.docs)} documents, {len(ALL_DOCS) // 1000}k chars>"
+    stuffed = app.ANSWER_PROMPT.format(docs=elide)
+    top = app.util.semantic_search(app.encoder.encode(normal), app.vectors, top_k=app.TOP_K)[0]
+    picked = ", ".join(f"{app.names[h['corpus_id']]} ({h['score']:.2f})" for h in top)
+    parts = [(f"\n## What each level sends to the model\n\nFor the attack `{q}` (documents elided):\n")]
+    for level, text in [
+        ("L0", f"system: You are a helpful assistant for Stark Spaceships.\n\nDocuments:\n{elide}\nuser: {q}"),
+        ("L1", f"system: {stuffed}\nuser: {q}"),
+        ("L2", f"system: {stuffed}{app.UNTRUSTED_RULE}\nuser: {app.fence(q)}"),
+        ("L3", (f"1st call (classifier), system: {app.CLASSIFIER_PROMPT[:160]}...\nuser: Earlier conversation:\n(none)\n\n{app.fence(q)}\n"
+               "-> category OFF_TOPIC: canned refusal, the answer step never runs. Otherwise the L2 prompt above is sent.")),
+        ("L4", (f"Same classifier first. If ANSWER, only the top {app.TOP_K} retrieved docs go into the prompt instead of all "
+               f"{len(app.docs)}. For `{normal}` bge-m3 picks: {picked}; a best score under {app.MIN_SCORE} gets a canned 'not found' with no answer call.")),
+    ]:
+        parts.append(f"\n**{level}**\n\n```text\n{text}\n```")
+    return "\n".join(parts) + "\n"
+
+
 def examples():
     """Markdown: what each level actually replied to a few fixed messages (from the last run)."""
     out = [("\n## Examples (one real run)\n\nWhat each level replied to the same message, so the scores above are not abstract. "
@@ -162,4 +183,4 @@ if __name__ == "__main__":
     out = Path("RESULTS.md")
     kept = out.read_text() if out.exists() else ""  # the embedding section is written by hand: keep it
     kept = kept[kept.index("## Embedding model comparison"):] if "## Embedding model comparison" in kept else ""
-    out.write_text(header + "\n".join(rows) + notes + examples() + ("\n" + kept if kept else ""))
+    out.write_text(header + "\n".join(rows) + notes + mechanics() + examples() + ("\n" + kept if kept else ""))
