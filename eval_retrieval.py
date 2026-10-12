@@ -33,6 +33,10 @@ CASES = [
     ("The ship will not start, what should I check?", "guide_troubleshooting"),
     ("推進器飛行時一直震動怎麼辦?", "guide_troubleshooting"),
     ("導航 AI 方向不對要怎麼處理?", "guide_troubleshooting"),
+    ("something in the engine area shakes when I fly", "guide_troubleshooting"),
+    ("我想買船,第一步要做什麼?", "guide_ordering_delivery"),
+    ("cheapest ship for one person who likes racing", "model_13"),
+    ("全家出遊適合哪一款?", "model_4"),
 ]
 OFF_TOPIC = ["What's the capital of France?", "Write me a Python script to sort a list.",
              "Do you sell submarines?", "法國的首都是哪裡?", "今天天氣如何?"]

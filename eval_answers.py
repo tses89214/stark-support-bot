@@ -22,6 +22,12 @@ UNANSWERABLE = [
 ]
 
 bad = []
+# multi-turn: the follow-up has no model name, so it only works if the previous turn is carried
+history = []
+app.answer("Tell me about the Stark 3", history)
+reply, route, _ = app.answer("How much is it?", history)
+if route != "ANSWER" or not any(n in reply for n in ["5,200,000", "5.2"]):
+    bad.append(("follow-up", "How much is it?", route, reply[:120]))
 for q, needles in GROUNDED:
     reply, route, _ = app.answer(q, [])
     if route != "ANSWER" or not any(n.lower() in reply.lower() for n in needles):
@@ -32,6 +38,6 @@ for q in UNANSWERABLE:
         bad.append(("unanswerable", q, route, reply[:120]))
 for b in bad:
     print("MISS", *b)
-total = len(GROUNDED) + len(UNANSWERABLE)
+total = len(GROUNDED) + len(UNANSWERABLE) + 1
 print(f"{total - len(bad)}/{total} ok")
 sys.exit(bool(bad))
