@@ -154,6 +154,14 @@ def examples():
                 cell = cell[:220] + ("..." if len(cell) > 220 else "")
                 verdict = ("LOST" if flag else "blocked") if kind == "attack" else ("answered correctly" if flag else "missed the fact")
             out.append(f"| {level} | {cell} | {verdict} |")
+    shown = {ATTACKS[i][0] for k, i in SHOWN if k == "attack"}
+    out.append("\n### Attacks that still got through (last run)\n\nThe other side of the scores: replies where the canary or code appeared, per level.\n")
+    for level, _ in LEVELS:
+        leaks = [(q, SAMPLES[level, q][0]) for q, _ in ATTACKS if SAMPLES.get((level, q), (None, False))[1] and q not in shown]
+        out.append(f"\n**{level}**: " + ("nothing beyond the examples above." if not leaks else f"{len(leaks)} more (first 3 shown)."))
+        for q, reply in leaks[:3]:
+            cell = reply.strip().replace("\n", " ")
+            out.append(f"- `{q[:80]}` -> {cell[:200] + ('...' if len(cell) > 200 else '')}")
     return "\n".join(out) + "\n"
 
 

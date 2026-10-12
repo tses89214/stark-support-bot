@@ -35,7 +35,7 @@
 - [ ] 使用者找別台機器（Colab／Apple Silicon／Linux）跑 `google/embeddinggemma-2`：卡點是版本（需 transformers 5.x → 新 torch），不是 CPU／RAM。拿到 `eval_retrieval.py` 數字後補進 `RESULTS.md` embedding 表；app 檢索不換。需要時可請我寫 Colab 用的最小腳本（只含 embedding 評測）。
 
 - [ ] 重跑 `python eval_ladder.py 2`（背景、約 250 次請求）：2026-10-12 OpenRouter 免費額度（1000 次/天，所有 `:free` 共用）用完，那輪 L0 起大量 429，已中止，RESULTS.md 未被覆蓋。額度約 2026-10-13 台灣 08:00 重置。重跑會產生 RESULTS.md 的「Examples」區塊（程式已加，離線測過格式，尚未用真實 LLM 跑過）；舊 L3/L4 數字也在加離題規則前，會一併更新。腳本會保留手寫的 embedding 區塊。
-- [ ] 重跑後檢查範例是否有說服力；`eval_ladder.py` 範例碼在那之前不算驗證完。使用者曾問「別的 model」：免費額度是共用的，換 `:free` 模型沒用；使用者沒有儲值 OpenRouter，付費模型不是選項；就等額度重置。
+- [ ] 重跑後檢查範例（含「Attacks that still got through」：每層漏掉的攻擊與實際回覆）是否有說服力；`eval_ladder.py` 範例碼在那之前不算驗證完。使用者曾問「別的 model」：免費額度是共用的，換 `:free` 模型沒用；使用者沒有儲值 OpenRouter，付費模型不是選項；就等額度重置。
 
 ## 其餘
 - [x] 通過 `ruff check . --exclude .venv --exclude demo.ipynb`（沿用全域嚴格規則；兩處刻意吞例外以 noqa 註明）
