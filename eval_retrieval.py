@@ -27,6 +27,12 @@ CASES = [
     ("哪一款適合在沙漠星球探險?", "model_15"),
     ("科學研究用的太空船有哪些?", "model_14"),
     ("最貴的旗艦機型是哪一款?", "model_10"),
+    ("How do I place an order?", "guide_ordering_delivery"),
+    ("My ship arrived damaged, what should I do?", "guide_ordering_delivery"),
+    ("可以退貨嗎?要等多久才會到貨?", "guide_ordering_delivery"),
+    ("The ship will not start, what should I check?", "guide_troubleshooting"),
+    ("推進器飛行時一直震動怎麼辦?", "guide_troubleshooting"),
+    ("導航 AI 方向不對要怎麼處理?", "guide_troubleshooting"),
 ]
 OFF_TOPIC = ["What's the capital of France?", "Write me a Python script to sort a list.",
              "Do you sell submarines?", "法國的首都是哪裡?", "今天天氣如何?"]
@@ -45,10 +51,12 @@ if __name__ == "__main__":
         search = lambda qs: util.semantic_search(enc.encode([qp + q for q in qs]), docs, top_k=3)
         hits = search([q for q, _ in CASES])
         ok = [any(names[h["corpus_id"]] == gold for h in hit) for hit, (_, gold) in zip(hits, CASES)]
-        en, zh = ok[:12], ok[12:]
+        en = [g for g, (q, _) in zip(ok, CASES) if q.isascii()]
+        zh = [g for g, (q, _) in zip(ok, CASES) if not q.isascii()]
+        mrr = sum(next((1 / r for r, h in enumerate(hit, 1) if names[h["corpus_id"]] == gold), 0) for hit, (_, gold) in zip(hits, CASES)) / len(CASES)
         on = [hit[0]["score"] for hit in hits]
         off = [hit[0]["score"] for hit in search(OFF_TOPIC)]
-        print(f"{model}\n  hit@3 {sum(ok)}/{len(ok)}  (en {sum(en)}/{len(en)}, zh {sum(zh)}/{len(zh)})"
+        print(f"{model}\n  hit@3 {sum(ok)}/{len(ok)}  (en {sum(en)}/{len(en)}, zh {sum(zh)}/{len(zh)}, MRR@3 {mrr:.2f})"
               f"\n  top score: on-topic min {min(on):.2f}, off-topic max {max(off):.2f}")
         for (q, gold), good in zip(CASES, ok):
             if not good:

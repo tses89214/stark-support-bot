@@ -18,6 +18,9 @@
 - `eval_retrieval.py` bge-m3：hit@3 20/20（en 12/12、zh 8/8）；on-topic min 0.45、off-topic max 0.43。
 - `uvicorn app:app --env-file .env` 實測：中文問答、OFF_TOPIC、INJECTION、ESCALATE（寫入 tickets.jsonl）、文件問答皆正常。
 - `test_app.py`（離線）4 項通過，已做突變檢查。
+- 新增 `guide_ordering_delivery.txt`、`guide_troubleshooting.txt`（流程文件，編號步驟）；索引重建為 17 份；`eval_retrieval.py` 26/26，MRR@3 0.96，離題分界不變（on-topic min 0.45／off-topic max 0.43）。
+- `eval_answers.py`（端到端，關鍵字檢查）9/9；未答案題檢查偏寬鬆（ANSWER 路徑只要附 support 信箱即過）。
+- README 已重寫。
 
 ## 需要你決定／提供
 - [ ] **HF token（接受 EmbeddingGemma 授權）**：`google/embeddinggemma-300m` 是受限模型，目前 401。已加進 `eval_retrieval.py` 的 MODELS（含 prompt 前綴）。
@@ -25,11 +28,9 @@
 - [ ] `PLAN.md`、`INTERVIEW.md`（gitignored，僅本機，仍有舊 OpenAI 說明）要不要納入追蹤／搬進 `.claude/`
 - [ ] Rule 6 token 預算（4,000／30,000）要改成多少——這是你的規則，我不擅改
 
-## 不依賴安裝，可做
-- [ ] 補流程類文件（安裝、保養、故障排除）寫成編號清單／Mermaid
-- [ ] 圖片 caption 方案；評估 `static/index.html` 顯示圖片
-- [ ] 重寫 README（現為 notebook 導向，仍寫 OpenAI；PLAN/INTERVIEW 亦有舊 OpenAI 說明）
-- [ ] 調整 Rule 6 token 預算（4,000 / 30,000 不可行）
+## 其餘
+- [ ] 圖片 caption 方案：需先有圖片素材（我無法產生真實圖片），再評估 `static/index.html` 顯示
+- [ ] 擴充題目：模糊問法、多輪追問（eval_retrieval 26 題、eval_answers 9 題）
 - [x] `.claude/MEMORY.md` 為自動記憶的彙整快照（依下班打卡流程）
 
 ## 降優先／不做（作品集定位）

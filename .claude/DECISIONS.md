@@ -38,3 +38,7 @@
 
 ## 2026-10-12 依賴版本被 Intel Mac 限制
 - torch 最高 2.2.2 → sentence-transformers 3.3.1 / transformers 4.46.3；EmbeddingGemma 需另一組環境。
+
+## 2026-10-12 流程文件與端到端評測
+- 流程類內容寫成 `guide_*.txt`（編號步驟）直接進現有索引，不分 chunk；`build_index.py` 以 glob 抓全部 `*.txt`。
+- `eval_answers.py` 用關鍵字子字串檢查，不用 LLM 當裁判（確定性、免費層友善）。
