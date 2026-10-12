@@ -8,7 +8,7 @@ os.environ.setdefault("OPENROUTER_API_KEY", "test")
 fake = types.ModuleType("sentence_transformers")  # app.py loads bge-m3 at import; these tests never embed
 fake.SentenceTransformer, fake.util = (lambda *a, **k: None), None
 sys.modules["sentence_transformers"] = fake
-import app  # noqa: E402
+import app
 
 
 class Resp:
@@ -49,12 +49,28 @@ def test_llm_gives_up_after_one_retry():
 def test_classify_fails_closed_to_escalate():
     # An outage must hand the customer to a human, never let an unfiltered message through to the answer step.
     with_responses([Resp(status=500), Resp(status=500)])
-    assert app.classify("How much is the Stark 3?") == "ESCALATE"
+    category, reason = app.classify("How much is the Stark 3?")
+    assert category == "ESCALATE"
+    assert "classifier failed" in reason  # support staff must be able to tell a bot outage from an angry customer
 
 
 def test_classify_unknown_category_escalates():
     with_responses([Resp('{"category": "MAKE_UP_SOMETHING"}')])
-    assert app.classify("hi") == "ESCALATE"
+    category, reason = app.classify("hi")
+    assert category == "ESCALATE" and "MAKE_UP_SOMETHING" in reason
+
+
+def test_ticket_records_reason():
+    import json
+    import tempfile
+    from pathlib import Path
+
+    app.TICKETS = Path(tempfile.mkdtemp()) / "tickets.jsonl"
+    with_responses([Resp('{"category": "ESCALATE", "reason": "damaged on arrival"}')])
+    reply, route, _ = app.answer("My ship arrived damaged", [])
+    record = json.loads(app.TICKETS.read_text())
+    assert route == "ESCALATE" and record["reason"] == "damaged on arrival"
+    assert "damaged on arrival" not in reply  # the reason is for staff, not shown to the customer
 
 
 if __name__ == "__main__":

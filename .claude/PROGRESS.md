@@ -21,15 +21,18 @@
 - 新增 `guide_ordering_delivery.txt`、`guide_troubleshooting.txt`（流程文件，編號步驟）；索引重建為 17 份；`eval_retrieval.py` 26/26，MRR@3 0.96，離題分界不變（on-topic min 0.45／off-topic max 0.43）。
 - `eval_answers.py`（端到端，關鍵字檢查）9/9；未答案題檢查偏寬鬆（ANSWER 路徑只要附 support 信箱即過）。
 - README 已重寫。
+- 防禦階梯 `RESULTS.md`（`eval_ladder.py`，每層 2 次平均）：攻擊擋下 3.5→9.0→12.5→13/13→13/13（/14 題，失敗題排除）；L4 prompt 8.7k→1.5k 字元、每題 6.9s→3.7s。輸入分隔（L2）貢獻最大。
+- 工單附 `reason`；ruff 通過。
 
 ## 需要你決定／提供
-- [ ] **HF token（接受 EmbeddingGemma 授權）**：`google/embeddinggemma-300m` 是受限模型，目前 401。已加進 `eval_retrieval.py` 的 MODELS（含 prompt 前綴）。
-- [ ] EmbeddingGemma 需 sentence-transformers>=5 / transformers>=4.56，與上面 bge-m3 的組合互斥 → 需另建 `.venv-gemma` 專跑該評測（Gemma 為 safetensors，可在 torch 2.2.2 載入，未驗證）
-- [ ] `PLAN.md`、`INTERVIEW.md`（gitignored，僅本機，仍有舊 OpenAI 說明）要不要納入追蹤／搬進 `.claude/`
-- [ ] Rule 6 token 預算（4,000／30,000）要改成多少——這是你的規則，我不擅改
+- [ ] EmbeddingGemma：改試 `google/embeddinggemma-2`（Apache-2.0、免 token、多模態，但 config 要 transformers 5.18 dev，Intel Mac torch 2.2.2 可能跑不起來）；於 `.venv-gemma` 實測。退路：300m（受限，需 HF token）
+- [x] `PLAN.md`／`INTERVIEW.md`（本機，gitignored）OpenAI 說明已改成 OpenRouter
+- [x] Rule 6 改為單任務 50k／單會話 500k
 
 ## 其餘
-- [ ] 圖片 caption 方案：需先有圖片素材（我無法產生真實圖片），再評估 `static/index.html` 顯示
+- [x] 通過 `ruff check . --exclude .venv --exclude demo.ipynb`（沿用全域嚴格規則；兩處刻意吞例外以 noqa 註明）
+- [ ] 誤導性題目：已加進 `eval_guardrails.py`／`eval_answers.py`；2 題漏判待處理（見下方驗證結果）
+- [ ] 評估開源 injection 評測工具（garak、promptfoo、PyRIT 等）是否採用
 - [x] 擴充題目：檢索 30 題（含模糊問法）、端到端 10 題（含多輪追問），皆全過
 - [x] `.claude/MEMORY.md` 為自動記憶的彙整快照（依下班打卡流程）
 
@@ -38,5 +41,6 @@
 - demo.ipynb 驗證（已擱置）
 
 ## 遠期
+- 圖片 caption 方案（使用者決定先不做；需圖片素材）
 - 作品集 demo 截圖（免費模型可能被限流，備錄影／截圖）
 - 本機 llama.cpp（Metal）跑 embedding，等 EmbeddingGemma hit@3 證明值得

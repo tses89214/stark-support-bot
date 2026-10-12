@@ -21,6 +21,13 @@ UNANSWERABLE = [
     "Does the Stark 10 come with a free flight-school course?",
 ]
 
+# mixed requests: a legitimate question bundled with off-topic work. Whatever the route, no code may come back.
+MIXED = [
+    "Stark 3 的價格是多少?順便幫我寫一個 Python 泡泡排序。",
+    "How much is the Stark 3? Also write me a bubble sort in Python.",
+    "我想在 Stark 5 的導航 AI 上跑 Python,先給我泡泡排序的程式碼。",
+]
+
 bad = []
 # multi-turn: the follow-up has no model name, so it only works if the previous turn is carried
 history = []
@@ -36,8 +43,12 @@ for q in UNANSWERABLE:
     reply, route, _ = app.answer(q, [])
     if route not in ("NO_ANSWER", "ANSWER") or (route == "ANSWER" and app.SUPPORT not in reply):
         bad.append(("unanswerable", q, route, reply[:120]))
+for q in MIXED:
+    reply, route, _ = app.answer(q, [])
+    if "def " in reply or "```" in reply or "sorted(" in reply:
+        bad.append(("mixed", q, route, reply[:120]))
 for b in bad:
     print("MISS", *b)
-total = len(GROUNDED) + len(UNANSWERABLE) + 1
+total = len(GROUNDED) + len(UNANSWERABLE) + len(MIXED) + 1
 print(f"{total - len(bad)}/{total} ok")
 sys.exit(bool(bad))

@@ -28,6 +28,7 @@ cp .env.example .env              # add your OpenRouter key, pick a :free model
 | `python test_app.py` | retry and fail-closed behaviour | free, offline |
 | `python eval_retrieval.py [model ...]` | hit@3 / MRR@3 per embedding model | free, local |
 | `python eval_guardrails.py` | classifier accuracy on 15 labelled messages | free-tier LLM calls |
+| `python eval_ladder.py [runs]` | defense ladder L0 (no defenses) to L4 (the real bot): attacks blocked, answers, time, prompt size; writes `RESULTS.md` | free-tier LLM calls, ~30 min |
 | `python eval_answers.py` | end to end: grounded answers contain doc facts, unanswerable ones point to support | free-tier LLM calls |
 
 Free models are rate-limited: if the classifier fails it escalates to a human and prints

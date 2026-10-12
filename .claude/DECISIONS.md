@@ -42,3 +42,15 @@
 ## 2026-10-12 流程文件與端到端評測
 - 流程類內容寫成 `guide_*.txt`（編號步驟）直接進現有索引，不分 chunk；`build_index.py` 以 glob 抓全部 `*.txt`。
 - `eval_answers.py` 用關鍵字子字串檢查，不用 LLM 當裁判（確定性、免費層友善）。
+
+## 2026-10-12 終局目標：防禦階梯對照表（RESULTS.md）
+- 目標：一份表格呈現「什麼限制都沒有有多爛」，再逐層加（回答規則 → 輸入分隔 → 分類器 → embedding 檢索）後的變化；embedding 模型之間另以 hit@3／MRR 比較。
+- 指標：攻擊擋下數、正常問題答對數、平均每題時間、平均 prompt 大小、LLM 失敗數（失敗不計入分數，避免假高分）。
+- 做法：`eval_ladder.py` 固定 14 題攻擊＋6 題正常題；攻擊以「金絲雀字串／程式碼標記是否出現在回覆」判定，不用 LLM 裁判；L4 直接呼叫 `app.answer`，表格最末列即真實產品。
+- 誠實註記：文件僅 17 份約數千 token，全部塞進 prompt 本來就夠用，檢索的優勢（成本、延遲）在這個規模可能不明顯，表格如實呈現。
+- 使用者提出的輸入分隔（system prompt 與使用者輸入以標記隔開、標示不可信）實作為 `fence()` + `UNTRUSTED_RULE`。
+
+## 2026-10-12 轉人工工單附原因
+- `classify()` 回傳 `(category, reason)`；原因取自模型的 `reason`，失敗時為 `classifier failed, not the customer's request: ...`，未知類別為 `classifier returned unknown category ...`。
+- `tickets.jsonl` 每筆新增 `reason`，客服可分辨「客人真的要人工」與「機器人壞了」；給客人的回覆不含原因。
+- 評測仍把「失敗後轉人工」排除在防禦成績外（它是備援，不是防禦成功）。
