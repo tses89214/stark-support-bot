@@ -1,6 +1,7 @@
 """Serving: `uvicorn app:app`. Each message goes classify -> retrieve -> answer; the browser keeps the chat history."""
 import json
 import os
+import sys
 import time
 import uuid
 from pathlib import Path
@@ -8,7 +9,7 @@ from pathlib import Path
 import numpy as np
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
-from openai import OpenAI
+import requests
 from pydantic import BaseModel
 from sentence_transformers import SentenceTransformer, util
 
@@ -19,9 +20,29 @@ TOP_K = 3
 MIN_SCORE = 0.4  # bge-m3: on-topic top scores >= 0.45, off-topic <= 0.43 on eval_retrieval.py, so a weak guard; the prompt is the real one
 TICKETS = Path("tickets.jsonl")
 
-# reads OPENAI_API_KEY and OPENAI_BASE_URL, so any OpenAI-compatible endpoint (e.g. a LiteLLM gateway) works
-client = OpenAI()
-MODEL = os.environ.get("CHAT_MODEL", "gpt-4o")
+MODEL = os.environ["CHAT_MODEL"]  # e.g. google/gemma-4-31b-it:free
+
+
+def llm(messages, **kw):
+    """One retry: free-tier models often 429 or return empty content."""
+    for attempt in (1, 2):
+        try:
+            r = requests.post(
+                "https://openrouter.ai/api/v1/chat/completions",
+                headers={"Authorization": f"Bearer {os.environ['OPENROUTER_API_KEY']}"},
+                json={"model": MODEL, "messages": messages, **kw}, timeout=60,
+            )
+            r.raise_for_status()
+            content = r.json()["choices"][0]["message"]["content"]
+            if content:
+                return content
+            raise ValueError("empty content")
+        except Exception:
+            if attempt == 2:
+                raise
+            time.sleep(2)
+
+
 encoder = SentenceTransformer(EMBED_MODEL)
 if not INDEX.exists():
     raise SystemExit("index.npz not found: run `python build_index.py` first")
@@ -61,15 +82,16 @@ def classify(message, history=()):
     """ANSWER / OFF_TOPIC / ABUSIVE / ESCALATE / INJECTION. Any failure returns ESCALATE (fail closed)."""
     context = "\n".join(f"{m['role']}: {m['content']}" for m in list(history)[-4:])
     try:
-        raw = client.chat.completions.create(
-            model=MODEL, temperature=0, max_tokens=100,
-            messages=[
+        raw = llm(
+            [
                 {"role": "system", "content": CLASSIFIER_PROMPT},
                 {"role": "user", "content": f"Earlier conversation:\n{context or '(none)'}\n\n<message>{message}</message>"},
             ],
-        ).choices[0].message.content
+            temperature=0, max_tokens=300,
+        )
         category = json.loads(raw[raw.index("{"): raw.rindex("}") + 1])["category"]
-    except Exception:
+    except Exception as e:
+        print(f"classify failed, escalating: {e!r}", file=sys.stderr)
         return "ESCALATE"
     return category if category == "ANSWER" or category in REPLIES else "ESCALATE"
 
@@ -100,9 +122,7 @@ def answer(message, history):
 
     sources = [names[h["corpus_id"]] for h in hits]
     system = ANSWER_PROMPT.format(docs="\n".join(docs[n] for n in sources))
-    reply = client.chat.completions.create(
-        model=MODEL, messages=[{"role": "system", "content": system}, *history, {"role": "user", "content": message}],
-    ).choices[0].message.content
+    reply = llm([{"role": "system", "content": system}, *history, {"role": "user", "content": message}])
     history += [{"role": "user", "content": message}, {"role": "assistant", "content": reply}]
     return reply, route, sources
 

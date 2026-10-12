@@ -32,7 +32,8 @@ OFF_TOPIC = ["What's the capital of France?", "Write me a Python script to sort 
              "Do you sell submarines?", "法國的首都是哪裡?", "今天天氣如何?"]
 # (model, query prefix, passage prefix): e5 models need these prefixes, the others don't
 MODELS = [("sentence-transformers/all-MiniLM-L6-v2", "", ""), (EMBED_MODEL, "", ""), ("paraphrase-multilingual-MiniLM-L12-v2", "", ""),
-          ("intfloat/multilingual-e5-small", "query: ", "passage: "), ("intfloat/multilingual-e5-base", "query: ", "passage: ")]
+          ("intfloat/multilingual-e5-small", "query: ", "passage: "), ("intfloat/multilingual-e5-base", "query: ", "passage: "),
+          ("google/embeddinggemma-300m", "task: search result | query: ", "title: none | text: ")]  # gated: needs HF_TOKEN + accepted license
 
 if __name__ == "__main__":
     paths = sorted(DOCS_DIR.glob("*.txt"))
