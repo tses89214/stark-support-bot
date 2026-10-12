@@ -31,6 +31,9 @@
 - [x] `PLAN.md`／`INTERVIEW.md`（本機，gitignored）OpenAI 說明已改成 OpenRouter
 - [x] Rule 6 改為單任務 50k／單會話 500k
 
+## 下一步（使用者端，2026-10-12 下班）
+- [ ] 使用者找別台機器（Colab／Apple Silicon／Linux）跑 `google/embeddinggemma-2`：卡點是版本（需 transformers 5.x → 新 torch），不是 CPU／RAM。拿到 `eval_retrieval.py` 數字後補進 `RESULTS.md` embedding 表；app 檢索不換。需要時可請我寫 Colab 用的最小腳本（只含 embedding 評測）。
+
 ## 其餘
 - [x] 通過 `ruff check . --exclude .venv --exclude demo.ipynb`（沿用全域嚴格規則；兩處刻意吞例外以 noqa 註明）
 - [x] 誤導性題目：已加進評測；分類器補一條規則後漏判修好（29/29，1 題因模型回空內容無法評）
