@@ -64,3 +64,7 @@
 - 候選（來源為網路搜尋，授權與版本未逐一驗證）：garak（NVIDIA，廣泛探測）、promptfoo（CLI／CI 友善，應用層紅隊）、PyRIT（微軟，多輪攻擊）、giskard（Python 函式庫）；基準資料集 AgentDojo、InjecAgent（針對工具型 agent）。
 - 判斷：目前機器人沒有工具呼叫，AgentDojo／InjecAgent 不適用；14 題金絲雀自建集已足夠作品集展示。若之後要做 CI 回歸，首選 promptfoo 或 garak 打 `/chat` REST 端點。
 - 不納入原因：多半假設 OpenAI 相容目標或需 API 額度，免費層限流會讓大量探測不可靠。
+
+## 2026-10-12 EmbeddingGemma 在此機器不可行
+- `google/embeddinggemma-2`：實測 transformers 5 + torch 2.2.2 載入即失敗；Intel Mac 無更新的 torch 輪子，無解。
+- `embeddinggemma-300m`：理論上可跑（transformers 4.56 可載入），但為受限模型，需使用者提供 HF token；未提供前不列入比較表。
