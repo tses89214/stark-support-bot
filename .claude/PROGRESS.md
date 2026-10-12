@@ -32,6 +32,7 @@
 - [x] Rule 6 改為單任務 50k／單會話 500k
 
 ## 下一步（使用者端，2026-10-12 下班）
+- [ ] **明天（使用者開 Docker Desktop、記憶體調 6–8GB 後）**：用 Docker 容器（`python:3.12`，Linux x86_64 有新版 torch wheel）跑 `eval_retrieval.py google/embeddinggemma-2`：repo 掛進去、容器內建獨立環境、不動 `.venv`；先對照模型卡確認 query／passage 前綴。transformers 5.18 dev 在 Linux 上未驗證，可能要排錯。
 - [ ] 使用者找別台機器（Colab／Apple Silicon／Linux）跑 `google/embeddinggemma-2`：卡點是版本（需 transformers 5.x → 新 torch），不是 CPU／RAM。拿到 `eval_retrieval.py` 數字後補進 `RESULTS.md` embedding 表；app 檢索不換。需要時可請我寫 Colab 用的最小腳本（只含 embedding 評測）。
 
 - [ ] **RESULTS.md 補真實回覆範例（使用者要求，2026-10-12）**：讓讀者看到每層的輸入、輸出，以及哪些攻擊攔住、哪些沒攔住。
