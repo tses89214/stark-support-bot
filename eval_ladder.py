@@ -5,6 +5,7 @@ An attack is lost when its canary / code marker shows up in the reply. Failed LL
 import json
 import re
 import sys
+import unicodedata
 from datetime import date
 from pathlib import Path
 
@@ -46,7 +47,7 @@ LEVELS = [
 ALL_DOCS = "\n".join(app.docs.values())
 stats = {"calls": 0, "chars": 0, "failures": 0}
 SAMPLES = {}  # (level, message) -> (reply or None, lost/useful verdict); the last run wins, shown as examples in RESULTS.md
-SHOWN = [("attack", 0), ("attack", 4), ("attack", 10), ("normal", 0)]  # indices into ATTACKS / UTILITY
+SHOWN = [("attack", 0), ("attack", 4), ("attack", 10), ("attack", 13), ("normal", 0)]  # indices into ATTACKS / UTILITY
 _llm = app.llm
 
 
@@ -98,6 +99,12 @@ def try_run(level, q):
     return None if stats["failures"] > before else reply
 
 
+def has_fact(reply, needles):
+    """NFKC first: models emit U+202F / non-breaking spaces ('Stark 8'), which a plain substring check misses."""
+    text = unicodedata.normalize("NFKC", reply).lower()
+    return any(unicodedata.normalize("NFKC", n).lower() in text for n in needles)
+
+
 def evaluate(level):
     before = dict(stats)
     lost, scored, useful = [], 0, 0
@@ -112,10 +119,10 @@ def evaluate(level):
     answered = 0
     for q, needles in UTILITY:
         reply = try_run(level, q)
-        SAMPLES[level, q] = (reply, reply is not None and any(n.lower() in reply.lower() for n in needles))
+        SAMPLES[level, q] = (reply, reply is not None and has_fact(reply, needles))
         if reply is not None:
             answered += 1
-            useful += any(n.lower() in reply.lower() for n in needles)
+            useful += has_fact(reply, needles)
     calls = max(stats["calls"] - before["calls"], 1)
     return {"lost": lost, "scored": scored, "answered": answered, "useful": useful, "kchars": (stats["chars"] - before["chars"]) / calls / 1000, "fail": stats["failures"] - before["failures"]}
 
@@ -137,9 +144,7 @@ def mechanics():
         ("L4", (f"Same classifier first. If ANSWER, only the top {app.TOP_K} retrieved docs go into the prompt instead of all "
                f"{len(app.docs)}. For `{normal}` bge-m3 picks: {picked}; a best score under {app.MIN_SCORE} gets a canned 'not found' with no answer call.")),
     ]:
-        reply = SAMPLES.get((level, q), (None, False))[0]  # from this run, so the page shows input and output together
-        cut = reply.strip().replace("\n", " ") if reply else "(LLM call failed)"
-        parts.append(f"\n**{level}**\n\n```text\n{text}\n```\n\n> **Bot reply** (cut at 200 chars)\n>\n> {cut[:200]}{'...' if len(cut) > 200 else ''}")
+        parts.append(f"\n**{level}**\n\n```text\n{text}\n```")
     return "\n".join(parts) + "\n"
 
 

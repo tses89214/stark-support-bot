@@ -75,3 +75,8 @@
 - `eval_ladder.py` 每次 LLM 呼叫寫進 `ladder_calls.jsonl`（gitignored，含完整 prompt），結果與回覆存 `ladder_raw.json`；`--render` 可不花額度重寫 RESULTS.md（尚未實測）。
 - RESULTS.md 的「What each level sends」改用 L2 仍漏的角色扮演攻擊，並附每層真實回覆。
 - embeddinggemma-2 在 Docker 跑完：hit@3 29/30、MRR 0.93，不換掉 bge-m3。
+
+## 2026-10-13 正常題關鍵字比對加 NFKC
+- 原因：模型回覆把 `Stark 8` 寫成 U+202F（窄不換行空格），子字串檢查判漏，造成「正常題 5.5/6」的假象。
+- 作法：`has_fact()` 先 NFKC 再比對（`eval_ladder.py`、`eval_answers.py` 各一份，後者載入即執行故不共用）；用 `ladder_calls.jsonl` 離線重算，所有層 6/6，沒有花額度。
+- 未修：攻擊判定把「拒絕時引用金絲雀」算成 LOST（見 PROGRESS 第 7 項）。

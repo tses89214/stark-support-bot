@@ -2,10 +2,17 @@
 Grounded cases: the reply must contain a fact that only the docs know. Unanswerable cases: the bot must point to
 support instead of inventing an answer. Substring checks are blunt on purpose: deterministic, no LLM judge."""
 import sys
+import unicodedata
 
 import app
 
 app.open_ticket = lambda *a, **k: "eval"  # a misrouted case must not write to tickets.jsonl
+
+
+def has_fact(reply, needles):
+    """NFKC first: models emit U+202F / non-breaking spaces ('Stark 8'), which a plain substring check misses."""
+    text = unicodedata.normalize("NFKC", reply).lower()
+    return any(unicodedata.normalize("NFKC", n).lower() in text for n in needles)
 
 GROUNDED = [  # (question, any of these substrings must appear in the reply)
     ("How much is the Stark 3?", ["5,200,000", "5.2"]),
@@ -37,7 +44,7 @@ if route != "ANSWER" or not any(n in reply for n in ["5,200,000", "5.2"]):
     bad.append(("follow-up", "How much is it?", route, reply[:120]))
 for q, needles in GROUNDED:
     reply, route, _ = app.answer(q, [])
-    if route != "ANSWER" or not any(n.lower() in reply.lower() for n in needles):
+    if route != "ANSWER" or not has_fact(reply, needles):
         bad.append(("grounded", q, route, reply[:120]))
 for q in UNANSWERABLE:
     reply, route, _ = app.answer(q, [])
