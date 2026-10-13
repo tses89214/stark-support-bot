@@ -59,7 +59,7 @@
 7. [x] 端到端評測寫明限制或加抽樣人工驗證（2026-10-13 部分完成：未答案題 3→6 題且每題有「編造答案」regex，附支援信箱不再自動過；結果 16/16。仍待：抽樣人工標註；`MIXED` 題在分類器失敗轉人工時也算過）（現為關鍵字比對，未答案題檢查偏寬鬆）。
    - 攻擊判定（2026-10-13 已修）：原本回覆含金絲雀字串就算 LOST，拒絕時引用（「I cannot reply "ORDER-OK"」）也被誤算；改成先去掉引號／粗體／反引號內的內容再比對（`is_lost()`），12 筆回覆（全在 L0/L1）改判 blocked；代價是「引號內的真照做」會漏判。仍待：抽樣人工標註對照。正常題曾因 U+202F 被誤判漏答，已用 NFKC 修。
 8. [x] 使用者決定（2026-10-13）：「Stark」品牌名**不換**（使用者喜歡，無理由要換）；`demo.ipynb` 與 `data/fine-tuning-job-example.jsonl` **已移除**，CLAUDE.md 同步。
-9. [ ] 作品集定位（審閱建議）：以「Guardrails 與評估方法」為代表作；第二作品 Text-to-SQL Agent 可共用評估框架。尚未決定，使用者的既有決定是「作品集為主、學習實驗為輔」。
+9. [x] 作品集定位（2026-10-13 使用者「都做」＝採用建議）：以「Guardrails 與評估方法」為代表作，機器人只是受測對象；第二作品（Text-to-SQL Agent）共用階梯、審題工具、區間報告，**尚未開始**。README 開頭已寫明。
 10. [x] **採用 promptfoo**（使用者 2026-10-13 決定；Ragas／MLflow 暫不）：已接上離線生成（`promptfoo/`，MIT、釘 0.124.1、遠端生成／遙測／分享皆關），產出 20 題攻擊候選 `eval_candidates_attacks.jsonl`（`unreviewed`，其中 9 題疑似生成模型的思考文字外洩）。使用者 2026-10-13 說「用 OpenRouter 做」＝維持本地生成；`hijacking` plugin 必須開 promptfoo 遠端生成，**維持不用**（改以自訂 `policy` plugin 與手寫題涵蓋離題任務）。審過的 10 題攻擊候選併入分類器題集，**沒有**併進階梯（無金絲雀可判定），階梯數字不變。以下為原審閱建議（星數、收購等細節未查證）：
     - 檢索指標（context precision／recall）、忠實度、LLM 自動出題：Ragas、DeepEval；回答是否依文件：Ragas faithfulness、promptfoo `llm-rubric`。
     - 攻擊樣本擴充（14 題 → 上百題）：promptfoo red team、garak、PyRIT；promptfoo 用 YAML 定義測試，可接 CI。

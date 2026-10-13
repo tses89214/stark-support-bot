@@ -4,6 +4,11 @@ A RAG customer-service bot over fake product docs (`data/stark_spaceships/`), bu
 evaluation**: start from a deliberately defenseless bot (L0), add one defense at a time, and re-run the same fixed
 attack and question set after each step.
 
+**What this project is for:** the bot is the test subject; the work is the evaluation method (a worst-baseline ladder, deterministic
+checks, intervals on small samples, hand-reviewed generated test cases). The same approach is meant to carry over to other LLM
+applications, for example a text-to-SQL agent that reuses the ladder, the review tool and the interval reporting; that second
+project is not started.
+
 ## Results at a glance
 
 Mean of 2 runs per level, 14 attacks and 6 normal questions, free model `nvidia/nemotron-3-super-120b-a12b:free`
