@@ -14,4 +14,6 @@
 - 評測判定踩過的坑：模型輸出 U+202F 讓子字串比對誤判（已 NFKC）；拒絕時引用金絲雀被誤算 LOST（已忽略引號／粗體內）。
 - `ladder_calls.jsonl`（gitignored）記每次 LLM 呼叫；`ladder_raw.json` 為結果，`python eval_ladder.py --render` 不花額度重寫文件。
 - 待使用者：用 `review_candidates.py` 審 100 題分類器候選與 20 題攻擊候選；是否允許 promptfoo 遠端生成（`hijacking`）；push。
+- OpenRouter 免費額度（官方文件，2026-10-13 查證）：`:free` 每分鐘 20 次；每天 50 次（累計儲值 <10 credits）或 1000 次（≥10）；UTC 日界重置（台灣 08:00）；額度看**帳號**不看 key。真實計數讀 `GET /api/v1/key` 的 `free_model_daily_requests`，不要估。`eval_ladder.py` 開跑前會讀它，不足拒絕（`--force` 才硬跑）。
+- 使用者有兩個 OpenRouter 帳號：`OPENROUTER_API_KEY`（有儲值、1000/天）與 `OPENROUTER_API_KEY2`（不同帳號、沒儲值、50/天，不夠跑階梯）。key 只放 `.env`，不印出。
 
