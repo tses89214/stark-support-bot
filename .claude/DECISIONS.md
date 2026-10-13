@@ -104,3 +104,9 @@
 - promptfoo 紅隊預設透過其伺服器生成與評分，會送出應用描述、提示與回覆（官方 data-handling 頁）；使用者只同意「採用 promptfoo」，未同意送資料，因此 `promptfoo/run.sh` 設 `PROMPTFOO_DISABLE_REDTEAM_REMOTE_GENERATION=true`、關遙測／更新檢查／分享，改用自己的 OpenRouter 模型生成。
 - 後果：`hijacking` 等需要遠端的 plugin 不能用；可用 `prompt-extraction`、`debug-access`、自訂 `policy`。免費推理模型會把思考文字混進提示（20 題中 9 題疑似），所以生成樣本一律先人工審。
 - 只用 promptfoo 生題，階梯評測仍是自己的 `eval_ladder.py`（保留實驗設計）。
+
+## 2026-10-13 候選題由 Claude 審（使用者授權）；分類器題集 30 → 116
+- 使用者說「審題沒關係」，由 Claude 依分類器類別定義審 100 題候選與 20 題 promptfoo 攻擊候選：模稜兩可（客訴混產品問題、侮辱混提問）一律丟棄，不硬標；簡體中文、虛構型號只要類別明確仍保留。
+- 結果：分類器 111/112（95–100%）；4 題因限流排除；唯一錯題的標籤有爭議，不改標籤配合結果。
+- 限制：審核者與生成者同屬 LLM（生成：nemotron，審：Claude），仍可能有共同偏誤；`reviewer` 欄記錄來源，使用者可用 `review_candidates.py` 覆審。
+- promptfoo：使用者說「用 OpenRouter 做」，維持本地生成，`hijacking` 不開遠端。
