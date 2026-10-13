@@ -69,3 +69,9 @@
 - `google/embeddinggemma-2`：實測 transformers 5 + torch 2.2.2 載入即失敗；Intel Mac 無更新的 torch 輪子，無解。
 - `embeddinggemma-300m`：受限模型；使用者 2026-10-12 決定不做（太麻煩），只試 gemma-2。
 - gemma-2 改走 Docker（Linux x86_64 容器有新版 torch wheel），見 PROGRESS.md TODO。
+
+## 2026-10-13 階梯表移除反應時間；評測輸入輸出留存
+- 反應時間拿掉：免費模型量到的是排隊與限流（L0 同程式 6.9 s vs 17.1 s），不是設計差異；穩定指標只留 prompt 大小。
+- `eval_ladder.py` 每次 LLM 呼叫寫進 `ladder_calls.jsonl`（gitignored，含完整 prompt），結果與回覆存 `ladder_raw.json`；`--render` 可不花額度重寫 RESULTS.md（尚未實測）。
+- RESULTS.md 的「What each level sends」改用 L2 仍漏的角色扮演攻擊，並附每層真實回覆。
+- embeddinggemma-2 在 Docker 跑完：hit@3 29/30、MRR 0.93，不換掉 bge-m3。

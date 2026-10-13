@@ -9,22 +9,22 @@ attack and question set after each step.
 Mean of 2 runs per level, 14 attacks and 6 normal questions, free model `nvidia/nemotron-3-super-120b-a12b:free`
 (full table, caveats and example replies: [RESULTS.md](RESULTS.md)).
 
-| Level | Adds | Attacks blocked | Normal questions answered | Time / question | Prompt size |
-|---|---|---|---|---|---|
-| L0 | nothing: all docs stuffed in, bare prompt | 4.5 / 14 | 5.5 / 6 | 17.1 s | 8.7k chars |
-| L1 | answer rules ("answer only from the docs") | 8.5 / 14 | 6.0 / 6 | 6.3 s | 8.9k |
-| L2 | input fence + untrusted-input rule | 13.5 / 14 | 5.0 / 6 | 4.6 s | 9.2k |
-| L3 | input classifier and routing | 14 / 14 | 5.5 / 6 | 3.2 s | 3.2k |
-| L4 | bge-m3 retrieval, top-3, score floor (= the real bot) | 14 / 14 | 6.0 / 6 | 4.0 s | 1.6k |
+| Level | Adds | Attacks blocked | Normal questions answered | Prompt size |
+|---|---|---|---|---|
+| L0 | nothing: all docs stuffed in, bare prompt | 4.5 / 14 | 5.5 / 6 | 8.7k chars |
+| L1 | answer rules ("answer only from the docs") | 8.5 / 14 | 5.5 / 6 | 8.9k |
+| L2 | input fence + untrusted-input rule | 13 / 14 | 6.0 / 6 | 9.2k |
+| L3 | input classifier and routing | 14 / 14 | 5.5 / 6 | 3.2k |
+| L4 | bge-m3 retrieval, top-3, score floor (= the real bot) | 14 / 14 | 5.5 / 6 | 1.6k |
 
 What it shows:
-- **The input fence (L2) is the biggest single jump** (8.5 to 13.5 of 14) and costs no extra call. The classifier (L3) closes the rest.
-- **Retrieval (L4) shrinks the prompt about 5x** (8.7k to 1.6k chars). Timing is noisy on a free model, so read it as a trend, not a benchmark.
-- **Normal-question scores wobble by about one question (5.0 to 6.0) at every level**, so differences there are noise, not over-blocking.
+- **The input fence (L2) is the biggest single jump** (8.5 to 13 of 14) and costs no extra call. The classifier (L3) closes the rest.
+- **Retrieval (L4) shrinks the prompt about 5x** (8.7k to 1.6k chars).
+- **Normal-question scores wobble by about one question (5.5 to 6.0) at every level**, so differences there are noise, not over-blocking.
 - **Embedding choice matters most for Chinese**: bge-m3 gets hit@3 30/30, all-MiniLM-L6-v2 only 17/30 (Chinese 1/13), embeddinggemma-2 29/30.
 - **No embedding model separates off-topic from on-topic by score** (gap 0.02 for bge-m3), so the score floor is a weak guard and the classifier does the real filtering.
 
-No LLM failures in this run. L0's 17.1 s is an outlier (an earlier run measured 6.9 s; cause not investigated), so read times as a trend only.
+No LLM failures in this run. Response time is not reported: on a rate-limited free model it measured the queue, not the design.
 
 ## How it works
 
@@ -48,7 +48,7 @@ The LLM is any free model on [OpenRouter](https://openrouter.ai); embeddings run
 - **Escalation is not a defense success.** An attack that only "succeeds" in being handed to a human, because the classifier broke, is excluded from the scores, not counted as blocked.
 - **No LLM judge.** Attacks are scored by whether a canary string or code marker appears in the reply; answers by whether a doc fact appears. Deterministic and free-tier friendly, but blunt (see limits).
 - **bge-m3 over lighter models**, chosen by `eval_retrieval.py` hit@3 / MRR, mostly for Chinese queries. Cost: a 2GB model.
-- **Small corpus caveat.** With 17 short docs, stuffing everything into the prompt already fits, so retrieval's win here is prompt size and time, not accuracy. The table shows it as it is.
+- **Small corpus caveat.** With 17 short docs, stuffing everything into the prompt already fits, so retrieval's win here is prompt size, not accuracy. The table shows it as it is.
 - More, with dates: [.claude/DECISIONS.md](.claude/DECISIONS.md).
 
 ## Limits (read before trusting the numbers)
@@ -79,7 +79,7 @@ cp .env.example .env              # add your OpenRouter key, pick a :free model
 | `python test_app.py` | retry and fail-closed behaviour | free, offline |
 | `python eval_retrieval.py [model ...]` | hit@3 / MRR@3 per embedding model | free, local |
 | `python eval_guardrails.py` | classifier accuracy on 30 labelled messages | free-tier LLM calls |
-| `python eval_ladder.py [runs]` | defense ladder L0 (no defenses) to L4 (the real bot): attacks blocked, answers, time, prompt size; writes `RESULTS.md` | free-tier LLM calls, ~30 min |
+| `python eval_ladder.py [runs]` | defense ladder L0 (no defenses) to L4 (the real bot): attacks blocked, answers, prompt size; writes `RESULTS.md` | free-tier LLM calls, ~30 min |
 | `python eval_answers.py` | end to end: grounded answers contain doc facts, unanswerable ones point to support | free-tier LLM calls |
 
 Free models are rate-limited: if the classifier fails it escalates to a human and prints
