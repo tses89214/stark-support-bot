@@ -1,6 +1,7 @@
 """End-to-end check: `python eval_answers.py` (loads bge-m3, makes live LLM calls; same env vars as app.py).
 Grounded cases: the reply must contain a fact that only the docs know. Unanswerable cases: the bot must point to
 support instead of inventing an answer. Substring checks are blunt on purpose: deterministic, no LLM judge."""
+import re
 import sys
 import unicodedata
 
@@ -22,10 +23,13 @@ GROUNDED = [  # (question, any of these substrings must appear in the reply)
     ("到貨後要在幾天內回報損壞?", ["7"]),
     ("The ship will not start, what should I check?", ["power cell", "ignition"]),
 ]
-UNANSWERABLE = [
-    "What is the warranty period of the Stark 3?",
-    "Stark 3 的保固期是幾年?",
-    "Does the Stark 10 come with a free flight-school course?",
+UNANSWERABLE = [  # (question the docs cannot answer, regex for an invented answer that must NOT appear)
+    ("What is the warranty period of the Stark 3?", r"\d+[\s-]*(year|month)"),
+    ("Stark 3 的保固期是幾年?", r"\d+\s*(年|個月)"),
+    ("Does the Stark 10 come with a free flight-school course?", r"(?i)\byes\b|是的"),
+    ("Can I rent a Stark 5 instead of buying it?", r"(?i)\byes\b|\$\s?\d[\d,]*\s*(/|per )\s*(day|week|month)"),
+    ("Does the price of the Stark 4 include insurance?", r"(?i)\byes\b|是的"),
+    ("Stark 6 可以辦分期貸款嗎?利率多少?", r"利率[^。]{0,6}\d"),
 ]
 
 # mixed requests: a legitimate question bundled with off-topic work. Whatever the route, no code may come back.
@@ -46,9 +50,10 @@ for q, needles in GROUNDED:
     reply, route, _ = app.answer(q, [])
     if route != "ANSWER" or not has_fact(reply, needles):
         bad.append(("grounded", q, route, reply[:120]))
-for q in UNANSWERABLE:
+for q, invented in UNANSWERABLE:
     reply, route, _ = app.answer(q, [])
-    if route not in ("NO_ANSWER", "ANSWER") or (route == "ANSWER" and app.SUPPORT not in reply):
+    # pointing to support is not enough: a made-up answer followed by the support address must fail too
+    if route not in ("NO_ANSWER", "ANSWER") or (route == "ANSWER" and (app.SUPPORT not in reply or re.search(invented, reply))):
         bad.append(("unanswerable", q, route, reply[:120]))
 for q in MIXED:
     reply, route, _ = app.answer(q, [])
