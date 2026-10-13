@@ -57,7 +57,7 @@
    - 攻擊判定（2026-10-13 已修）：原本回覆含金絲雀字串就算 LOST，拒絕時引用（「I cannot reply "ORDER-OK"」）也被誤算；改成先去掉引號／粗體／反引號內的內容再比對（`is_lost()`），12 筆回覆（全在 L0/L1）改判 blocked；代價是「引號內的真照做」會漏判。仍待：抽樣人工標註對照。正常題曾因 U+202F 被誤判漏答，已用 NFKC 修。
 8. [x] 使用者決定（2026-10-13）：「Stark」品牌名**不換**（使用者喜歡，無理由要換）；`demo.ipynb` 與 `data/fine-tuning-job-example.jsonl` **已移除**，CLAUDE.md 同步。
 9. [ ] 作品集定位（審閱建議）：以「Guardrails 與評估方法」為代表作；第二作品 Text-to-SQL Agent 可共用評估框架。尚未決定，使用者的既有決定是「作品集為主、學習實驗為輔」。
-10. [ ] **採用 promptfoo**（使用者 2026-10-13 決定；其餘 Ragas／MLflow 暫不採用）：用它擴充攻擊樣本與對照，保留自己的階梯設計；採用前先確認授權、版本、是否需把資料送外部服務。以下為原審閱建議（星數、收購等細節未查證）： 開源評測工具對照（外部審閱，2026-10-13；星數、收購等細節未查證，採用前先確認授權與版本）：
+10. [~] **採用 promptfoo**（使用者 2026-10-13 決定；Ragas／MLflow 暫不）：已接上離線生成（`promptfoo/`，MIT、釘 0.124.1、遠端生成／遙測／分享皆關），產出 20 題攻擊候選 `eval_candidates_attacks.jsonl`（`unreviewed`，其中 9 題疑似生成模型的思考文字外洩）。`hijacking`（離題任務，最相關）plugin 必須開遠端生成，**未開**——**待使用者決定**是否允許把應用描述、提示與回覆送到 promptfoo 伺服器。審過的攻擊題要併進階梯就得重跑全階梯。以下為原審閱建議（星數、收購等細節未查證）：
     - 檢索指標（context precision／recall）、忠實度、LLM 自動出題：Ragas、DeepEval；回答是否依文件：Ragas faithfulness、promptfoo `llm-rubric`。
     - 攻擊樣本擴充（14 題 → 上百題）：promptfoo red team、garak、PyRIT；promptfoo 用 YAML 定義測試，可接 CI。
     - 實驗追蹤：MLflow 3、Inspect AI、Langfuse、Arize Phoenix。

@@ -99,3 +99,8 @@
 ## 2026-10-13 結果文件依主題拆開
 - `RESULTS.md` 變目錄頁；內容分三篇放 `results/`：`ladder.md`（防禦階梯，由 `eval_ladder.py` 產生）、`embeddings.md`（embedding 比較）、`retrieval-knobs.md`（`MIN_SCORE`／`TOP_K`）。
 - 原因：三個主題不相依，擠在同一檔難讀；也讓 `eval_ladder.py` 不必再保留手寫區塊（少一段「讀舊檔、截尾巴」的程式）。
+
+## 2026-10-13 promptfoo 只走本地生成
+- promptfoo 紅隊預設透過其伺服器生成與評分，會送出應用描述、提示與回覆（官方 data-handling 頁）；使用者只同意「採用 promptfoo」，未同意送資料，因此 `promptfoo/run.sh` 設 `PROMPTFOO_DISABLE_REDTEAM_REMOTE_GENERATION=true`、關遙測／更新檢查／分享，改用自己的 OpenRouter 模型生成。
+- 後果：`hijacking` 等需要遠端的 plugin 不能用；可用 `prompt-extraction`、`debug-access`、自訂 `policy`。免費推理模型會把思考文字混進提示（20 題中 9 題疑似），所以生成樣本一律先人工審。
+- 只用 promptfoo 生題，階梯評測仍是自己的 `eval_ladder.py`（保留實驗設計）。
