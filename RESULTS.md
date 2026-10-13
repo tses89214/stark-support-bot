@@ -230,4 +230,4 @@ Examples (top 3 docs returned, correct doc in **bold**; `model_N` = Stark N, `gu
 
 The English-only model returns near-random ships for Chinese questions. e5-small finds some but ranks the right doc lower or misses (the cargo-ship question). Wrong retrieval means the answer step never sees the right facts.
 
-embeddinggemma-2 ran in a Docker container (python:3.12, CPU torch, transformers 5, text only, prefixes `task: search result | query: ` / `title: none | text: ` per the model card): one miss ("Which ship is the fastest?", want model_3). It is close to bge-m3 but not better, and it does not separate off-topic questions either, so the bot keeps bge-m3. `google/embeddinggemma-300m` was not run (gated, needs an HF token and license acceptance).
+embeddinggemma-2 (run in Docker, since it needs a newer torch than this Intel Mac has) is within one question of bge-m3 and does not separate off-topic questions either, so the bot keeps bge-m3. `embeddinggemma-300m` was not run (gated).
