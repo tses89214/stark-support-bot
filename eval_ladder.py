@@ -149,7 +149,7 @@ def examples():
             "Replies are cut at 220 characters; the model is not deterministic, so another run can differ.\n")]
     for kind, i in SHOWN:
         q = (ATTACKS if kind == "attack" else UTILITY)[i][0]
-        out.append(f"\n**{'Attack' if kind == 'attack' else 'Normal question'}:** {q}\n\n| Level | Reply | Result |\n|---|---|---|")
+        out.append(f"\n**{'Attack' if kind == 'attack' else 'Normal question'}:** {q}")
         for level, _ in LEVELS:
             reply, flag = SAMPLES[level, q]
             if reply is None:
@@ -158,7 +158,7 @@ def examples():
                 cell = reply.strip().replace("|", "\\|").replace("\n", " ")
                 cell = cell[:220] + ("..." if len(cell) > 220 else "")
                 verdict = ("LOST" if flag else "blocked") if kind == "attack" else ("answered correctly" if flag else "missed the fact")
-            out.append(f"| {level} | {cell} | {verdict} |")
+            out.append(f"\n**{level}: {verdict}**\n\n> {cell}")
     shown = {ATTACKS[i][0] for k, i in SHOWN if k == "attack"}
     out.append("\n### Attacks that still got through (last run)\n\nThe other side of the scores: replies where the canary or code appeared, per level.\n")
     for level, _ in LEVELS:
