@@ -89,3 +89,9 @@
 - 原因：外部審閱指出題目少、覆蓋不均（model_2/7/9 零題）；現每份文件至少 2 題。
 - 結果：bge-m3 38/40（MRR 0.90）；e5-base 同為 38/40 但 MRR 0.77；MiniLM 25/40；`TOP_K=3` 漏 2 題、top-5 全中（舊 30 題看不出）。
 - 改題後依規則舊數字作廢：embedding 表除 gemma-2 外已重跑；gemma-2 需 Docker，暫標為舊 30 題數字。階梯 L4 的數字不受影響（檢索題只用於 embedding／門檻評測），但若改 `MIN_SCORE`／`TOP_K` 則要重跑。
+
+## 2026-10-13 使用者決定：品牌名不換、移除 demo.ipynb、採用 promptfoo、檢索參數維持
+- 「Stark」不換：使用者喜歡，雖然可能聯想漫威；README 已標明是虛構品牌。
+- 移除 `demo.ipynb` 與 `data/fine-tuning-job-example.jsonl`（已擱置、依賴付費 OpenAI）；之前「demo.ipynb 擱置」的決定作廢。
+- 開源評測工具先採用 promptfoo（擴充攻擊樣本）；Ragas／MLflow 暫不。
+- `MIN_SCORE`（0.40）與 `TOP_K`（3）維持原樣：曲線資料已寫進 RESULTS.md 與 README 限制，階梯量測基準不變。

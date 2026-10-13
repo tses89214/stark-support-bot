@@ -213,7 +213,7 @@ Run 2026-10-13 with `python eval_retrieval.py <models>` (local, no LLM calls, de
 
 | Embedding model | hit@3 | English | Chinese | MRR@3 | Score gap (on-topic min vs off-topic max) |
 |---|---|---|---|---|---|
-| all-MiniLM-L6-v2 (the old notebook default) | 25/40 | 23/24 | 2/16 | 0.54 | 0.06 vs 0.34, overlaps |
+| all-MiniLM-L6-v2 (small English-only default) | 25/40 | 23/24 | 2/16 | 0.54 | 0.06 vs 0.34, overlaps |
 | paraphrase-multilingual-MiniLM-L12-v2 | 31/40 | 20/24 | 11/16 | 0.64 | 0.27 vs 0.33, overlaps |
 | multilingual-e5-small | 36/40 | 22/24 | 14/16 | 0.81 | 0.75 vs 0.80, overlaps |
 | multilingual-e5-base | 38/40 | 22/24 | 16/16 | 0.77 | 0.77 vs 0.78, overlaps |

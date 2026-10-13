@@ -4,26 +4,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-Customer-service chatbot (`app.py`, RAG over `data/stark_spaceships/`) plus `demo.ipynb`, a hands-on demo comparing three ways to give an LLM domain knowledge, using fake product data for "Stark Spaceships" (models 1–15). No build system. Offline tests are in `test_app.py`, evals are `eval_*.py`, lint is `ruff check . --exclude .venv --exclude demo.ipynb`; results are in `RESULTS.md`.
+Customer-service chatbot (`app.py`) doing RAG over fake product data for "Stark Spaceships" (`data/stark_spaceships/`, models 1–15), plus evals that measure its guardrails and retrieval. No build system. Offline tests are in `test_app.py`, evals are `eval_*.py`, lint is `ruff check . --exclude .venv`; results are in `RESULTS.md`.
 
 ## Running
 
 - `python build_index.py` then `uvicorn app:app` (web chat at :8000); `python eval_guardrails.py` checks the input classifier (live LLM calls); `python eval_retrieval.py` compares embedding models by hit@3 (no LLM calls). `app.py` embeds with bge-m3 (`build_index.py`), which is ~2GB. `app.py` is the whole serving path: classify -> route/ticket -> retrieve -> answer; `static/index.html` is the UI. LLM calls go to OpenRouter (`llm()` in `app.py`, free `:free` models; HF Inference Providers needs paid credits); copy `.env.example` to `.env` and run `uvicorn app:app --env-file .env`. Never commit tokens.
-- Run `demo.ipynb` from the repo root (data paths are relative: `data/stark_spaceships/...`).
+- Run scripts from the repo root (data paths are relative: `data/stark_spaceships/...`).
 - Needs `OPENROUTER_API_KEY` and `CHAT_MODEL` in env. Python deps are pinned in `requirements.txt` (Intel Mac: torch tops out at 2.2.2, so sentence-transformers 3.3.1 / transformers 4.46.3); use `.venv` and `PIP_USER=0` when installing.
-- `demo.ipynb` (shelved) calls paid OpenAI APIs (`gpt-4o` for chat, `gpt-4o-mini-2024-07-18` for fine-tuning). The fine-tuning cell uploads a file, starts a job and polls every 30s.
 
 ## Structure
 
-> **Status: shelved.** `demo.ipynb` and `data/fine-tuning-job-example.jsonl` are kept for reference only; the notebook will be rewritten later. Current focus is `app.py`.
-
-`demo.ipynb` has three independent methods, each followed by a markdown pros/cons cell:
-
-1. **Prompt stuffing** — concatenates all `data/stark_spaceships/model_{1..10}.txt` into the system prompt.
-2. **RAG** — embeds docs with `sentence-transformers/all-MiniLM-L6-v2`, retrieves top-N by cosine similarity, passes hits to GPT.
-3. **Fine-tuning** — trains on `data/fine-tuning-job-example.jsonl` (OpenAI chat format; polite replies to customer complaints, prefixed `Question:` / `Answer:`).
-
-Data: one markdown-ish `.txt` per model (description, size, weight, capacity, color, price, accessories, notes). Notebook cells are English prose; keep that style when editing.
+Data: one markdown-ish `.txt` per model (description, size, weight, capacity, color, price, accessories, notes).
 
 ## 每次會話流程
 

@@ -55,9 +55,9 @@
 6. [x] `MIN_SCORE` 曲線與 `TOP_K` 比較（2026-10-13，`eval_threshold.py`、RESULTS.md 末段；40 題重跑後）：0.40 離題放行 5/15，0.45 較佳（正常題拒絕 1/40；0.50 起拒 6/40）；`TOP_K`：hit@1 34、hit@3 38、hit@5 40 → top-3 漏 2 題，是 prompt 大小的取捨，不是免費。**待決定**：是否把 `MIN_SCORE` 改 0.45、`TOP_K` 改 5（要重跑階梯，會用額度）。離題題只有 15 題，曲線粗。
 7. [ ] 端到端評測寫明限制或加抽樣人工驗證（2026-10-13 部分完成：未答案題 3→6 題且每題有「編造答案」regex，附支援信箱不再自動過；結果 16/16。仍待：抽樣人工標註；`MIXED` 題在分類器失敗轉人工時也算過）（現為關鍵字比對，未答案題檢查偏寬鬆）。
    - 攻擊判定（2026-10-13 已修）：原本回覆含金絲雀字串就算 LOST，拒絕時引用（「I cannot reply "ORDER-OK"」）也被誤算；改成先去掉引號／粗體／反引號內的內容再比對（`is_lost()`），12 筆回覆（全在 L0/L1）改判 blocked；代價是「引號內的真照做」會漏判。仍待：抽樣人工標註對照。正常題曾因 U+202F 被誤判漏答，已用 NFKC 修。
-8. [ ] **使用者決定**：「Stark」會讓人聯想漫威 Stark Industries，要不要換原創品牌名？（牽涉 `data/`、評測 canary、README、測試，改動面大，未動。）另外審閱建議不要在作品裡放「demo.ipynb 已擱置」；README 已拿掉那行，檔案與 CLAUDE.md 註記保留，待你決定要重寫還是移除。
+8. [x] 使用者決定（2026-10-13）：「Stark」品牌名**不換**（使用者喜歡，無理由要換）；`demo.ipynb` 與 `data/fine-tuning-job-example.jsonl` **已移除**，CLAUDE.md 同步。
 9. [ ] 作品集定位（審閱建議）：以「Guardrails 與評估方法」為代表作；第二作品 Text-to-SQL Agent 可共用評估框架。尚未決定，使用者的既有決定是「作品集為主、學習實驗為輔」。
-10. [ ] 開源評測工具對照（外部審閱，2026-10-13；星數、收購等細節未查證，採用前先確認授權與版本）：
+10. [ ] **採用 promptfoo**（使用者 2026-10-13 決定；其餘 Ragas／MLflow 暫不採用）：用它擴充攻擊樣本與對照，保留自己的階梯設計；採用前先確認授權、版本、是否需把資料送外部服務。以下為原審閱建議（星數、收購等細節未查證）： 開源評測工具對照（外部審閱，2026-10-13；星數、收購等細節未查證，採用前先確認授權與版本）：
     - 檢索指標（context precision／recall）、忠實度、LLM 自動出題：Ragas、DeepEval；回答是否依文件：Ragas faithfulness、promptfoo `llm-rubric`。
     - 攻擊樣本擴充（14 題 → 上百題）：promptfoo red team、garak、PyRIT；promptfoo 用 YAML 定義測試，可接 CI。
     - 實驗追蹤：MLflow 3、Inspect AI、Langfuse、Arize Phoenix。
@@ -74,8 +74,7 @@
 - [x] `.claude/MEMORY.md` 為自動記憶的彙整快照（依下班打卡流程）
 
 ## 降優先／不做（作品集定位）
-- Docker、速率限制、請求記錄
-- demo.ipynb 驗證（已擱置）
+- Docker、速率限制、請求記錄（Docker 僅用於跑 embeddinggemma-2）
 
 ## 遠期
 - 圖片 caption 方案（使用者決定先不做；需圖片素材）
