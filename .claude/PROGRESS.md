@@ -32,6 +32,7 @@
 - [x] Rule 6 改為單任務 50k／單會話 500k
 
 ## TODO（2026-10-13 起）
+0. [ ] **明天（2026-10-14，台灣 08:00 額度重置後）跑階梯**（使用者決定）：`eval_ladder.py` 的攻擊題已從 14 擴到 28（加 14 題手寫：多語言、間接注入、提示詞萃取、人設、混合請求），**尚未跑**。`set -a; . ./.env; set +a; .venv/bin/python eval_ladder.py 2`（約 500 次請求，注意免費額度 1000 次／天；今天已用多，出現 429 要等）。跑完：看 `LLM failures` 欄，檢查 `ladder_calls.jsonl` 是否有 429／空內容，重跑有失敗的；README「Results at a glance」表與文字（7→、`/14`、區間、「14 attacks」）要依新數字改；`results/ladder*.md` 由程式產生。在那之前，`results/ladder.md`、README 仍是 14 題的舊結果（文件如實標 14 題）。
 1. [x] **使用者**：開 Docker Desktop，Settings → Resources 記憶體調到 6–8GB。
 2. [x] **embeddinggemma-2（完成 2026-10-13：29/30、MRR 0.93，Docker 需 `sentence-transformers[image]` 並從 CPU index 一起裝 torch+torchvision） 進比較表**（依賴 1）
    - 用 Docker（`python:3.12`，Linux x86_64 有新版 torch wheel）；repo 掛進容器、容器內建獨立環境、不動 `.venv`。
