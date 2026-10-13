@@ -4,15 +4,15 @@ d = drop (bad message), s = skip, q = quit. Progress is saved after every row. `
 eval_guardrails.py CASES lines. Only rows you accepted may be graded against the classifier."""
 import json
 import sys
+from pathlib import Path
 
 LABELS = ["ANSWER", "OFF_TOPIC", "ABUSIVE", "ESCALATE", "INJECTION"]
 path = next((a for a in sys.argv[1:] if not a.startswith("--")), "eval_candidates.jsonl")
-rows = [json.loads(line) for line in open(path)]
+rows = [json.loads(line) for line in Path(path).read_text().splitlines()]
 
 
 def save():
-    with open(path, "w") as f:
-        f.writelines(json.dumps(r, ensure_ascii=False) + "\n" for r in rows)
+    Path(path).write_text("".join(json.dumps(r, ensure_ascii=False) + "\n" for r in rows))
 
 
 if "--export" in sys.argv:
