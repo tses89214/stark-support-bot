@@ -26,7 +26,7 @@ What it shows:
 - **The input fence (L2) is the biggest single jump** (10 to 12.5 of 14) and costs no extra call. The classifier (L3) closes the rest. Neighbouring levels' intervals overlap (L1 vs L2, L2 vs L3), so with 14 attacks only the larger gaps (L0 to L2, L0 to L3) are firm.
 - **Retrieval (L4) shrinks the prompt about 5x** (8.7k to 1.6k chars).
 - **Normal questions are answered 6/6 at every level**: the defenses did not cost helpfulness. An earlier 5.5/6 was a judging bug (the model wrote `Stark 8` with a narrow no-break space, which a plain substring check missed); matching now normalises Unicode.
-- **Embedding choice matters most for Chinese**: bge-m3 gets hit@3 81/85, all-MiniLM-L6-v2 only 57/85 (Chinese 9/34); embeddinggemma-2 is 83/85, two ahead and inside the noise; the bot keeps bge-m3 because gemma-2 does not run on this machine.
+- **Embedding choice matters most for Chinese**: bge-m3 gets hit@3 81/85, all-MiniLM-L6-v2 only 57/85 (Chinese 9/34); embeddinggemma-2 is 83/85, two ahead and inside the noise, so the two are equivalent on accuracy; the bot uses bge-m3 because it needs fewer resources (a smaller, text-only model that runs on plain torch 2.2 without Docker).
 - **No embedding model separates off-topic from on-topic by score** (gap 0.01 for bge-m3), so the score floor is a weak guard and the classifier does the real filtering.
 
 No LLM failures in this run. Response time is not reported: on a rate-limited free model it measured the queue, not the design.
