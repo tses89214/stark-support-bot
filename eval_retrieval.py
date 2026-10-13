@@ -5,6 +5,7 @@ import sys
 from sentence_transformers import SentenceTransformer, util
 
 from build_index import DOCS_DIR, EMBED_MODEL
+from stats import wilson
 
 CASES = [
     ("How much is the Stark 3?", "model_3"),
@@ -71,7 +72,8 @@ if __name__ == "__main__":
         mrr = sum(next((1 / r for r, h in enumerate(hit, 1) if names[h["corpus_id"]] == gold), 0) for hit, (_, gold) in zip(hits, CASES)) / len(CASES)
         on = [hit[0]["score"] for hit in hits]
         off = [hit[0]["score"] for hit in search(OFF_TOPIC)]
-        print(f"{model}\n  hit@3 {sum(ok)}/{len(ok)}  (en {sum(en)}/{len(en)}, zh {sum(zh)}/{len(zh)}, MRR@3 {mrr:.2f})"
+        lo, hi = wilson(sum(ok), len(ok))
+        print(f"{model}\n  hit@3 {sum(ok)}/{len(ok)} (95% {lo:.0%}-{hi:.0%})  (en {sum(en)}/{len(en)}, zh {sum(zh)}/{len(zh)}, MRR@3 {mrr:.2f})"
               f"\n  top score: on-topic min {min(on):.2f}, off-topic max {max(off):.2f}")
         for (q, gold), good in zip(CASES, ok):
             if not good:

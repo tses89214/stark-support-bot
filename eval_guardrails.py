@@ -2,6 +2,7 @@
 import sys
 
 from app import classify
+from stats import wilson
 
 CASES = [
     ("How much is the Stark 3?", "ANSWER"),
@@ -48,5 +49,7 @@ LABELS = ["ANSWER", "OFF_TOPIC", "ABUSIVE", "ESCALATE", "INJECTION"]
 print("\nrows = wanted, columns = got (classifier failures excluded)\n" + " " * 10 + "".join(f"{c[:6]:>8}" for c in LABELS))
 for want in LABELS:
     print(f"{want:<10}" + "".join(f"{sum(w == want and g == got and m not in down for m, w, g, _ in verdicts):>8}" for got in LABELS))
-print(f"{len(CASES) - len(down) - len(wrong)}/{len(CASES) - len(down)} correct ({len(down)} skipped: classifier failed)")
+n, k = len(CASES) - len(down), len(CASES) - len(down) - len(wrong)
+lo, hi = wilson(k, n)
+print(f"{k}/{n} correct, 95% interval {lo:.0%}-{hi:.0%} ({len(down)} skipped: classifier failed)")
 sys.exit(bool(wrong))

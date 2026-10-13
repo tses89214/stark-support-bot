@@ -10,6 +10,7 @@ from datetime import date
 from pathlib import Path
 
 import app
+from stats import wilson
 
 app.open_ticket = lambda *a, **k: "eval"  # misrouted cases must not write to tickets.jsonl
 CODE = r"def |```|for \w+ in "
@@ -187,15 +188,6 @@ def examples():
 
 
 RAW = Path("ladder_raw.json")  # committed: per-level results and every sample reply; `eval_ladder.py --render` rebuilds results/ladder.md from it with no LLM calls
-
-
-def wilson(k, n, z=1.96):
-    """95% Wilson interval for k successes in n trials (runs pooled: they are repeated trials of the same fixed questions)."""
-    if n == 0:
-        return 0.0, 1.0
-    p, d = k / n, 1 + z * z / n
-    mid, half = (p + z * z / (2 * n)) / d, z * (p * (1 - p) / n + z * z / (4 * n * n)) ** 0.5 / d
-    return mid - half, mid + half
 
 
 def write_results(runs, results):
