@@ -44,5 +44,9 @@ down = [m for m, _, _, reason in verdicts if reason.startswith("classifier faile
 wrong = [(m, want, got) for m, want, got, reason in verdicts if got != want and m not in down]
 for m, want, got in wrong:
     print(f"MISS  want={want} got={got}  {m}")
+LABELS = ["ANSWER", "OFF_TOPIC", "ABUSIVE", "ESCALATE", "INJECTION"]
+print("\nrows = wanted, columns = got (classifier failures excluded)\n" + " " * 10 + "".join(f"{c[:6]:>8}" for c in LABELS))
+for want in LABELS:
+    print(f"{want:<10}" + "".join(f"{sum(w == want and g == got and m not in down for m, w, g, _ in verdicts):>8}" for got in LABELS))
 print(f"{len(CASES) - len(down) - len(wrong)}/{len(CASES) - len(down)} correct ({len(down)} skipped: classifier failed)")
 sys.exit(bool(wrong))

@@ -61,7 +61,7 @@
     - 檢索指標（context precision／recall）、忠實度、LLM 自動出題：Ragas、DeepEval；回答是否依文件：Ragas faithfulness、promptfoo `llm-rubric`。
     - 攻擊樣本擴充（14 題 → 上百題）：promptfoo red team、garak、PyRIT；promptfoo 用 YAML 定義測試，可接 CI。
     - 實驗追蹤：MLflow 3、Inspect AI、Langfuse、Arize Phoenix。
-    - `eval_guardrails.py` 加混淆矩陣（scikit-learn `classification_report`），比單一準確率有資訊。
+    - `eval_guardrails.py` 加混淆矩陣——**已做（2026-10-13，標準庫實作，不引入 scikit-learn）**；本次 30/30，矩陣全在對角線（之前無法評的那題這次有回覆）。題目只有 30 題，還沒有可看的錯誤型態，擴到約 100 題後才有意義。
     - **保留**自己的階梯（L0→L4）實驗設計；只把攻擊樣本與標準指標交給工具；README 寫明哪些用框架、哪些自寫、為什麼。（承接 DECISIONS.md「開源 injection 評測工具：先不採用」，此為重新評估。）
     - LLM 當評審的可信度：抽樣人工標註，算人工與 LLM 評審的一致率（Cohen's kappa）；呼應「生題人工審標籤」那項（5）。
 11. [ ] 以上完成後 commit，使用者說要推再推。
