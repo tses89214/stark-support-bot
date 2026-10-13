@@ -17,4 +17,5 @@
 - OpenRouter 免費額度（官方文件，2026-10-13 查證）：`:free` 每分鐘 20 次；每天 50 次（累計儲值 <10 credits）或 1000 次（≥10）；UTC 日界重置（台灣 08:00）；額度看**帳號**不看 key。真實計數讀 `GET /api/v1/key` 的 `free_model_daily_requests`，不要估。`eval_ladder.py` 開跑前會讀它，不足拒絕（`--force` 才硬跑）。
 - 使用者有兩個 OpenRouter 帳號：`OPENROUTER_API_KEY`（有儲值、1000/天）與 `OPENROUTER_API_KEY2`（不同帳號、沒儲值、50/天，不夠跑階梯）。key 只放 `.env`，不印出。
 - 評估過換 Groq 免費方案（2026-10-13）：官方限制頁（console.groq.com/docs/rate-limits）有每日限制，gpt-oss-120b 為 30 RPM／1K RPD／8K TPM／200K TPD，而階梯 L0–L2 每次約 2.5–3k token，一天只能約 65–70 次，跑不完；「Groq 無每日上限」的說法與官方不符。使用者決定維持 OpenRouter 帳號 A，隔天（08:00 台灣）重置後跑階梯。Groq 只可能用在短 prompt 的分類器評測。
+- 檢索評測現為 85 題（每份文件 ≥5 題）：gemma-2 83/85、bge-m3 81/85、e5-base 79、e5-small 78、MiniLM 57；前四名區間重疊。維持 bge-m3 是因為 gemma-2 在此機器跑不了（需 Docker），不是準確度。
 

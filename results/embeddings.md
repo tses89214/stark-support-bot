@@ -1,15 +1,15 @@
 # Embedding model comparison
 
-Run 2026-10-13 with `python eval_retrieval.py <models>` (local, no LLM calls, deterministic). 40 questions (24 English, 16 Chinese) over 17 docs, at least 2 questions per doc; a question passes when the right doc is in the top 3. The set grew from 30 to 40 questions on 2026-10-13, so all rows except embeddinggemma-2 were re-run; that row is from the 30-question set.
+Run 2026-10-13 with `python eval_retrieval.py <models>` (local, no LLM calls, deterministic). 85 questions (51 English, 34 Chinese) over 17 docs, at least 5 questions per doc (the set grew 30 to 40 to 85 on the same day; every number here is from the 85-question set). A question passes when the right doc is in the top 3.
 
 | Embedding model | hit@3 (95% interval) | English | Chinese | MRR@3 | Score gap (on-topic min vs off-topic max) |
 |---|---|---|---|---|---|
-| all-MiniLM-L6-v2 (small English-only default) | 25/40 (47%-76%) | 23/24 | 2/16 | 0.54 | 0.06 vs 0.34, overlaps |
-| paraphrase-multilingual-MiniLM-L12-v2 | 31/40 (62%-88%) | 20/24 | 11/16 | 0.64 | 0.27 vs 0.33, overlaps |
-| multilingual-e5-small | 36/40 (77%-96%) | 22/24 | 14/16 | 0.81 | 0.75 vs 0.80, overlaps |
-| multilingual-e5-base | 38/40 (83%-99%) | 22/24 | 16/16 | 0.77 | 0.77 vs 0.78, overlaps |
-| **bge-m3 (used by the bot)** | **38/40 (83%-99%)** | 22/24 | 16/16 | **0.90** | 0.45 vs 0.43, barely separates |
-| embeddinggemma-2 (earlier 30-question set, not re-run: needs Docker) | 29/30 (83%-99%) | 16/17 | 13/13 | 0.93 | 0.60 vs 0.68, overlaps (off-topic scores higher) |
+| all-MiniLM-L6-v2 (small English-only default) | 57/85 (57%-76%) | 48/51 | 9/34 | 0.59 | 0.06 vs 0.34, overlaps |
+| paraphrase-multilingual-MiniLM-L12-v2 | 66/85 (68%-85%) | 42/51 | 24/34 | 0.61 | 0.24 vs 0.33, overlaps |
+| multilingual-e5-small | 78/85 (84%-96%) | 47/51 | 31/34 | 0.85 | 0.75 vs 0.80, overlaps |
+| multilingual-e5-base | 79/85 (85%-97%) | 45/51 | 34/34 | 0.81 | 0.74 vs 0.78, overlaps |
+| **bge-m3 (used by the bot)** | **81/85 (89%-98%)** | 47/51 | 34/34 | 0.87 | 0.42 vs 0.43, overlaps (barely) |
+| embeddinggemma-2 (run in Docker) | 83/85 (92%-99%) | 49/51 | 34/34 | 0.89 | 0.60 vs 0.68, overlaps (off-topic scores higher) |
 
 Examples (top 3 docs returned, correct doc in **bold**; `model_N` = Stark N, `guide_*` = process guides):
 
@@ -21,6 +21,6 @@ Examples (top 3 docs returned, correct doc in **bold**; `model_N` = Stark N, `gu
 
 The English-only model returns near-random ships for Chinese questions. e5-small finds some but ranks the right doc lower or misses (the cargo-ship question). Wrong retrieval means the answer step never sees the right facts.
 
-embeddinggemma-2 (run in Docker, since it needs a newer torch than this Intel Mac has) was within one question of bge-m3 on the 30-question set and does not separate off-topic questions either, so the bot keeps bge-m3. `embeddinggemma-300m` was not run (gated).
+embeddinggemma-2 ran in a Docker container because it needs a newer torch than this Intel Mac has. On the 85-question set it is two questions ahead of bge-m3 (83/85, MRR 0.89 vs 81/85, 0.87) with overlapping intervals, so on accuracy it is a tie within noise, not a loss. It does not separate off-topic questions either (its off-topic scores are higher than its on-topic ones). The bot keeps bge-m3 for a practical reason, not an accuracy one: bge-m3 runs on the target machine and gemma-2 does not. `embeddinggemma-300m` was not run (gated).
 
-Intervals are Wilson 95% on 40 questions (gemma-2: 30), so they are wide and overlap: bge-m3, e5-base and e5-small are not separable on hit@3; MRR and the Chinese split are what set bge-m3 apart, and even those are one or two questions.
+Intervals are Wilson 95% on 85 questions. embeddinggemma-2 (83/85), bge-m3 (81/85), e5-base (79/85) and e5-small (78/85) overlap on hit@3, so the top four are close; the gap to MiniLM (57/85, Chinese 9/34) is the only large one. MRR is 0.89, 0.87, 0.81 and 0.85.

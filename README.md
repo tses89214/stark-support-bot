@@ -26,8 +26,8 @@ What it shows:
 - **The input fence (L2) is the biggest single jump** (10 to 12.5 of 14) and costs no extra call. The classifier (L3) closes the rest. Neighbouring levels' intervals overlap (L1 vs L2, L2 vs L3), so with 14 attacks only the larger gaps (L0 to L2, L0 to L3) are firm.
 - **Retrieval (L4) shrinks the prompt about 5x** (8.7k to 1.6k chars).
 - **Normal questions are answered 6/6 at every level**: the defenses did not cost helpfulness. An earlier 5.5/6 was a judging bug (the model wrote `Stark 8` with a narrow no-break space, which a plain substring check missed); matching now normalises Unicode.
-- **Embedding choice matters most for Chinese**: bge-m3 gets hit@3 38/40, all-MiniLM-L6-v2 only 25/40 (Chinese 2/16); embeddinggemma-2 got 29/30 on the earlier 30-question set.
-- **No embedding model separates off-topic from on-topic by score** (gap 0.02 for bge-m3), so the score floor is a weak guard and the classifier does the real filtering.
+- **Embedding choice matters most for Chinese**: bge-m3 gets hit@3 81/85, all-MiniLM-L6-v2 only 57/85 (Chinese 9/34); embeddinggemma-2 is 83/85, two ahead and inside the noise; the bot keeps bge-m3 because gemma-2 does not run on this machine.
+- **No embedding model separates off-topic from on-topic by score** (gap 0.01 for bge-m3), so the score floor is a weak guard and the classifier does the real filtering.
 
 No LLM failures in this run. Response time is not reported: on a rate-limited free model it measured the queue, not the design.
 
@@ -58,10 +58,10 @@ The LLM is any free model on [OpenRouter](https://openrouter.ai); embeddings run
 
 ## Limits (read before trusting the numbers)
 
-- **Small fixed sets**: 116 classifier cases (29 hand-written, 83 LLM-drafted then hand-reviewed; 111/112 correct with 4 skipped for classifier failures, 95% interval 95% to 100%; the one miss is an arguable label), 40 retrieval questions, 14 attacks, 6 normal questions. One case is a few points; differences of one or two attacks are within noise. Growing them (about 100 labelled messages, edge cases, repeated runs with confidence intervals) is planned, not done.
+- **Small fixed sets**: 116 classifier cases (29 hand-written, 83 LLM-drafted then hand-reviewed; 111/112 correct with 4 skipped for classifier failures, 95% interval 95% to 100%; the one miss is an arguable label), 85 retrieval questions, 14 attacks, 6 normal questions. One case is a few points; differences of one or two attacks are within noise. Growing them (about 100 labelled messages, edge cases, repeated runs with confidence intervals) is planned, not done.
 - **Free model, 2 runs per level.** Replies vary between runs and the free tier rate-limits (a day's quota ran out mid-evaluation once). Check `classify failed` on stderr before trusting a score.
 - **Blunt judging.** Substring/canary checks miss paraphrased leaks, can pass a wrong answer that happens to contain the keyword, and a refusal that merely quotes the canary ("I cannot reply ORDER-OK") is not counted as a lost attack, which also means a real compliance written inside quotes or bold would be missed. The "unanswerable" checks (6 questions) fail on an invented answer matched by a per-question regex, so a made-up warranty followed by the support address no longer passes, but a paraphrased invention can still slip through.
-- **`MIN_SCORE` is not the best point on its curve.** `eval_threshold.py` ([results/retrieval-knobs.md](results/retrieval-knobs.md)) shows 0.40 loses no on-topic question but lets 5 of 15 off-topic ones through; 0.45 would be a better trade. Left at 0.40 because the ladder was measured with it. `TOP_K = 3` misses 2 of 40 questions that top-5 finds (hit@1 34, hit@3 38, hit@5 40), so it trades accuracy for prompt size.
+- **`MIN_SCORE` is not the best point on its curve.** `eval_threshold.py` ([results/retrieval-knobs.md](results/retrieval-knobs.md)) shows 0.40 loses no on-topic question but lets 5 of 15 off-topic ones through; 0.45 would stop 4 of those at the cost of 4 of 85 real questions. Left at 0.40 because the ladder was measured with it. `TOP_K = 3` misses 4 of 85 questions that top-5 mostly finds (hit@1 68, hit@3 81, hit@5 84), so it trades accuracy for prompt size.
 - **One model, one language mix, fictional data.** Nothing here is evidence about other LLMs or real support traffic.
 
 ## Built with AI assistance
