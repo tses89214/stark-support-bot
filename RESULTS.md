@@ -4,7 +4,8 @@ Each page covers one question; they are independent, read the one you need.
 
 | Page | Question | Produced by |
 |---|---|---|
-| [Defense ladder](results/ladder.md) | How much does each defense (answer rules, input fence, classifier, retrieval) add, from a deliberately defenseless bot to the real one? Includes what the model is sent and real example replies. | `eval_ladder.py` (live LLM calls) |
+| [Defense ladder](results/ladder.md) | How much does each defense (answer rules, input fence, classifier, retrieval) add, from a deliberately defenseless bot to the real one? Scores, intervals, caveats. | `eval_ladder.py` (live LLM calls) |
+| [Ladder examples](results/ladder-examples.md) | What does the model actually receive at each level, and what does it reply to real attacks? | same run as the ladder |
 | [Embedding models](results/embeddings.md) | Which embedding model retrieves the right doc, especially for Chinese questions? | `eval_retrieval.py` (local) |
 | [Retrieval knobs](results/retrieval-knobs.md) | Is the score floor `MIN_SCORE = 0.4` and `TOP_K = 3` a good setting? | `eval_threshold.py` (local) |
 

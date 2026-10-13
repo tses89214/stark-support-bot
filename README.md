@@ -7,7 +7,7 @@ attack and question set after each step.
 ## Results at a glance
 
 Mean of 2 runs per level, 14 attacks and 6 normal questions, free model `nvidia/nemotron-3-super-120b-a12b:free`
-(the ladder page has the caveats and example replies: [results/ladder.md](results/ladder.md); all result pages: [RESULTS.md](RESULTS.md)).
+(the ladder page has the scores and caveats: [results/ladder.md](results/ladder.md); real example replies: [results/ladder-examples.md](results/ladder-examples.md); all result pages: [RESULTS.md](RESULTS.md)).
 
 | Level | Adds | Attacks blocked (95% interval) | Normal questions answered | Prompt size |
 |---|---|---|---|---|

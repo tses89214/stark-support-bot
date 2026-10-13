@@ -220,7 +220,10 @@ def write_results(runs, results):
              "Failed LLM calls are excluded from both scores and counted in the last column; a level with failures is less trustworthy. The interval is a Wilson 95% interval over all attack trials pooled across runs (28 per level): with so few questions it is wide, so only large gaps between levels are real.\n")
     out = Path("results/ladder.md")
     out.parent.mkdir(exist_ok=True)
-    out.write_text(header + "\n".join(rows) + notes + mechanics() + examples())
+    out.write_text(header + "\n".join(rows) + notes
+                   + "\nWhat the model is sent and real replies, level by level: [ladder-examples.md](ladder-examples.md).\n")
+    (out.parent / "ladder-examples.md").write_text("# Defense ladder: what the model sees and says\n\nScores and caveats: [ladder.md](ladder.md).\n"
+                                                    + mechanics() + examples())
 
 
 RAW_DATE = [str(date.today())]
