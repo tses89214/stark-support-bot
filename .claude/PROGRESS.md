@@ -55,7 +55,14 @@
 7. [ ] 端到端評測寫明限制或加抽樣人工驗證（現為關鍵字比對，未答案題檢查偏寬鬆）。
 8. [ ] **使用者決定**：「Stark」會讓人聯想漫威 Stark Industries，要不要換原創品牌名？（牽涉 `data/`、評測 canary、README、測試，改動面大，未動。）另外審閱建議不要在作品裡放「demo.ipynb 已擱置」；README 已拿掉那行，檔案與 CLAUDE.md 註記保留，待你決定要重寫還是移除。
 9. [ ] 作品集定位（審閱建議）：以「Guardrails 與評估方法」為代表作；第二作品 Text-to-SQL Agent 可共用評估框架。尚未決定，使用者的既有決定是「作品集為主、學習實驗為輔」。
-10. [ ] 以上完成後 commit，使用者說要推再推。
+10. [ ] 開源評測工具對照（外部審閱，2026-10-13；星數、收購等細節未查證，採用前先確認授權與版本）：
+    - 檢索指標（context precision／recall）、忠實度、LLM 自動出題：Ragas、DeepEval；回答是否依文件：Ragas faithfulness、promptfoo `llm-rubric`。
+    - 攻擊樣本擴充（14 題 → 上百題）：promptfoo red team、garak、PyRIT；promptfoo 用 YAML 定義測試，可接 CI。
+    - 實驗追蹤：MLflow 3、Inspect AI、Langfuse、Arize Phoenix。
+    - `eval_guardrails.py` 加混淆矩陣（scikit-learn `classification_report`），比單一準確率有資訊。
+    - **保留**自己的階梯（L0→L4）實驗設計；只把攻擊樣本與標準指標交給工具；README 寫明哪些用框架、哪些自寫、為什麼。（承接 DECISIONS.md「開源 injection 評測工具：先不採用」，此為重新評估。）
+    - LLM 當評審的可信度：抽樣人工標註，算人工與 LLM 評審的一致率（Cohen's kappa）；呼應「生題人工審標籤」那項（5）。
+11. [ ] 以上完成後 commit，使用者說要推再推。
 
 ## 其餘
 - [x] 通過 `ruff check . --exclude .venv --exclude demo.ipynb`（沿用全域嚴格規則；兩處刻意吞例外以 noqa 註明）
