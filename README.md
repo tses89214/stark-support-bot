@@ -56,7 +56,7 @@ The LLM is any free model on [OpenRouter](https://openrouter.ai); embeddings run
 - **Small fixed sets**: 30 classifier cases, 30 retrieval questions, 14 attacks, 6 normal questions. One case is a few points; differences of one or two attacks are within noise. Growing them (about 100 labelled messages, edge cases, repeated runs with confidence intervals) is planned, not done.
 - **Free model, 2 runs per level.** Replies vary between runs and the free tier rate-limits (a day's quota ran out mid-evaluation once). Check `classify failed` on stderr before trusting a score.
 - **Blunt judging.** Substring/canary checks miss paraphrased leaks, can pass a wrong answer that happens to contain the keyword, and a refusal that merely quotes the canary ("I cannot reply ORDER-OK") is not counted as a lost attack, which also means a real compliance written inside quotes or bold would be missed. The "unanswerable" check passes if the reply points to support, which is loose.
-- **Thresholds are not tuned by curve.** `TOP_K = 3` follows the hit@3 metric; `MIN_SCORE = 0.4` sits just under the lowest on-topic score (0.45) seen in the 30-question set. A threshold vs. wrong-answer/refusal curve would be the proper evidence and is not done.
+- **`MIN_SCORE` is not the best point on its curve.** `eval_threshold.py` (RESULTS.md) shows 0.40 loses no on-topic question but lets 5 of 15 off-topic ones through; 0.45 to 0.50 would be a better trade. Left at 0.40 because the ladder was measured with it. `TOP_K = 3` is supported (hit@1 27/30, hit@3 and hit@5 30/30).
 - **One model, one language mix, fictional data.** Nothing here is evidence about other LLMs or real support traffic.
 
 ## Built with AI assistance
@@ -78,6 +78,7 @@ cp .env.example .env              # add your OpenRouter key, pick a :free model
 |---|---|---|
 | `python test_app.py` | retry and fail-closed behaviour | free, offline |
 | `python eval_retrieval.py [model ...]` | hit@3 / MRR@3 per embedding model | free, local |
+| `python eval_threshold.py` | `MIN_SCORE` sweep and `TOP_K` hit@k with bge-m3 | free, local |
 | `python eval_guardrails.py` | classifier accuracy on 30 labelled messages | free-tier LLM calls |
 | `python eval_ladder.py [runs]` | defense ladder L0 (no defenses) to L4 (the real bot): attacks blocked, answers, prompt size; writes `RESULTS.md` | free-tier LLM calls, ~30 min |
 | `python eval_answers.py` | end to end: grounded answers contain doc facts, unanswerable ones point to support | free-tier LLM calls |

@@ -231,3 +231,27 @@ Examples (top 3 docs returned, correct doc in **bold**; `model_N` = Stark N, `gu
 The English-only model returns near-random ships for Chinese questions. e5-small finds some but ranks the right doc lower or misses (the cargo-ship question). Wrong retrieval means the answer step never sees the right facts.
 
 embeddinggemma-2 (run in Docker, since it needs a newer torch than this Intel Mac has) is within one question of bge-m3 and does not separate off-topic questions either, so the bot keeps bge-m3. `embeddinggemma-300m` was not run (gated).
+
+## Retrieval knobs: `MIN_SCORE` and `TOP_K`
+
+Run 2026-10-13 with `python eval_threshold.py` (bge-m3, local, no LLM calls): the same 30 on-topic questions and 15 off-topic ones (5 from `eval_retrieval.py` plus 10 added by hand: unrelated chat, shopping, Chinese and English). A question is refused when its best doc score is below `MIN_SCORE`.
+
+| MIN_SCORE | on-topic refused (lost answers) | off-topic let through |
+|---|---|---|
+| 0.30 | 0/30 | 14/15 |
+| 0.35 | 0/30 | 10/15 |
+| **0.40 (current)** | 0/30 | 5/15 |
+| 0.45 | 1/30 | 1/15 |
+| 0.50 | 3/30 | 0/15 |
+| 0.55 | 9/30 | 0/15 |
+| 0.60 | 20/30 | 0/15 |
+
+The current 0.40 refuses no real question but lets a third of the off-topic ones reach the answer step; the classifier is what stops them. 0.45 to 0.50 looks like the better trade (one to three lost answers, almost no leaks). It is not changed here: the ladder's L4 numbers were measured at 0.40, so a change means re-running the ladder. With 15 off-topic questions the curve is coarse.
+
+| TOP_K | hit@k |
+|---|---|
+| 1 | 27/30 |
+| 3 (current) | 30/30 |
+| 5 | 30/30 |
+
+Three docs is enough here; five adds nothing on this set but would add prompt size.
