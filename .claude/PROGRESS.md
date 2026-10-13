@@ -32,20 +32,20 @@
 - [x] Rule 6 改為單任務 50k／單會話 500k
 
 ## TODO（2026-10-13 起）
-1. [ ] **使用者**：開 Docker Desktop，Settings → Resources 記憶體調到 6–8GB。
-2. [ ] **embeddinggemma-2 進比較表**（依賴 1）
+1. [x] **使用者**：開 Docker Desktop，Settings → Resources 記憶體調到 6–8GB。
+2. [x] **embeddinggemma-2（完成 2026-10-13：29/30、MRR 0.93，Docker 需 `sentence-transformers[image]` 並從 CPU index 一起裝 torch+torchvision） 進比較表**（依賴 1）
    - 用 Docker（`python:3.12`，Linux x86_64 有新版 torch wheel）；repo 掛進容器、容器內建獨立環境、不動 `.venv`。
    - 先對照模型卡確認 query／passage 前綴（現在是從 300m 抄的，未驗證）。
    - 跑 `eval_retrieval.py google/embeddinggemma-2`；transformers 5.18 dev 在 Linux 上未驗證，可能要排錯。
    - 完成：`RESULTS.md` embedding 表多一列（hit@3、中英、MRR、分數分界），並改掉「Not run: ...」那段；app 檢索不換。
-3. [ ] **RESULTS.md 補真實回覆範例**（使用者要求）：讓讀者看到每層的輸入、輸出，哪些攻擊攔住、哪些沒攔住。
+3. [x] **RESULTS.md 補真實（完成 2026-10-13，14/14、0 失敗）回覆範例**（使用者要求）：讓讀者看到每層的輸入、輸出，哪些攻擊攔住、哪些沒攔住。
    - 輸入端已完成（「What each level sends to the model」）。
    - 輸出端待補：台灣時間 08:00 後（OpenRouter 免費額度 1000 次/天、所有 `:free` 共用，2026-10-12 用完）背景跑 `python eval_ladder.py 2`（約 250 次請求、約 30 分鐘）。會一併更新舊的 L3／L4 數字（舊值在加離題規則前跑的），並寫入「Examples」與「Attacks that still got through」；腳本保留手寫的 embedding 區塊。
    - 完成標準：每層至少一個 `blocked`、（若有）一個 `LOST` 的真實回覆；L3／L4 的罐頭拒絕可見；沒有 LLM 失敗列（有就重跑）。
    - 某層全擋住就照實寫 `nothing beyond the examples above.`，不硬湊漏洞。
    - 範例碼只用假資料測過格式，真實輸出看過才算驗證完。
    - 使用者沒有儲值 OpenRouter：換 `:free` 模型沒用（額度共用），付費模型不可用；只能等重置。
-4. [ ] 以上完成後把 README「Results at a glance」表更新成重跑後的數字（現在抄的是舊值；L3/L4 在加離題規則前跑的）。
+4. [x] 以上完成後把 README「Results at a glance」表更新成重跑後的數字（現在抄的是舊值；L3/L4 在加離題規則前跑的）。
 5. [ ] 擴充評測集（外部審閱建議）：分類器標註集 30 → 約 100（含模稜兩可客訴、包裝過的注入）；每設定多跑幾次，報平均與信賴區間；攻擊／正常題也擴充（改題要整個階梯重跑）。
    - **生題（評估樣本）**：用 LLM 批次生候選題（分類器各類別、包裝過的注入、模稜兩可客訴、中英混合、檢索模糊問法、有答案／無答案題），**人工審標籤**後才進評測集；生成與審核分開，避免用同一個模型出題又考同一個模型。
    - 題目依來源與類別記錄（手寫／LLM 生成已審），報告列各類別題數；生成用的 prompt 也存進 repo，可重現。

@@ -11,20 +11,20 @@ Mean of 2 runs per level, 14 attacks and 6 normal questions, free model `nvidia/
 
 | Level | Adds | Attacks blocked | Normal questions answered | Time / question | Prompt size |
 |---|---|---|---|---|---|
-| L0 | nothing: all docs stuffed in, bare prompt | 3.5 / 14 | 5.0 / 6 | 6.9 s | 8.7k chars |
-| L1 | answer rules ("answer only from the docs") | 9.0 / 14 | 5.5 / 6 | 4.7 s | 8.9k |
-| L2 | input fence + untrusted-input rule | 12.5 / 14 | 6.0 / 6 | 6.3 s | 9.2k |
-| L3 | input classifier and routing | 13 / 13 | 5.0 / 6 | 4.9 s | 3.2k |
-| L4 | bge-m3 retrieval, top-3, score floor (= the real bot) | 13 / 13 | 6.0 / 6 | 3.7 s | 1.5k |
+| L0 | nothing: all docs stuffed in, bare prompt | 4.5 / 14 | 5.5 / 6 | 17.1 s | 8.7k chars |
+| L1 | answer rules ("answer only from the docs") | 8.5 / 14 | 6.0 / 6 | 6.3 s | 8.9k |
+| L2 | input fence + untrusted-input rule | 13.5 / 14 | 5.0 / 6 | 4.6 s | 9.2k |
+| L3 | input classifier and routing | 14 / 14 | 5.5 / 6 | 3.2 s | 3.2k |
+| L4 | bge-m3 retrieval, top-3, score floor (= the real bot) | 14 / 14 | 6.0 / 6 | 4.0 s | 1.6k |
 
 What it shows:
-- **The input fence (L2) is the biggest single jump** (9.0 to 12.5 of 14) and costs no extra call. The classifier (L3) closes the rest.
-- **Retrieval (L4) shrinks the prompt about 6x** (8.7k to 1.5k chars). Timing is noisy on a free model, so read it as a trend, not a benchmark.
-- **L3's 5.0/6 is not the classifier over-blocking**: it labelled all 6 normal questions ANSWER; the loss is wording noise in the answer step.
-- **Embedding choice matters most for Chinese**: bge-m3 gets hit@3 30/30, all-MiniLM-L6-v2 only 17/30 (Chinese 1/13).
+- **The input fence (L2) is the biggest single jump** (8.5 to 13.5 of 14) and costs no extra call. The classifier (L3) closes the rest.
+- **Retrieval (L4) shrinks the prompt about 5x** (8.7k to 1.6k chars). Timing is noisy on a free model, so read it as a trend, not a benchmark.
+- **Normal-question scores wobble by about one question (5.0 to 6.0) at every level**, so differences there are noise, not over-blocking.
+- **Embedding choice matters most for Chinese**: bge-m3 gets hit@3 30/30, all-MiniLM-L6-v2 only 17/30 (Chinese 1/13), embeddinggemma-2 29/30.
 - **No embedding model separates off-topic from on-topic by score** (gap 0.02 for bge-m3), so the score floor is a weak guard and the classifier does the real filtering.
 
-Levels L3 and L4 had 2 LLM failures each, excluded from the score and counted in RESULTS.md. The L3/L4 rows were produced before the latest classifier rule and will be regenerated.
+No LLM failures in this run. L0's 17.1 s is an outlier (an earlier run measured 6.9 s; cause not investigated), so read times as a trend only.
 
 ## How it works
 
