@@ -209,16 +209,16 @@ The other side of the scores: replies where the canary or code appeared, per lev
 
 ## Embedding model comparison
 
-Run 2026-10-12 with `python eval_retrieval.py <models>` (local, no LLM calls, deterministic). 30 questions (17 English, 13 Chinese) over 17 docs; a question passes when the right doc is in the top 3.
+Run 2026-10-13 with `python eval_retrieval.py <models>` (local, no LLM calls, deterministic). 40 questions (24 English, 16 Chinese) over 17 docs, at least 2 questions per doc; a question passes when the right doc is in the top 3. The set grew from 30 to 40 questions on 2026-10-13, so all rows except embeddinggemma-2 were re-run; that row is from the 30-question set.
 
 | Embedding model | hit@3 | English | Chinese | MRR@3 | Score gap (on-topic min vs off-topic max) |
 |---|---|---|---|---|---|
-| all-MiniLM-L6-v2 (the old notebook default) | 17/30 | 16/17 | 1/13 | 0.49 | 0.06 vs 0.34, overlaps |
-| paraphrase-multilingual-MiniLM-L12-v2 | 22/30 | 14/17 | 8/13 | 0.61 | 0.27 vs 0.33, overlaps |
-| multilingual-e5-small | 27/30 | 16/17 | 11/13 | 0.83 | 0.75 vs 0.80, overlaps |
-| multilingual-e5-base | 29/30 | 16/17 | 13/13 | 0.78 | 0.77 vs 0.78, overlaps |
-| **bge-m3 (used by the bot)** | **30/30** | 17/17 | 13/13 | **0.95** | 0.45 vs 0.43, barely separates |
-| embeddinggemma-2 | 29/30 | 16/17 | 13/13 | 0.93 | 0.60 vs 0.68, overlaps (off-topic scores higher) |
+| all-MiniLM-L6-v2 (the old notebook default) | 25/40 | 23/24 | 2/16 | 0.54 | 0.06 vs 0.34, overlaps |
+| paraphrase-multilingual-MiniLM-L12-v2 | 31/40 | 20/24 | 11/16 | 0.64 | 0.27 vs 0.33, overlaps |
+| multilingual-e5-small | 36/40 | 22/24 | 14/16 | 0.81 | 0.75 vs 0.80, overlaps |
+| multilingual-e5-base | 38/40 | 22/24 | 16/16 | 0.77 | 0.77 vs 0.78, overlaps |
+| **bge-m3 (used by the bot)** | **38/40** | 22/24 | 16/16 | **0.90** | 0.45 vs 0.43, barely separates |
+| embeddinggemma-2 (earlier 30-question set, not re-run: needs Docker) | 29/30 | 16/17 | 13/13 | 0.93 | 0.60 vs 0.68, overlaps (off-topic scores higher) |
 
 Examples (top 3 docs returned, correct doc in **bold**; `model_N` = Stark N, `guide_*` = process guides):
 
@@ -230,28 +230,28 @@ Examples (top 3 docs returned, correct doc in **bold**; `model_N` = Stark N, `gu
 
 The English-only model returns near-random ships for Chinese questions. e5-small finds some but ranks the right doc lower or misses (the cargo-ship question). Wrong retrieval means the answer step never sees the right facts.
 
-embeddinggemma-2 (run in Docker, since it needs a newer torch than this Intel Mac has) is within one question of bge-m3 and does not separate off-topic questions either, so the bot keeps bge-m3. `embeddinggemma-300m` was not run (gated).
+embeddinggemma-2 (run in Docker, since it needs a newer torch than this Intel Mac has) was within one question of bge-m3 on the 30-question set and does not separate off-topic questions either, so the bot keeps bge-m3. `embeddinggemma-300m` was not run (gated).
 
 ## Retrieval knobs: `MIN_SCORE` and `TOP_K`
 
-Run 2026-10-13 with `python eval_threshold.py` (bge-m3, local, no LLM calls): the same 30 on-topic questions and 15 off-topic ones (5 from `eval_retrieval.py` plus 10 added by hand: unrelated chat, shopping, Chinese and English). A question is refused when its best doc score is below `MIN_SCORE`.
+Run 2026-10-13 with `python eval_threshold.py` (bge-m3, local, no LLM calls): the same 40 on-topic questions and 15 off-topic ones (5 from `eval_retrieval.py` plus 10 added by hand: unrelated chat, shopping, Chinese and English). A question is refused when its best doc score is below `MIN_SCORE`.
 
 | MIN_SCORE | on-topic refused (lost answers) | off-topic let through |
 |---|---|---|
-| 0.30 | 0/30 | 14/15 |
-| 0.35 | 0/30 | 10/15 |
-| **0.40 (current)** | 0/30 | 5/15 |
-| 0.45 | 1/30 | 1/15 |
-| 0.50 | 3/30 | 0/15 |
-| 0.55 | 9/30 | 0/15 |
-| 0.60 | 20/30 | 0/15 |
+| 0.30 | 0/40 | 14/15 |
+| 0.35 | 0/40 | 10/15 |
+| **0.40 (current)** | 0/40 | 5/15 |
+| 0.45 | 1/40 | 1/15 |
+| 0.50 | 6/40 | 0/15 |
+| 0.55 | 14/40 | 0/15 |
+| 0.60 | 27/40 | 0/15 |
 
-The current 0.40 refuses no real question but lets a third of the off-topic ones reach the answer step; the classifier is what stops them. 0.45 to 0.50 looks like the better trade (one to three lost answers, almost no leaks). It is not changed here: the ladder's L4 numbers were measured at 0.40, so a change means re-running the ladder. With 15 off-topic questions the curve is coarse.
+The current 0.40 refuses no real question but lets a third of the off-topic ones reach the answer step; the classifier is what stops them. 0.45 looks like the better trade (one lost answer of 40, one leak of 15); 0.50 already loses 6 answers. It is not changed here: the ladder's L4 numbers were measured at 0.40, so a change means re-running the ladder. With 15 off-topic questions the curve is coarse.
 
 | TOP_K | hit@k |
 |---|---|
-| 1 | 27/30 |
-| 3 (current) | 30/30 |
-| 5 | 30/30 |
+| 1 | 34/40 |
+| 3 (current) | 38/40 |
+| 5 | 40/40 |
 
-Three docs is enough here; five adds nothing on this set but would add prompt size.
+On the 40-question set top-3 misses two questions that top-5 finds, so `TOP_K = 3` is a prompt-size trade (about 1.6k chars at 3, more at 5), not free; the earlier 30-question set could not show this. Not changed, because the ladder's L4 was measured at 3.

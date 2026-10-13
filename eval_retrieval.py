@@ -37,6 +37,17 @@ CASES = [
     ("我想買船,第一步要做什麼?", "guide_ordering_delivery"),
     ("cheapest ship for one person who likes racing", "model_13"),
     ("全家出遊適合哪一款?", "model_4"),
+    # added 2026-10-13: every doc now has at least 2 questions
+    ("How often does the Stark 1's ion propulsion need maintenance?", "model_1"),
+    ("How many passengers fit in the Stark 2?", "model_2"),
+    ("Stark 2 的電漿護盾多久要換一次?", "model_2"),
+    ("Which ship needs the oxygen recycling system checked on trips over 10 days?", "model_4"),
+    ("How do I clean the gold-plated parts on the luxury model?", "model_6"),
+    ("Which ship has adaptive landing gear?", "model_7"),
+    ("Stark 7 的地形感測器需要校準嗎?", "model_7"),
+    ("How often should I run energy core diagnostics?", "model_9"),
+    ("Stark 9 是什麼顏色?", "model_9"),
+    ("How many tons of cargo can the heavy hauler carry?", "model_12"),
 ]
 OFF_TOPIC = ["What's the capital of France?", "Write me a Python script to sort a list.",
              "Do you sell submarines?", "法國的首都是哪裡?", "今天天氣如何?"]
