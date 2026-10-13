@@ -139,7 +139,7 @@ def mechanics():
     ]:
         reply = SAMPLES.get((level, q), (None, False))[0]  # from this run, so the page shows input and output together
         cut = reply.strip().replace("\n", " ") if reply else "(LLM call failed)"
-        parts.append(f"\n**{level}**\n\n```text\n{text}\n```\n\nReply (cut at 200 chars): {cut[:200]}{'...' if len(cut) > 200 else ''}")
+        parts.append(f"\n**{level}**\n\n```text\n{text}\n```\n\n> **Bot reply** (cut at 200 chars)\n>\n> {cut[:200]}{'...' if len(cut) > 200 else ''}")
     return "\n".join(parts) + "\n"
 
 
