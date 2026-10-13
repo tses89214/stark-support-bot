@@ -49,7 +49,7 @@
 5. [ ] 擴充評測集（外部審閱建議）：分類器標註集 30 → 約 100（含模稜兩可客訴、包裝過的注入）；每設定多跑幾次，報平均與信賴區間（階梯表已加 Wilson 95% 區間，2026-10-13：相鄰兩層區間重疊，只有 L0↔L2/L3 的差距站得住；檢索 hit@3、分類器準確率已加 Wilson 區間（共用 `stats.py`）：bge-m3 38/40 為 83–99%，與 e5-base／e5-small 區間重疊，hit@3 分不出高下；分類器 30/30 為約 89–100%）；攻擊／正常題也擴充（改題要整個階梯重跑）。
    - **生題（評估樣本）**：用 LLM 批次生候選題（分類器各類別、包裝過的注入、模稜兩可客訴、中英混合、檢索模糊問法、有答案／無答案題），**人工審標籤**後才進評測集；生成與審核分開，避免用同一個模型出題又考同一個模型。
    - 題目依來源與類別記錄（手寫／LLM 生成已審），報告列各類別題數；生成用的 prompt 也存進 repo，可重現。
-   - **進度（2026-10-13）**：`gen_candidates.py` 已生 100 題候選（5 類 × plain/hard × 10）→ `eval_candidates.jsonl`，全部 `status: unreviewed`。抽看有問題：混入簡體中文、虛構型號（「Stark Phantom」）、部分標籤可疑（結帳頁當機標成 OFF_TOPIC）。**待使用者人工審**：逐題確認類別（或刪除），通過的才搬進 `eval_guardrails.py`；生成模型與分類器同為 nemotron，未審的標籤不可拿來打分。檢索題、攻擊題尚未生成。
+   - **進度（2026-10-13）**：`gen_candidates.py` 已生 100 題候選（5 類 × plain/hard × 10）→ `eval_candidates.jsonl`，全部 `status: unreviewed`。抽看有問題：混入簡體中文、虛構型號（「Stark Phantom」）、部分標籤可疑（結帳頁當機標成 OFF_TOPIC）。**待使用者人工審**：跑 `! .venv/bin/python review_candidates.py`（一題一題按 Enter 通過／1–5 改類別／d 刪除，隨時 q 離開，進度每題存檔；攻擊候選同工具：加檔名 `eval_candidates_attacks.jsonl`）。`--export` 印出已通過的題目，貼進 `eval_guardrails.py`；生成模型與分類器同為 nemotron，未審的標籤不可拿來打分。檢索題、攻擊題尚未生成。
    - 檢索題：每份文件至少 2 題——**已做（2026-10-13，30→40 題）**；embedding 表除 gemma-2 外已重跑（gemma-2 仍是 30 題的舊值，要開 Docker 才能重跑）。bge-m3 38/40、e5-base 也 38/40 但 MRR 0.77 vs 0.90。「文件裡沒有答案」的題——**已做（端到端 `eval_answers.py` 的 6 題未答案題，見第 7 項）**；檢索評測本身沒有這類題（檢索一定回傳最像的文件，由 `MIN_SCORE` 與回答階段處理）。
    - 改題後整個階梯要重跑，舊數字作廢。
 6. [x] `MIN_SCORE` 曲線與 `TOP_K` 比較（2026-10-13，`eval_threshold.py`、results/retrieval-knobs.md；40 題重跑後）：0.40 離題放行 5/15，0.45 較佳（正常題拒絕 1/40；0.50 起拒 6/40）；`TOP_K`：hit@1 34、hit@3 38、hit@5 40 → top-3 漏 2 題，是 prompt 大小的取捨，不是免費。**待決定**：是否把 `MIN_SCORE` 改 0.45、`TOP_K` 改 5（要重跑階梯，會用額度）。離題題只有 15 題，曲線粗。
