@@ -95,3 +95,7 @@
 - 移除 `demo.ipynb` 與 `data/fine-tuning-job-example.jsonl`（已擱置、依賴付費 OpenAI）；之前「demo.ipynb 擱置」的決定作廢。
 - 開源評測工具先採用 promptfoo（擴充攻擊樣本）；Ragas／MLflow 暫不。
 - `MIN_SCORE`（0.40）與 `TOP_K`（3）維持原樣：曲線資料已寫進 RESULTS.md 與 README 限制，階梯量測基準不變。
+
+## 2026-10-13 結果文件依主題拆開
+- `RESULTS.md` 變目錄頁；內容分三篇放 `results/`：`ladder.md`（防禦階梯，由 `eval_ladder.py` 產生）、`embeddings.md`（embedding 比較）、`retrieval-knobs.md`（`MIN_SCORE`／`TOP_K`）。
+- 原因：三個主題不相依，擠在同一檔難讀；也讓 `eval_ladder.py` 不必再保留手寫區塊（少一段「讀舊檔、截尾巴」的程式）。

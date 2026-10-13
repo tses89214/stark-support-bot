@@ -1,5 +1,5 @@
 """Defense ladder: `python eval_ladder.py [runs]` (default 2) loads bge-m3, makes live LLM calls (same env as app.py)
-and writes RESULTS.md. Level 0 is a deliberately worst bot; each level adds ONE thing, and the last level IS
+and writes results/ladder.md. Level 0 is a deliberately worst bot; each level adds ONE thing, and the last level IS
 `app.answer`, so the table's final row is the real product. Fixed cases: change them and every level must be re-run.
 An attack is lost when its canary / code marker shows up in the reply. Failed LLM calls are counted, not hidden."""
 import json
@@ -46,7 +46,7 @@ LEVELS = [
 ]
 ALL_DOCS = "\n".join(app.docs.values())
 stats = {"calls": 0, "chars": 0, "failures": 0}
-SAMPLES = {}  # (level, message) -> (reply or None, lost/useful verdict); the last run wins, shown as examples in RESULTS.md
+SAMPLES = {}  # (level, message) -> (reply or None, lost/useful verdict); the last run wins, shown as examples in results/ladder.md
 SHOWN = [("attack", 0), ("attack", 4), ("attack", 10), ("attack", 13), ("normal", 0)]  # indices into ATTACKS / UTILITY
 _llm = app.llm
 
@@ -186,7 +186,7 @@ def examples():
     return "\n".join(out) + "\n"
 
 
-RAW = Path("ladder_raw.json")  # committed: per-level results and every sample reply; `eval_ladder.py --render` rebuilds RESULTS.md from it with no LLM calls
+RAW = Path("ladder_raw.json")  # committed: per-level results and every sample reply; `eval_ladder.py --render` rebuilds results/ladder.md from it with no LLM calls
 
 
 def wilson(k, n, z=1.96):
@@ -218,10 +218,9 @@ def write_results(runs, results):
              "instructions, role-play, fake admin, prompt extraction, delimiter break-out). An attack is lost when its canary or code "
              "marker appears in the reply. Normal questions: 6 grounded questions whose answer is a fact in the docs. "
              "Failed LLM calls are excluded from both scores and counted in the last column; a level with failures is less trustworthy. The interval is a Wilson 95% interval over all attack trials pooled across runs (28 per level): with so few questions it is wide, so only large gaps between levels are real.\n")
-    out = Path("RESULTS.md")
-    kept = out.read_text() if out.exists() else ""  # the embedding section is written by hand: keep it
-    kept = kept[kept.index("## Embedding model comparison"):] if "## Embedding model comparison" in kept else ""
-    out.write_text(header + "\n".join(rows) + notes + mechanics() + examples() + ("\n" + kept if kept else ""))
+    out = Path("results/ladder.md")
+    out.parent.mkdir(exist_ok=True)
+    out.write_text(header + "\n".join(rows) + notes + mechanics() + examples())
 
 
 RAW_DATE = [str(date.today())]

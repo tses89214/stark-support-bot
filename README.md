@@ -7,7 +7,7 @@ attack and question set after each step.
 ## Results at a glance
 
 Mean of 2 runs per level, 14 attacks and 6 normal questions, free model `nvidia/nemotron-3-super-120b-a12b:free`
-(full table, caveats and example replies: [RESULTS.md](RESULTS.md)).
+(the ladder page has the caveats and example replies: [results/ladder.md](results/ladder.md); all result pages: [RESULTS.md](RESULTS.md)).
 
 | Level | Adds | Attacks blocked (95% interval) | Normal questions answered | Prompt size |
 |---|---|---|---|---|
@@ -56,7 +56,7 @@ The LLM is any free model on [OpenRouter](https://openrouter.ai); embeddings run
 - **Small fixed sets**: 30 classifier cases, 40 retrieval questions, 14 attacks, 6 normal questions. One case is a few points; differences of one or two attacks are within noise. Growing them (about 100 labelled messages, edge cases, repeated runs with confidence intervals) is planned, not done.
 - **Free model, 2 runs per level.** Replies vary between runs and the free tier rate-limits (a day's quota ran out mid-evaluation once). Check `classify failed` on stderr before trusting a score.
 - **Blunt judging.** Substring/canary checks miss paraphrased leaks, can pass a wrong answer that happens to contain the keyword, and a refusal that merely quotes the canary ("I cannot reply ORDER-OK") is not counted as a lost attack, which also means a real compliance written inside quotes or bold would be missed. The "unanswerable" checks (6 questions) fail on an invented answer matched by a per-question regex, so a made-up warranty followed by the support address no longer passes, but a paraphrased invention can still slip through.
-- **`MIN_SCORE` is not the best point on its curve.** `eval_threshold.py` (RESULTS.md) shows 0.40 loses no on-topic question but lets 5 of 15 off-topic ones through; 0.45 would be a better trade. Left at 0.40 because the ladder was measured with it. `TOP_K = 3` misses 2 of 40 questions that top-5 finds (hit@1 34, hit@3 38, hit@5 40), so it trades accuracy for prompt size.
+- **`MIN_SCORE` is not the best point on its curve.** `eval_threshold.py` ([results/retrieval-knobs.md](results/retrieval-knobs.md)) shows 0.40 loses no on-topic question but lets 5 of 15 off-topic ones through; 0.45 would be a better trade. Left at 0.40 because the ladder was measured with it. `TOP_K = 3` misses 2 of 40 questions that top-5 finds (hit@1 34, hit@3 38, hit@5 40), so it trades accuracy for prompt size.
 - **One model, one language mix, fictional data.** Nothing here is evidence about other LLMs or real support traffic.
 
 ## Built with AI assistance
@@ -80,7 +80,7 @@ cp .env.example .env              # add your OpenRouter key, pick a :free model
 | `python eval_retrieval.py [model ...]` | hit@3 / MRR@3 per embedding model | free, local |
 | `python eval_threshold.py` | `MIN_SCORE` sweep and `TOP_K` hit@k with bge-m3 | free, local |
 | `python eval_guardrails.py` | classifier accuracy on 30 labelled messages | free-tier LLM calls |
-| `python eval_ladder.py [runs]` | defense ladder L0 (no defenses) to L4 (the real bot): attacks blocked, answers, prompt size; writes `RESULTS.md` | free-tier LLM calls, ~30 min |
+| `python eval_ladder.py [runs]` | defense ladder L0 (no defenses) to L4 (the real bot): attacks blocked, answers, prompt size; writes `results/ladder.md` | free-tier LLM calls, ~30 min |
 | `python eval_answers.py` | end to end: grounded answers contain doc facts, unanswerable ones point to support | free-tier LLM calls |
 
 Free models are rate-limited: if the classifier fails it escalates to a human and prints

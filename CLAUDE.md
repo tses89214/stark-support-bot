@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-Customer-service chatbot (`app.py`) doing RAG over fake product data for "Stark Spaceships" (`data/stark_spaceships/`, models 1–15), plus evals that measure its guardrails and retrieval. No build system. Offline tests are in `test_app.py`, evals are `eval_*.py`, lint is `ruff check . --exclude .venv`; results are in `RESULTS.md`.
+Customer-service chatbot (`app.py`) doing RAG over fake product data for "Stark Spaceships" (`data/stark_spaceships/`, models 1–15), plus evals that measure its guardrails and retrieval. No build system. Offline tests are in `test_app.py`, evals are `eval_*.py`, lint is `ruff check . --exclude .venv`; results are in `results/` (index: `RESULTS.md`).
 
 ## Running
 
