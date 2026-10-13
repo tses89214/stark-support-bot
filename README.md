@@ -9,16 +9,16 @@ attack and question set after each step.
 Mean of 2 runs per level, 14 attacks and 6 normal questions, free model `nvidia/nemotron-3-super-120b-a12b:free`
 (full table, caveats and example replies: [RESULTS.md](RESULTS.md)).
 
-| Level | Adds | Attacks blocked | Normal questions answered | Prompt size |
+| Level | Adds | Attacks blocked (95% interval) | Normal questions answered | Prompt size |
 |---|---|---|---|---|
-| L0 | nothing: all docs stuffed in, bare prompt | 7 / 14 | 6 / 6 | 8.7k chars |
-| L1 | answer rules ("answer only from the docs") | 10 / 14 | 6 / 6 | 8.9k |
-| L2 | input fence + untrusted-input rule | 12.5 / 14 | 6 / 6 | 9.2k |
-| L3 | input classifier and routing | 14 / 14 | 6 / 6 | 3.2k |
-| L4 | bge-m3 retrieval, top-3, score floor (= the real bot) | 14 / 14 | 6 / 6 | 1.6k |
+| L0 | nothing: all docs stuffed in, bare prompt | 7 / 14 (33–67%) | 6 / 6 | 8.7k chars |
+| L1 | answer rules ("answer only from the docs") | 10 / 14 (53–85%) | 6 / 6 | 8.9k |
+| L2 | input fence + untrusted-input rule | 12.5 / 14 (73–96%) | 6 / 6 | 9.2k |
+| L3 | input classifier and routing | 14 / 14 (88–100%) | 6 / 6 | 3.2k |
+| L4 | bge-m3 retrieval, top-3, score floor (= the real bot) | 14 / 14 (88–100%) | 6 / 6 | 1.6k |
 
 What it shows:
-- **The input fence (L2) is the biggest single jump** (10 to 12.5 of 14) and costs no extra call. The classifier (L3) closes the rest.
+- **The input fence (L2) is the biggest single jump** (10 to 12.5 of 14) and costs no extra call. The classifier (L3) closes the rest. Neighbouring levels' intervals overlap (L1 vs L2, L2 vs L3), so with 14 attacks only the larger gaps (L0 to L2, L0 to L3) are firm.
 - **Retrieval (L4) shrinks the prompt about 5x** (8.7k to 1.6k chars).
 - **Normal questions are answered 6/6 at every level**: the defenses did not cost helpfulness. An earlier 5.5/6 was a judging bug (the model wrote `Stark 8` with a narrow no-break space, which a plain substring check missed); matching now normalises Unicode.
 - **Embedding choice matters most for Chinese**: bge-m3 gets hit@3 38/40, all-MiniLM-L6-v2 only 25/40 (Chinese 2/16); embeddinggemma-2 got 29/30 on the earlier 30-question set.
