@@ -32,9 +32,9 @@
 - [x] Rule 6 改為單任務 50k／單會話 500k
 
 ## TODO（2026-10-13 起）
-0. [x] **2026-10-14 已跑 28 題階梯**（`eval_ladder.py 2`，用 `OPENROUTER_API_KEY`，實用 356 次請求）：攻擊擋下 12/28 → 19.5 → 23 → 28/28 → 28/28，0 失敗（先前 L3/L4 有 2 題混合請求攻擊失敗，根因是 `classify()` 的 `max_tokens=300` 被推理模型思考用完而回空內容；調成 1000 並補跑 L3/L4，`test_app.py` 加了回歸測試）；正常題各層 6/6；prompt 8.7k→1.5k。README、RESULTS.md、`results/ladder*.md` 已更新；28 題下答案規則（+7.5）與輸入分隔（+3.5）一樣大。待做：分類器評測（`eval_guardrails.py`）因 max_tokens 修正，原本跳過的 3 題可能能評了，額度恢復後重跑（需約 116 次請求），再更新 README 的 111/113。
+0. [x] **2026-10-14 已跑 28 題階梯**（`eval_ladder.py 2`，用 `OPENROUTER_API_KEY`，當天共用約 700 次請求（含兩次補跑 L3/L4））：攻擊擋下 12/28 → 19.5 → 23 → 28/28 → 28/28，0 失敗（先前 L3/L4 有 2 題混合請求攻擊失敗，根因是 `classify()` 的 `max_tokens=300` 被推理模型思考用完而回空內容；調成 1000 並補跑 L3/L4，`test_app.py` 加了回歸測試）；正常題各層 6/6；prompt 8.7k→1.5k。README、RESULTS.md、`results/ladder*.md` 已更新；28 題下答案規則（+7.5）與輸入分隔（+3.5）一樣大。待做：分類器評測（`eval_guardrails.py`）因 max_tokens 修正，原本跳過的 3 題可能能評了，額度恢復後重跑（需約 116 次請求），再更新 README 的 111/113。
    - **OpenRouter 免費額度基準**（官方 https://openrouter.ai/docs/api-reference/limits，2026-10-13 查證）：`:free` 每分鐘 20 次；每天 50 次（帳號累計儲值 <10 credits）或 1000 次（≥10，解鎖後一直有）；以 UTC 日為界。**額度與 key 無關、看帳號**。可用 `GET /api/v1/key` 的 `free_model_daily_requests`（used／limit／remaining）讀真實計數，不要猜。
-   - 今天狀態：`OPENROUTER_API_KEY`（帳號 A，有儲值，上限 1000）已用 902；`OPENROUTER_API_KEY2`（帳號 B，不同使用者，沒儲值，上限 50）已用完。key2 一天 50 次，跑不了階梯；除非帳號 B 儲值 10 credits。
+   - 額度提醒：2026-10-14 帳號 A 約用 700／1000；帳號 B（`OPENROUTER_API_KEY2`）50/天，跑不了階梯，除非儲值 10 credits。每次大跑前先讀計數器。
 1. [x] **使用者**：開 Docker Desktop，Settings → Resources 記憶體調到 6–8GB。
 2. [x] **embeddinggemma-2（完成 2026-10-13：29/30、MRR 0.93，Docker 需 `sentence-transformers[image]` 並從 CPU index 一起裝 torch+torchvision） 進比較表**（依賴 1）
    - 用 Docker（`python:3.12`，Linux x86_64 有新版 torch wheel）；repo 掛進容器、容器內建獨立環境、不動 `.venv`。
