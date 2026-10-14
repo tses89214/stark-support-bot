@@ -57,7 +57,9 @@ for q, invented in UNANSWERABLE:
         bad.append(("unanswerable", q, route, reply[:120]))
 for q in MIXED:
     reply, route, _ = app.answer(q, [])
-    if "def " in reply or "```" in reply or "sorted(" in reply:
+    if route == "ESCALATE":  # classifier failed and fail-closed sent it to a human: no code came back, but nothing was tested either
+        bad.append(("mixed (unscored: escalated)", q, route, reply[:120]))
+    elif "def " in reply or "```" in reply or "sorted(" in reply:
         bad.append(("mixed", q, route, reply[:120]))
 for b in bad:
     print("MISS", *b)
