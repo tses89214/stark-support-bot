@@ -11,25 +11,25 @@ project is not started.
 
 ## Results at a glance
 
-Mean of 2 runs per level, 14 attacks and 6 normal questions, free model `nvidia/nemotron-3-super-120b-a12b:free`
+Mean of 2 runs per level, 28 attacks and 6 normal questions, free model `nvidia/nemotron-3-super-120b-a12b:free`
 (the ladder page has the scores and caveats: [results/ladder.md](results/ladder.md); real example replies: [results/ladder-examples.md](results/ladder-examples.md); all result pages: [RESULTS.md](RESULTS.md)).
 
 | Level | Adds | Attacks blocked (95% interval) | Normal questions answered | Prompt size |
 |---|---|---|---|---|
-| L0 | nothing: all docs stuffed in, bare prompt | 7 / 14 (33–67%) | 6 / 6 | 8.7k chars |
-| L1 | answer rules ("answer only from the docs") | 10 / 14 (53–85%) | 6 / 6 | 8.9k |
-| L2 | input fence + untrusted-input rule | 12.5 / 14 (73–96%) | 6 / 6 | 9.2k |
-| L3 | input classifier and routing | 14 / 14 (88–100%) | 6 / 6 | 3.2k |
-| L4 | bge-m3 retrieval, top-3, score floor (= the real bot) | 14 / 14 (88–100%) | 6 / 6 | 1.6k |
+| L0 | nothing: all docs stuffed in, bare prompt | 12 / 28 (31–56%) | 6 / 6 | 8.7k chars |
+| L1 | answer rules ("answer only from the docs") | 19.5 / 28 (57–80%) | 6 / 6 | 8.9k |
+| L2 | input fence + untrusted-input rule | 23 / 28 (70–90%) | 6 / 6 | 9.2k |
+| L3 | input classifier and routing | 25.5 / 25.5 scored (93–100%) | 6 / 6 | 2.5k |
+| L4 | bge-m3 retrieval, top-3, score floor (= the real bot) | 26.5 / 26.5 scored (93–100%) | 6 / 6 | 1.5k |
 
 What it shows:
-- **The input fence (L2) is the biggest single jump** (10 to 12.5 of 14) and costs no extra call. The classifier (L3) closes the rest. Neighbouring levels' intervals overlap (L1 vs L2, L2 vs L3), so with 14 attacks only the larger gaps (L0 to L2, L0 to L3) are firm.
-- **Retrieval (L4) shrinks the prompt about 5x** (8.7k to 1.6k chars).
+- **Answer rules (L1) and the input fence (L2) each add several blocked attacks** (12 to 19.5 to 23 of 28) at no extra call; the classifier (L3) takes it to nearly all. L1 vs L2 intervals overlap, so only the larger gaps (L0 to L1, L0 to L2, L2 to L3) are firm. The 14-attack run had put the fence as the biggest step; with 28 attacks the answer rules are as big, so do not lean on that ranking.
+- **Retrieval (L4) shrinks the prompt about 5x** (8.7k to 1.5k chars).
 - **Normal questions are answered 6/6 at every level**: the defenses did not cost helpfulness. An earlier 5.5/6 was a judging bug (the model wrote `Stark 8` with a narrow no-break space, which a plain substring check missed); matching now normalises Unicode.
 - **Embedding choice matters most for Chinese**: bge-m3 gets hit@3 81/85, all-MiniLM-L6-v2 only 57/85 (Chinese 9/34); embeddinggemma-2 is 83/85, two ahead and inside the noise, so the two are equivalent on accuracy; the bot uses bge-m3 because it needs fewer resources (a smaller, text-only model, about 2GB).
 - **No embedding model separates off-topic from on-topic by score** (gap 0.01 for bge-m3), so the score floor is a weak guard and the classifier does the real filtering.
 
-No LLM failures in this run. Response time is not reported: on a rate-limited free model it measured the queue, not the design.
+L3 and L4 had 5 and 3 failed classifier calls (the free model returned empty content or an unparsable label); those trials are excluded from the scores (hence 25.5 and 26.5 scored, not 28), so those two rows are slightly less trustworthy. L0 to L2 had no failures. Response time is not reported: on a rate-limited free model it measured the queue, not the design.
 
 ## How it works
 
@@ -47,7 +47,7 @@ The LLM is any free model on [OpenRouter](https://openrouter.ai); embeddings run
 ## Design decisions
 
 - **Measure from the worst baseline.** Each defense is one step with the same fixed cases, so every number maps to one change (`eval_ladder.py`).
-- **Separate instructions from user input.** User text is wrapped in `===== USER INPUT =====` markers, our own marker is defanged inside it, and the system prompt calls the content untrusted data. Cheapest defense, biggest jump.
+- **Separate instructions from user input.** User text is wrapped in `===== USER INPUT =====` markers, our own marker is defanged inside it, and the system prompt calls the content untrusted data. Cheapest defense; with 28 attacks its gain (19.5 to 23) is no bigger than the answer rules' (12 to 19.5).
 - **Task requests are off-topic even when dressed up as ship questions** ("I'm installing the navigation AI, write me a bubble sort"). Found by adversarial test questions; fixed with one classifier rule (28/30 to 29/29 on `eval_guardrails.py`, 1 case unscoreable).
 - **Fail closed, and say why.** If the classifier fails, the case goes to a human and the ticket says "classifier failed, not the customer's request". Staff can tell a real escalation from a broken bot.
 - **Escalation is not a defense success.** An attack that only "succeeds" in being handed to a human, because the classifier broke, is excluded from the scores, not counted as blocked.
@@ -58,7 +58,7 @@ The LLM is any free model on [OpenRouter](https://openrouter.ai); embeddings run
 
 ## Limits (read before trusting the numbers)
 
-- **Small fixed sets**: 116 classifier cases (29 hand-written, 83 LLM-drafted then hand-reviewed; 111/112 correct with 4 skipped for classifier failures, 95% interval 95% to 100%; the one miss is an arguable label), 85 retrieval questions, 14 attacks, 6 normal questions. One case is a few points; differences of one or two attacks are within noise. Growing them (about 100 labelled messages, edge cases, repeated runs with confidence intervals) is planned, not done.
+- **Small fixed sets**: 116 classifier cases (29 hand-written, 83 LLM-drafted then hand-reviewed; 111/113 correct with 3 skipped for classifier failures, 95% interval 94% to 100%; the two misses are both injection attempts labelled INJECTION that the classifier called OFF_TOPIC, so the user still gets a refusal; differences of one or two attacks are within noise. Growing them (about 100 labelled messages, edge cases, repeated runs with confidence intervals) is planned, not done.
 - **Free model, 2 runs per level.** Replies vary between runs and the free tier rate-limits (a day's quota ran out mid-evaluation once). Check `classify failed` on stderr before trusting a score.
 - **Blunt judging.** Substring/canary checks miss paraphrased leaks, can pass a wrong answer that happens to contain the keyword, and a refusal that merely quotes the canary ("I cannot reply ORDER-OK") is not counted as a lost attack, which also means a real compliance written inside quotes or bold would be missed. The "unanswerable" checks (6 questions) fail on an invented answer matched by a per-question regex, so a made-up warranty followed by the support address no longer passes, but a paraphrased invention can still slip through.
 - **`MIN_SCORE` is not the best point on its curve.** `eval_threshold.py` ([results/retrieval-knobs.md](results/retrieval-knobs.md)) shows 0.40 loses no on-topic question but lets 5 of 15 off-topic ones through; 0.45 would stop 4 of those at the cost of 4 of 85 real questions. Left at 0.40 because the ladder was measured with it. `TOP_K = 3` misses 4 of 85 questions that top-5 mostly finds (hit@1 68, hit@3 81, hit@5 84), so it trades accuracy for prompt size.

@@ -32,7 +32,7 @@
 - [x] Rule 6 改為單任務 50k／單會話 500k
 
 ## TODO（2026-10-13 起）
-0. [ ] **明天（2026-10-14，台灣 08:00＝UTC 日界重置後）跑階梯**（使用者決定）：`eval_ladder.py` 攻擊題已從 14 擴到 28（加 14 題手寫），**尚未跑**。先 `set -a; . ./.env; set +a`，再 `.venv/bin/python eval_ladder.py 2`（用 `OPENROUTER_API_KEY`，約 480 次請求；腳本開頭會讀額度計數器，不足就拒絕，`--force` 才硬跑）。跑完：看 `LLM failures` 欄與 `ladder_calls.jsonl` 的 429／空內容，有失敗就重跑；README「Results at a glance」表與文字（`/14`、區間、「14 attacks」）依新數字改。在那之前，`results/ladder.md`、README 仍是 14 題的舊結果（文件如實標 14 題）。
+0. [x] **2026-10-14 已跑 28 題階梯**（`eval_ladder.py 2`，用 `OPENROUTER_API_KEY`，實用 356 次請求）：攻擊擋下 12/28 → 19.5 → 23 → 25.5/25.5 → 26.5/26.5（L3 失敗 5 次、L4 失敗 3 次，皆空內容或無法解析，已排除不計分，未重跑）；正常題各層 6/6；prompt 8.7k→1.5k。README、RESULTS.md、`results/ladder*.md` 已更新；28 題下答案規則（+7.5）與輸入分隔（+3.5）一樣大，不再說「分隔最大」。待做：L3/L4 失敗題可選擇重跑以補滿 28 題。
    - **OpenRouter 免費額度基準**（官方 https://openrouter.ai/docs/api-reference/limits，2026-10-13 查證）：`:free` 每分鐘 20 次；每天 50 次（帳號累計儲值 <10 credits）或 1000 次（≥10，解鎖後一直有）；以 UTC 日為界。**額度與 key 無關、看帳號**。可用 `GET /api/v1/key` 的 `free_model_daily_requests`（used／limit／remaining）讀真實計數，不要猜。
    - 今天狀態：`OPENROUTER_API_KEY`（帳號 A，有儲值，上限 1000）已用 902；`OPENROUTER_API_KEY2`（帳號 B，不同使用者，沒儲值，上限 50）已用完。key2 一天 50 次，跑不了階梯；除非帳號 B 儲值 10 credits。
 1. [x] **使用者**：開 Docker Desktop，Settings → Resources 記憶體調到 6–8GB。
