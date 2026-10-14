@@ -73,6 +73,13 @@ def test_ticket_records_reason():
     assert "damaged on arrival" not in reply  # the reason is for staff, not shown to the customer
 
 
+def test_classify_leaves_room_for_reasoning_tokens():
+    seen = {}
+    app.llm = lambda messages, **kw: (seen.update(kw), '{"category": "ANSWER"}')[1]
+    app.classify("hi")
+    assert seen["max_tokens"] >= 1000  # at 300 the free reasoning model returned empty content on "price + write Python" messages
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):

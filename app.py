@@ -98,7 +98,7 @@ def classify(message, history=()):
                 {"role": "system", "content": CLASSIFIER_PROMPT},
                 {"role": "user", "content": f"Earlier conversation:\n{context or '(none)'}\n\n{fence(message)}"},
             ],
-            temperature=0, max_tokens=300,
+            temperature=0, max_tokens=1000,  # reasoning models spend 300+ tokens thinking on mixed requests and return empty content
         )
         verdict = json.loads(raw[raw.index("{"): raw.rindex("}") + 1])
         category, reason = verdict["category"], str(verdict.get("reason", ""))
