@@ -20,3 +20,4 @@
 - 評估過換 Groq 免費方案（2026-10-13）：官方限制頁（console.groq.com/docs/rate-limits）有每日限制，gpt-oss-120b 為 30 RPM／1K RPD／8K TPM／200K TPD，而階梯 L0–L2 每次約 2.5–3k token，一天只能約 65–70 次，跑不完；「Groq 無每日上限」的說法與官方不符。使用者決定維持 OpenRouter 帳號 A，隔天（08:00 台灣）重置後跑階梯。Groq 只可能用在短 prompt 的分類器評測。
 - 檢索評測現為 85 題（每份文件 ≥5 題）：gemma-2 83/85、bge-m3 81/85、e5-base 79、e5-small 78、MiniLM 57；前四名區間重疊。維持 bge-m3 是因為成果類似、且 bge-m3 資源要求較低（約 2GB 純文字 vs gemma-2 多模態約 3GB）；機器本身跑得了 gemma-2（Docker 內跑完 85 題），不要寫成「跑不了」（使用者更正過）。
 
+- 語料已於 2026-10-15 擴為 30 型號（16–30 手寫、併入 data/stark_spaceships，index.npz 重建）；bge-m3 hit@3 現為 71/85（舊 81/85 作廢），README / results / guardrails / 階梯數字待重跑。新增 LLM 審查層 `review()`（不過重寫一次，再不過 NO_ANSWER）。檢索階梯 R0–R3 以 n=10/20/30、同一模型 nemotron 跑，結果在 MLflow；R4 等結果再決定。使用者偏好：整個評測同一模型、限流不得影響結果、不用關鍵字路由、文件唯讀。

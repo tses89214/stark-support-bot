@@ -8,7 +8,7 @@ os.environ.setdefault("OPENROUTER_API_KEY", "test")
 fake = types.ModuleType("sentence_transformers")  # app.py loads bge-m3 at import; these tests never embed
 fake.SentenceTransformer, fake.util = (lambda *a, **k: None), None
 sys.modules["sentence_transformers"] = fake
-import app  # noqa: E402  (must follow the sentence_transformers stub)
+import app  # must follow the sentence_transformers stub
 
 
 class Resp:
@@ -86,15 +86,43 @@ def test_list_all_question_gets_every_model_doc():
         system, user = messages[0]["content"], messages[-1]["content"]
         if "how many product documents" in system:
             return '{"scope": "ALL"}' if "全部有哪些" in user else '{"scope": "FEW"}'
+        if "final reviewer" in system:
+            return '{"ok": true}'
         return '{"category": "ANSWER"}' if "input filter" in system else "reply"
 
     app.llm = fake_llm
     app.encoder = types.SimpleNamespace(encode=lambda q: q)
     app.util = types.SimpleNamespace(semantic_search=lambda q, v, top_k: [[{"corpus_id": i, "score": 0.9} for i in range(top_k)]])
     _, route, sources = app.answer("全部有哪些？", [])
-    assert route == "ANSWER" and len(sources) == 15
+    assert route == "ANSWER" and len(sources) == sum(n.startswith("model_") for n in app.names)
     _, _, sources = app.answer("How much is the Stark 3?", [])
     assert len(sources) == app.TOP_K  # ordinary questions keep the small prompt
+
+
+def test_reviewer_rewrites_once_then_blocks_instead_of_releasing_an_unsupported_claim():
+    # Stark 8's sheet lists two accessories; a draft saying they "don't affect safety systems" is invented and must not reach the customer
+    drafts = iter(["Installing them won't affect the safety systems.", "Still safe, trust us.", "unused"])
+    seen = []
+
+    def fake_llm(messages, **kw):
+        system = messages[0]["content"]
+        if "input filter" in system:
+            return '{"category": "ANSWER"}'
+        if "how many product documents" in system:
+            return '{"scope": "FEW"}'
+        if "final reviewer" in system:
+            return '{"ok": false, "problems": ["safety claim not in documents"]}'
+        seen.append(system)
+        return next(drafts)
+
+    app.llm = fake_llm
+    app.encoder = types.SimpleNamespace(encode=lambda q: q)
+    app.util = types.SimpleNamespace(semantic_search=lambda q, v, top_k: [[{"corpus_id": i, "score": 0.9} for i in range(top_k)]])
+    history = []
+    reply, route, _ = app.answer("Stark 8 can be modified?", history)
+    assert reply == app.REPLIES["NO_ANSWER"] and route == "NO_ANSWER"
+    assert len(seen) == 2 and "safety claim not in documents" in seen[1]  # exactly one rewrite, told what was wrong
+    assert history == []  # a rejected draft must not become context for the next turn
 
 
 def test_read_doc_refuses_paths_outside_the_corpus():
@@ -115,6 +143,22 @@ def test_read_doc_refuses_paths_outside_the_corpus():
         except (ValueError, FileNotFoundError):
             continue
         raise AssertionError(f"read {bad!r}")
+
+
+def test_throttle_refuses_a_request_that_can_never_fit_the_token_budget():
+    # Groq free allows ~8K tokens/minute: an R0 prompt bigger than that must fail loudly, not retry forever or be scored as a wrong answer
+    import eval_retrieval_ladder as ladder
+
+    ladder.TPM = 1000
+    call = ladder.throttled(lambda messages, **kw: "sent")
+    assert call([{"content": "x" * 300}]) == "sent"
+    try:
+        call([{"content": "x" * 9000}])
+    except RuntimeError as e:
+        assert "exceeds" in str(e)
+    else:
+        raise AssertionError("oversize request was sent")
+    ladder.TPM = 0
 
 
 if __name__ == "__main__":

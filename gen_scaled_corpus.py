@@ -1,4 +1,4 @@
-"""Build a bigger, hierarchical corpus for the retrieval ladder: `python gen_scaled_corpus.py [TOTAL_MODELS]` (default 15).
+"""Build a bigger, hierarchical corpus for the retrieval ladder: `python gen_scaled_corpus.py [TOTAL_MODELS]` (default 15, at most 30).
 Writes data/stark_scaled/{brand,general,models,manuals}/ + INDEX.md + gold.json. Deterministic (no LLM, no randomness): the
 fictional manuals are templates, shared between models on purpose, so the same facts repeat across documents and
 questions like "which models use a joystick?" have a gold answer computed from the same table that wrote the text."""
@@ -68,16 +68,9 @@ def manual(i, seats):
             f"- **Brakes**: Stark {i} stops with {BRAKE[f['brake']]}\n"
             f"- **Throttle**: Stark {i} has {THROTTLE[f['throttle']]}\n"
             f"- **Climate**: Stark {i} has {CLIMATE[f['climate']]}\n"
-            f"- **Interior**: {'Stark %d has seating for %d passengers' % (i, seats) if seats else 'Stark %d carries crew only, no passenger seating' % i}; it has {INTERIOR[f['interior']]}\n"
+            f"- **Interior**: {f'Stark {i} has seating for {seats} passengers' if seats else f'Stark {i} carries crew only, no passenger seating'}; it has {INTERIOR[f['interior']]}\n"
             f"- **Service interval**: Service Stark {i} every {100 + 25 * (i % 4)} flight hours. Serial numbers start with SK{i:02d}.\n"
             f"- **Warning**: {WARNING[i % 3]}\n")
-
-
-def extra_model(i):
-    seats = 2 + i % 9
-    return (f"## Stark {i}\n- **Description**: A later addition to the Stark line.  \n- **Size**: {10 + i % 20} meters in length.  \n"
-            f"- **Weight**: {15 + i % 30} metric tons.  \n- **Capacity**: {seats} passengers.  \n- **Price**: ${2_000_000 + 100_000 * i:,}.  \n"
-            f"- **Notes**: Standard Stark service network applies.  \n"), seats
 
 
 if __name__ == "__main__":
@@ -100,12 +93,9 @@ if __name__ == "__main__":
                        ("guide_troubleshooting.txt", "Step-by-step fixes: ship will not start, vibration, wrong heading, cabin pressure, routine maintenance.")):
         write("general", name, desc, (SRC / name).read_text())
     for i in range(1, total + 1):
-        if i <= 15:
-            text = (SRC / f"model_{i}.txt").read_text()
-            m = re.search(r"\*\*Capacity\*\*: (\d+) passengers", text)
-            seats = int(m.group(1)) if m else 0  # some specs list crew or cargo, not passengers
-        else:
-            text, seats = extra_model(i)
+        text = (SRC / f"model_{i}.txt").read_text()
+        m = re.search(r"\*\*Capacity\*\*: (\d+) passengers", text)
+        seats = int(m.group(1)) if m else 0  # some specs list crew or cargo, not passengers
         write("models", f"model_{i}.txt", f"Stark {i} specification sheet: size, weight, capacity, colour, price, accessories.", text)
         write("manuals", f"manual_{i}.txt", f"Stark {i} owner's manual: steering, brakes, throttle, climate, interior, service interval, warning.", manual(i, seats))
         gold["facts"][i] = facts(i)

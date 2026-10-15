@@ -1,0 +1,9 @@
+## Stark 24
+- **Description**: A short-haul ferry that shuttles commuters between a planet and its orbital station.  
+- **Size**: 46 meters in length.  
+- **Weight**: 72 metric tons.  
+- **Capacity**: 60 passengers.  
+- **Color**: Harbour White.  
+- **Price**: $9,300,000.  
+- **Compatible Accessories**: Luggage Conveyor, Standing Rail Kit.  
+- **Notes**: Clean the boarding ramp seals weekly.  

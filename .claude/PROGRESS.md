@@ -1,5 +1,14 @@
 # PROGRESS
 
+## 2026-10-15 收尾（下班打卡）
+- 語料擴到 30 個型號：16–30 號是我逐個手寫、各自不同的規格表，已併入 `data/stark_spaceships/`（32 份），根目錄 `index.npz` 已重建（32 份）。
+- **數字已過期、尚未重跑**：`eval_retrieval.py` bge-m3 hit@3 現為 **71/85**（原 81/85，14 題漏，多是「哪個型號有某配件」被新文件分走）；`results/`、README 的檢索與階梯數字、`eval_guardrails`（111/113）都是 15 個型號時的結果。待辦：重跑 `eval_retrieval.py`（含 embeddinggemma-2，需 Docker）、`eval_ladder.py`、`eval_guardrails.py`，再更新 README / RESULTS.md；最低正常分數 0.42 對離題 0.47，`MIN_SCORE` 0.40 要重看。
+- 新增：`needs_all_docs`（第二層 LLM 範圍判斷，取代關鍵字）、`review()`（第三層：產生後審查，不過重寫一次，再不過回 NO_ANSWER，不進歷史；自寫 10 題 10/10，gpt-oss，樣本小）、MLflow tracing（`doc_tools.py`、`demo.sh`）、檢索階梯 R0–R3（`eval_retrieval_ladder.py`、`gen_scaled_corpus.py`，n=10/20/30，同一模型 nemotron）。
+- 檢索階梯 n=10/20/30 在背景跑，結果在 MLflow（`sqlite:///mlflow.db`，實驗 `retrieval-ladder`）；跑的期間不要重新生成 `data/stark_scaled/`。
+- 已知問題：Groq 免費層 8K TPM，廣泛問題（載入全部型號）接著追問會 429，畫面只顯示 Something went wrong（尚未處理 `Retry-After`）；`llm_calls` 計數含被節流拒絕的呼叫，略偏高；R4（R3 加 embedding 後備）等階梯結果再決定。
+- 未決：對話記憶（localStorage 或伺服器 session）、使用者對「不要 R1 / R2 不同種」的確切意思。
+- 尚未 push（使用者要求先問）。
+
 ## 當前狀態（2026-10-12）
 - 定位：作品集為主、學習實驗為輔；目標是「先做出能動的」（見 DECISIONS.md）。
 - LLM 後端：OpenRouter 免費模型（`llm()` in `app.py`），不再用 OpenAI / HF Inference（HF 需付費額度，402）。
