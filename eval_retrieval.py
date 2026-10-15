@@ -110,7 +110,8 @@ if __name__ == "__main__":
     for model, qp, pp in [m for m in MODELS if not wanted or m[0] in wanted]:
         enc = SentenceTransformer(model)
         docs = enc.encode([pp + t for t in texts])
-        search = lambda qs, enc=enc, qp=qp, docs=docs: util.semantic_search(enc.encode([qp + q for q in qs]), docs, top_k=3)
+        def search(qs, enc=enc, qp=qp, docs=docs):
+            return util.semantic_search(enc.encode([qp + q for q in qs]), docs, top_k=3)
         hits = search([q for q, _ in CASES])
         ok = [any(names[h["corpus_id"]] == gold for h in hit) for hit, (_, gold) in zip(hits, CASES)]
         en = [g for g, (q, _) in zip(ok, CASES) if q.isascii()]

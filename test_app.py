@@ -8,7 +8,7 @@ os.environ.setdefault("OPENROUTER_API_KEY", "test")
 fake = types.ModuleType("sentence_transformers")  # app.py loads bge-m3 at import; these tests never embed
 fake.SentenceTransformer, fake.util = (lambda *a, **k: None), None
 sys.modules["sentence_transformers"] = fake
-import app
+import app  # noqa: E402  (must follow the sentence_transformers stub)
 
 
 class Resp:

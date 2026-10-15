@@ -14,7 +14,10 @@ paths = sorted(DOCS_DIR.glob("*.txt"))
 names, texts = [p.stem for p in paths], [p.read_text() for p in paths]
 enc = SentenceTransformer(EMBED_MODEL)
 docs = enc.encode(texts)
-search = lambda qs, k: util.semantic_search(enc.encode(qs), docs, top_k=k)
+def search(qs, k):
+    return util.semantic_search(enc.encode(qs), docs, top_k=k)
+
+
 on = [h[0]["score"] for h in search([q for q, _ in CASES], 1)]
 off = [h[0]["score"] for h in search(OFF_TOPIC + MORE_OFF_TOPIC, 1)]
 print(f"{len(on)} on-topic, {len(off)} off-topic questions (on-topic min {min(on):.2f}, off-topic max {max(off):.2f})\n")
