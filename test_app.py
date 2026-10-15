@@ -80,6 +80,23 @@ def test_classify_leaves_room_for_reasoning_tokens():
     assert seen["max_tokens"] >= 1000  # at 300 the free reasoning model returned empty content on "price + write Python" messages
 
 
+def test_list_all_question_gets_every_model_doc():
+    # top-3 retrieval answered "which models do you sell?" with 3 of 15 and called that the full catalogue
+    def fake_llm(messages, **kw):
+        system, user = messages[0]["content"], messages[-1]["content"]
+        if "how many product documents" in system:
+            return '{"scope": "ALL"}' if "全部有哪些" in user else '{"scope": "FEW"}'
+        return '{"category": "ANSWER"}' if "input filter" in system else "reply"
+
+    app.llm = fake_llm
+    app.encoder = types.SimpleNamespace(encode=lambda q: q)
+    app.util = types.SimpleNamespace(semantic_search=lambda q, v, top_k: [[{"corpus_id": i, "score": 0.9} for i in range(top_k)]])
+    _, route, sources = app.answer("全部有哪些？", [])
+    assert route == "ANSWER" and len(sources) == 15
+    _, _, sources = app.answer("How much is the Stark 3?", [])
+    assert len(sources) == app.TOP_K  # ordinary questions keep the small prompt
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):
