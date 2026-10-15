@@ -97,6 +97,26 @@ def test_list_all_question_gets_every_model_doc():
     assert len(sources) == app.TOP_K  # ordinary questions keep the small prompt
 
 
+def test_read_doc_refuses_paths_outside_the_corpus():
+    # the document tool is the only door to the corpus: a model-chosen path must not reach .env or other files
+    import tempfile
+    from pathlib import Path
+
+    import doc_tools
+
+    root = Path(tempfile.mkdtemp())
+    (root / "a.txt").write_text("hello")
+    (root.parent / "secret.txt").write_text("nope")
+    doc_tools.ROOT = root
+    assert doc_tools.read_doc("a.txt") == "hello"
+    for bad in ("../secret.txt", "/etc/passwd", "../../.env"):
+        try:
+            doc_tools.read_doc(bad)
+        except (ValueError, FileNotFoundError):
+            continue
+        raise AssertionError(f"read {bad!r}")
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):

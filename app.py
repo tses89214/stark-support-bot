@@ -14,6 +14,7 @@ from pydantic import BaseModel
 from sentence_transformers import SentenceTransformer, util
 
 from build_index import DOCS_DIR, EMBED_MODEL, INDEX
+from doc_tools import trace
 
 SUPPORT = "customer_service@stack_spaceship.com"
 TOP_K = 3
@@ -21,6 +22,7 @@ MIN_SCORE = 0.4  # bge-m3: on-topic top scores >= 0.45, off-topic <= 0.43 on eva
 TICKETS = Path("tickets.jsonl")
 
 MODEL = os.environ["CHAT_MODEL"]  # e.g. google/gemma-4-31b-it:free
+BASE_URL = os.environ.get("LLM_BASE_URL", "https://openrouter.ai/api/v1")  # any OpenAI-compatible endpoint (Groq, Gemini, ...)
 
 
 def llm(messages, **kw):
@@ -28,8 +30,8 @@ def llm(messages, **kw):
     for attempt in (1, 2):
         try:
             r = requests.post(
-                "https://openrouter.ai/api/v1/chat/completions",
-                headers={"Authorization": f"Bearer {os.environ['OPENROUTER_API_KEY']}"},
+                f"{BASE_URL}/chat/completions",
+                headers={"Authorization": f"Bearer {os.environ.get('LLM_API_KEY') or os.environ['OPENROUTER_API_KEY']}"},
                 json={"model": MODEL, "messages": messages, **kw}, timeout=60,
             )
             r.raise_for_status()
@@ -135,6 +137,7 @@ def needs_all_docs(message, history=()):
         return False
 
 
+@trace()  # the bot's only write: shows up as a TOOL span when MLflow tracing is on
 def open_ticket(category, message, history, reason=""):
     # ponytail: a local file stands in for a helpdesk API; swap in a Zendesk/Jira call here
     ticket = uuid.uuid4().hex[:8]
