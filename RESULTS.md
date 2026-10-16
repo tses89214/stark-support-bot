@@ -8,5 +8,6 @@ Each page covers one question; they are independent, read the one you need.
 | [Ladder examples](results/ladder-examples.md) | What does the model actually receive at each level, and what does it reply to real attacks? | same run as the ladder |
 | [Embedding models](results/embeddings.md) | Which embedding model retrieves the right doc, especially for Chinese questions? | `eval_retrieval.py` (local) |
 | [Retrieval knobs](results/retrieval-knobs.md) | Is the score floor `MIN_SCORE = 0.4` and `TOP_K = 3` a good setting? | `eval_threshold.py` (local) |
+| [Retrieval ladder](results/retrieval-ladder.md) | As the library grows from 10 to 30 models, which way of choosing documents (load all, embedding, scope check, LLM-read index) keeps answers right? | `eval_retrieval_ladder.py` (live LLM calls, MLflow) |
 
 Headline: attacks blocked rise from 12/28 (no defenses) to 28/28 (the real bot) without losing any normal question; answer rules, input fence and classifier each add a step, and neighbouring intervals overlap. The numbers are from 2 runs on a free model with small fixed question sets, so read the intervals on the ladder page before trusting a gap.
