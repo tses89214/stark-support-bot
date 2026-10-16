@@ -11,21 +11,21 @@ project is not started.
 
 ## Results at a glance
 
-**The table below is the 15-model corpus; the 30-model rerun (2 runs) is pending the daily quota reset.** Mean of 2 runs per level, 28 attacks and 6 normal questions, free model `nvidia/nemotron-3-super-120b-a12b:free`
+**30-model corpus, 1 run per level (a 2-run rerun is pending the daily quota reset).** Single run per level, 28 attacks and 6 normal questions, free model `nvidia/nemotron-3-super-120b-a12b:free`
 (the ladder page has the scores and caveats: [results/ladder.md](results/ladder.md); real example replies: [results/ladder-examples.md](results/ladder-examples.md); all result pages: [RESULTS.md](RESULTS.md)).
 
 | Level | Adds | Attacks blocked (95% interval) | Normal questions answered | Prompt size |
 |---|---|---|---|---|
-| L0 | nothing: all docs stuffed in, bare prompt | 12 / 28 (31–56%) | 6 / 6 | 8.7k chars |
-| L1 | answer rules ("answer only from the docs") | 19.5 / 28 (57–80%) | 6 / 6 | 8.9k |
-| L2 | input fence + untrusted-input rule | 23 / 28 (70–90%) | 6 / 6 | 9.2k |
-| L3 | input classifier and routing | 28 / 28 (94–100%) | 6 / 6 | 2.5k |
-| L4 | bge-m3 retrieval, top-3, score floor (= the real bot) | 28 / 28 (94–100%) | 6 / 6 | 1.5k |
+| L0 | nothing: all docs stuffed in, bare prompt | 11 / 28 (24–58%) | 6 / 6 | 14.9k chars |
+| L1 | answer rules ("answer only from the docs") | 18 / 28 (46–79%) | 6 / 6 | 15.1k |
+| L2 | input fence + untrusted-input rule | 22 / 28 (60–90%) | 6 / 6 | 15.4k |
+| L3 | input classifier and routing | 28 / 28 (88–100%) | 6 / 6 | 3.5k |
+| L4 | bge-m3 retrieval, top-3, score floor (= the real bot) | 28 / 28 (88–100%) | 6 / 6 | 2.0k |
 
 What it shows:
-- **Answer rules (L1) and the input fence (L2) each add several blocked attacks** (12 to 19.5 to 23 of 28) at no extra call; the classifier (L3) takes it to nearly all. L1 vs L2 intervals overlap, so only the larger gaps (L0 to L1, L0 to L2, L2 to L3) are firm. The 14-attack run had put the fence as the biggest step; with 28 attacks the answer rules are as big, so do not lean on that ranking.
-- **Retrieval (L4) shrinks the prompt about 5x** (8.7k to 1.5k chars).
-- **Normal questions are answered 6/6 at every level**: the defenses did not cost helpfulness. (On the 30-model corpus a first rerun lost "How do I place an order?" at L4 because top-3 no longer surfaces the ordering guide.) An earlier 5.5/6 was a judging bug (the model wrote `Stark 8` with a narrow no-break space, which a plain substring check missed); matching now normalises Unicode.
+- **Answer rules (L1) and the input fence (L2) each add several blocked attacks** (11 to 18 to 22 of 28) at no extra call; the classifier (L3) takes it to nearly all. L1 vs L2 intervals overlap, so only the larger gaps (L0 to L1, L0 to L2, L2 to L3) are firm. The 14-attack run had put the fence as the biggest step; with 28 attacks the answer rules are as big, so do not lean on that ranking.
+- **Retrieval (L4) shrinks the prompt about 7x** (14.9k to 2.0k chars, 32 docs).
+- **Normal questions are answered 6/6 at every level**: the defenses did not cost helpfulness. (In a separate `eval_answers.py` run on the 30-model corpus, "How do I place an order?" was missed because top-3 no longer surfaces the ordering guide: 14/16 there.) An earlier 5.5/6 was a judging bug (the model wrote `Stark 8` with a narrow no-break space, which a plain substring check missed); matching now normalises Unicode.
 - **Embedding choice matters most for Chinese**: bge-m3 gets hit@3 81/85 on the original 15-model corpus (71/85 after it grew to 30 models; the other models' numbers below are still the 15-model ones, not rerun), all-MiniLM-L6-v2 only 57/85 (Chinese 9/34); embeddinggemma-2 is 83/85, two ahead and inside the noise, so the two are equivalent on accuracy; the bot uses bge-m3 because it needs fewer resources (a smaller, text-only model, about 2GB).
 - **No embedding model separates off-topic from on-topic by score** (gap 0.01 for bge-m3), so the score floor is a weak guard and the classifier does the real filtering.
 
