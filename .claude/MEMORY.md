@@ -24,3 +24,4 @@
 - 2026-10-16：手動跑評測前務必 export `CHAT_MODEL`（`.env` 內可能留著別的模型；這天誤用 gpt-oss 跑了三項，作廢重跑）；結果頁抬頭有 model 可核對。Cerebras 免費層（5 RPM／150 RPH／2400 RPD／100 萬 tokens/日）試過放棄；Groq 8K TPM 跑不動大 prompt；使用者決定評測一律 OpenRouter nemotron、額度不足寧可少跑輪數並標明，不用 `--force`。
 - 使用者想要的成果呈現：簡約 HTML、分頁、長文折疊（已做成 Artifact，見 PROGRESS.md）。
 
+- 2026-10-16 成果報告頁偏好：卡片只寫「做了什麼」加實際 prompt、結果放表格；表格與文字全寬；結果表不放 95% 區間；總覽先講調整再講結果；題目全文折疊並附類別等 meta。R2／R3 尚未決定（見 DECISIONS.md）。審查層 10 題集沒存檔。
