@@ -125,6 +125,38 @@ def test_reviewer_rewrites_once_then_blocks_instead_of_releasing_an_unsupported_
     assert history == []  # a rejected draft must not become context for the next turn
 
 
+def test_defense_levels_add_one_thing_each():
+    # the demo selector must mirror eval_ladder.py: L0 sends raw text with no rules, L2 fences it, L3 adds the classifier call
+    seen = []
+
+    def fake_llm(messages, **kw):
+        system = messages[0]["content"]
+        seen.append((system, messages[-1]["content"]))
+        return '{"category": "ANSWER"}' if "input filter" in system else "reply"
+
+    app.llm = fake_llm
+    for level, rules, fenced, classifier in (("L0", False, False, False), ("L1", True, False, False), ("L2", True, True, False), ("L3", True, True, True)):
+        seen.clear()
+        app.answer("hi", [], level)
+        system, user = seen[-1]
+        assert ("Answer ONLY" in system) == rules and ("USER INPUT" in user) == fenced, level
+        assert any("input filter" in s for s, _ in seen) == classifier, level
+
+
+def test_retrieval_modes_pick_documents_differently():
+    def fake_llm(messages, **kw):
+        system = messages[0]["content"]
+        return ('{"category": "ANSWER"}' if "input filter" in system else '{"ok": true}' if "final reviewer" in system
+                else '{"read": ["model_3", "made_up"]}' if "document index" in system else "reply")
+
+    app.llm = fake_llm
+    app.encoder = types.SimpleNamespace(encode=lambda q: q)
+    app.util = types.SimpleNamespace(semantic_search=lambda q, v, top_k: [[{"corpus_id": i, "score": 0.9} for i in range(top_k)]])
+    assert app.answer("x", [], "L4", "R0")[2] == list(app.names)
+    assert len(app.answer("x", [], "L4", "R1")[2]) == app.TOP_K
+    assert app.answer("x", [], "L4", "R3")[2] == ["model_3"]  # the invented name is dropped
+
+
 def test_read_doc_refuses_paths_outside_the_corpus():
     # the document tool is the only door to the corpus: a model-chosen path must not reach .env or other files
     import tempfile

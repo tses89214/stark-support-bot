@@ -24,12 +24,29 @@
   input { flex:1; padding:10px; font:inherit; color:var(--fg); background:var(--bg); border:1px solid var(--line); border-radius:8px; }
   button { padding:10px 16px; font:inherit; border:0; border-radius:8px; background:var(--me); color:#fff; cursor:pointer; }
   button:disabled { opacity:.5; }
+  #modes { display:flex; flex-wrap:wrap; gap:12px; margin:0 0 12px; font-size:13px; color:var(--muted); }
+  #modes select { font:inherit; color:var(--fg); background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:4px 6px; }
 </style>
 </head>
 <body>
 <div>
 <main>
   <h1>🚀 Stark Spaceships Support</h1>
+  <div id="modes">
+    <label>Defense <select id="defense">
+      <option value="L0">L0 no defenses</option>
+      <option value="L1">L1 + answer rules</option>
+      <option value="L2">L2 + input fence</option>
+      <option value="L3">L3 + classifier</option>
+      <option value="L4" selected>L4 + retrieval + review (real bot)</option>
+    </select></label>
+    <label>Retrieval <select id="retrieval">
+      <option value="R0">R0 all documents</option>
+      <option value="R1">R1 top-3 embedding</option>
+      <option value="R2" selected>R2 scope check + top-3</option>
+      <option value="R3">R3 LLM reads index</option>
+    </select></label>
+  </div>
   <div id="log"></div>
   <form id="form">
     <input id="input" placeholder="Ask about our spaceships…" autocomplete="off" autofocus>
@@ -44,6 +61,16 @@
 <script>
 const log = document.getElementById("log"), input = document.getElementById("input"), form = document.getElementById("form");
 let history = [];
+const defense = document.getElementById("defense"), retrieval = document.getElementById("retrieval");
+
+function reset() {  // another level is a different bot: old turns would leak the previous one's answers into this one
+  history = [];
+  log.replaceChildren();
+  showDocs({});
+  retrieval.disabled = defense.value !== "L4";  // L0-L3 always read every document
+}
+defense.addEventListener("change", reset);
+retrieval.addEventListener("change", reset);
 
 function add(text, cls, meta) {
   const div = document.createElement("div");
@@ -69,6 +96,8 @@ function showDocs(docs) {
   if (!box.children.length) box.innerHTML = '<p class="meta">No documents used for this reply.</p>';
 }
 
+reset();
+
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const message = input.value.trim();
@@ -78,7 +107,7 @@ form.addEventListener("submit", async (e) => {
   const wait = add("…", "bot");
   form.querySelector("button").disabled = true;
   try {
-    const res = await fetch("/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message, history }) });
+    const res = await fetch("/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message, history, defense: defense.value, retrieval: retrieval.value }) });
     if (!res.ok) throw new Error(res.status);
     const data = await res.json();
     history = data.history;

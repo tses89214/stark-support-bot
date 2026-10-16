@@ -1,5 +1,10 @@
 # PROGRESS
 
+## 2026-10-16 demo 加防禦／檢索切換
+- demo 網頁頂端兩個下拉：Defense L0–L4（對應 `eval_ladder.py`）、Retrieval R0–R3（只在 L4 有效，L0–L3 一律塞全部文件）。切換即清空對話與右側文件。後端 `app.answer(message, history, defense, retrieval)`，預設 L4／R2 與先前行為相同；非法值由 pydantic 回 422。R4 不存在（階梯只有 R0–R3）。
+- R3 在 demo 以文件開頭 160 字動態產生索引（`doc_index()`），與階梯實驗用的 `INDEX.md` 手寫摘要不同。
+- 已測：`test_app.py` 兩個新測試、ruff、埠 8010 live 冒煙（L0／L3／L4+R3）。demo 在 :8000 跑的是舊程式，需重啟。
+
 ## 2026-10-16 晚間（下班打卡，成果報告頁重做）
 - 成果報告頁（Artifact，私人，第 21 版）：https://claude.ai/artifact/U49cMV838JcXaQd4L6ELjM 。分頁：總覽／測試題目／防禦階梯／檢索階梯／分類器／審查層。原始碼只在 scratchpad，會話結束後不保留，要改就 `Artifact read` 取回再發布。
 - 本次使用者的偏好：L0–L4 卡片只寫「做了什麼」加實際 prompt（為什麼／結果／漏掉不放，結果在下方表格）；檢索階梯 R0–R3 做了什麼併進結果表；表格與文字全寬、不限寬；結果表不放 95% 區間；總覽先講「我們調整了什麼」再講結果大數字；流程以流程圖呈現；題目全文折疊並附類別、語言、來源。
