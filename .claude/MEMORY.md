@@ -21,3 +21,6 @@
 - 檢索評測現為 85 題（每份文件 ≥5 題）：gemma-2 83/85、bge-m3 81/85、e5-base 79、e5-small 78、MiniLM 57；前四名區間重疊。維持 bge-m3 是因為成果類似、且 bge-m3 資源要求較低（約 2GB 純文字 vs gemma-2 多模態約 3GB）；機器本身跑得了 gemma-2（Docker 內跑完 85 題），不要寫成「跑不了」（使用者更正過）。
 
 - 語料已於 2026-10-15 擴為 30 型號（16–30 手寫、併入 data/stark_spaceships，index.npz 重建）；bge-m3 hit@3 現為 71/85（舊 81/85 作廢），README / results / guardrails / 階梯數字待重跑。新增 LLM 審查層 `review()`（不過重寫一次，再不過 NO_ANSWER）。檢索階梯 R0–R3 以 n=10/20/30、同一模型 nemotron 跑，結果在 MLflow；R4 等結果再決定。使用者偏好：整個評測同一模型、限流不得影響結果、不用關鍵字路由、文件唯讀。
+- 2026-10-16：手動跑評測前務必 export `CHAT_MODEL`（`.env` 內可能留著別的模型；這天誤用 gpt-oss 跑了三項，作廢重跑）；結果頁抬頭有 model 可核對。Cerebras 免費層（5 RPM／150 RPH／2400 RPD／100 萬 tokens/日）試過放棄；Groq 8K TPM 跑不動大 prompt；使用者決定評測一律 OpenRouter nemotron、額度不足寧可少跑輪數並標明，不用 `--force`。
+- 使用者想要的成果呈現：簡約 HTML、分頁、長文折疊（已做成 Artifact，見 PROGRESS.md）。
+

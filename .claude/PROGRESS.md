@@ -6,7 +6,16 @@
 - 審查提示加了「轉介客服信箱、標註來源、通用指南不算違規」；自寫 10 題審查集仍 10/10（nemotron）。
 - **誤用 gpt-oss 的教訓**：`.env` 的 `CHAT_MODEL` 被我手動重跑時沿用，違反「同一模型」，已全部用 nemotron 重跑；之後手動跑評測一律先 `export CHAT_MODEL=...`，並看 `results/ladder.md` 抬頭的 model。
 - 試過 Cerebras（gpt-oss-120b）：每分鐘 5 次、每小時 150 次、每日 2400 次／100 萬 tokens，總時間不比 OpenRouter 短，**放棄，回 OpenRouter**（`.env.example`、`app.py` 已還原）。
-- 待辦：①額度重置後（台北 08:00）補跑 `eval_ladder.py 2` 與檢索階梯 2 輪，更新 README；②`MIN_SCORE` 在新分數分布下（相關最低 0.42 < 離題最高 0.47）要重新決定；③`eval_retrieval.py` 其他模型與 embeddinggemma-2（需 Docker）尚未重跑，`results/embeddings.md` 仍是 15 型號數字；④重啟 demo server 才會用到審查層；⑤Groq 429 的 `Retry-After` 與「系統忙碌」訊息；⑥`llm_calls` 計數偏高；⑦對話記憶、JEV 實驗仍未決。
+- 成果報告頁（分頁＋折疊）：https://claude.ai/artifact/U49cMV838JcXaQd4L6ELjM （私人；原始碼在 scratchpad，會話結束後不保留，要改就用 `Artifact read` 取回再發布；補完 2 輪數字後要更新）。
+- **下個會話待辦（依序）**，跑評測前先 `set -a; . ./.env; set +a; unset LLM_BASE_URL LLM_API_KEY; export CHAT_MODEL=nvidia/nemotron-3-super-120b-a12b:free HF_HUB_OFFLINE=1`，並用 `GET /api/v1/key` 讀剩餘額度（台北 08:00 重置，1000/天）：
+  1. `python eval_ladder.py 2`（需約 476 次）→ 更新 `results/ladder*.md`、README 階梯表（目前標「1 輪」）、成果報告頁。**不要在跑的時候重新生成 `data/stark_scaled/`**。
+  2. 檢索階梯 R0–R3 補第 2 輪（`eval_retrieval_ladder.py`，MLflow `retrieval-ladder`），更新 `results/retrieval-ladder.md`。
+  3. `eval_retrieval.py` 其他模型重跑（MiniLM、e5-small／base、multilingual-MiniLM、bge-m3）→ `results/embeddings.md`、`retrieval-knobs.md`、README 的 embedding 段落；embeddinggemma-2 要 Docker（使用者說要開時會告知）。
+  4. 重新決定 `MIN_SCORE`（相關最低 0.42 ＜ 離題最高 0.47；0.40 放過 6/15，0.45 擋 3/85 相關題），改完要重跑階梯 L4。
+  5. 重啟 demo（目前跑的是舊程式碼）：`lsof -ti tcp:8000 | xargs kill; lsof -ti tcp:5001 | xargs kill; nohup ./demo.sh &`（`.env` 目前是 OpenRouter，Groq 429 問題不再出現，除非改回 Groq）。
+  6. 小修：`llm_calls` 計數含被節流拒絕的呼叫；Groq 路徑未處理 `Retry-After`。
+  7. 未決（要先問使用者）：對話記憶（localStorage 或伺服器 session）、「不要 R1 / R2 不同種」的確切意思、JEV 實驗（定價不明、需外部服務同意）、人工抽查端到端評測。
+- 狀態：分支 `feat/openrouter`，已 push 到 `5346315`；之後的 docs commit（`2e94a31` 與本次）未 push，push 前先問使用者。
 
 ## 2026-10-15 收尾（下班打卡）
 - 語料擴到 30 個型號：16–30 號是我逐個手寫、各自不同的規格表，已併入 `data/stark_spaceships/`（32 份），根目錄 `index.npz` 已重建（32 份）。
