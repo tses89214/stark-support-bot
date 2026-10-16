@@ -1,0 +1,9 @@
+## Stark 8
+- **Description**: A high-capacity transport designed for group tours or space cruises.  
+- **Size**: 50 meters in length.  
+- **Weight**: 90 metric tons.  
+- **Capacity**: 30 passengers.  
+- **Color**: Sapphire Blue.  
+- **Price**: $15,000,000.  
+- **Compatible Accessories**: Large-Scale Entertainment Hubs, Life Support Expansion Modules.  
+- **Notes**: Replace air filters every 1,000 light-years to maintain cabin air quality.  

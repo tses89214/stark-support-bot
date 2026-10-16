@@ -1,0 +1,9 @@
+## Stark 3
+- **Description**: Built for speed enthusiasts, this sleek model reaches unprecedented velocities.  
+- **Size**: 18 meters in length.  
+- **Weight**: 25 metric tons.  
+- **Capacity**: 3 passengers.  
+- **Color**: Crimson Red.  
+- **Price**: $5,200,000.  
+- **Compatible Accessories**: High-Performance Thrusters, Advanced Navigation AI.  
+- **Notes**: Use heat-resistant paint for exterior maintenance to prevent wear from friction.  

@@ -1,0 +1,8 @@
+## Stark 17 Owner's Manual
+- **Steering**: Stark 17 uses a fly-by-wire steering wheel. Turning the wheel yaws the ship; the wheel has a 540-degree lock-to-lock range and self-centres within 3 seconds of release.
+- **Brakes**: Stark 17 stops with retro-thruster braking. A full stop from cruise speed takes up to 40 seconds. The brake pedal blends thrusters and drag fins automatically.
+- **Throttle**: Stark 17 has a slider throttle with 5 detents. Detent 3 is cruise. Moving the slider past detent 4 needs the safety latch to be released.
+- **Climate**: Stark 17 has a fan-only cabin system with no active cooling. In hot docks, open the vent shutters before boarding. The filter must be replaced every 3 months.
+- **Interior**: Stark 17 has seating for 5 passengers; it has fabric seats with an LED cabin strip. Clean with a damp cloth only; solvents fade the fabric.
+- **Service interval**: Service Stark 17 every 125 flight hours. Serial numbers start with SK17.
+- **Warning**: Never charge the power cell unattended overnight.

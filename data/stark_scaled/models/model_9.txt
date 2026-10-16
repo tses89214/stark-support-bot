@@ -1,0 +1,9 @@
+## Stark 9
+- **Description**: A futuristic spacecraft for high-tech operations and cutting-edge experiments.  
+- **Size**: 20 meters in length.  
+- **Weight**: 30 metric tons.  
+- **Capacity**: 2 passengers and a full lab setup.  
+- **Color**: Chrome with Neon Highlights.  
+- **Price**: $10,000,000.  
+- **Compatible Accessories**: Research Modules, Energy Amplifiers.  
+- **Notes**: Conduct energy core diagnostics weekly to prevent overheating.  

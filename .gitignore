@@ -175,7 +175,6 @@ index.npz
 INTERVIEW.md
 PLAN.md
 ladder_calls.jsonl
-data/stark_scaled/
 mlflow.db
 mlruns/
 mlartifacts/

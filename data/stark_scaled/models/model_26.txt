@@ -1,0 +1,9 @@
+## Stark 26
+- **Description**: A patrol cruiser used by orbital police to enforce flight lanes.  
+- **Size**: 30 meters in length.  
+- **Weight**: 45 metric tons.  
+- **Capacity**: 5 passengers.  
+- **Color**: Navy Black.  
+- **Price**: $6,700,000.  
+- **Compatible Accessories**: Siren and Light Bar, Transponder Scanner.  
+- **Notes**: Update the transponder blacklist before each shift.  

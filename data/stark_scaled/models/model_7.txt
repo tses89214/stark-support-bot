@@ -1,0 +1,9 @@
+## Stark 7
+- **Description**: A durable exploration spaceship built for extreme environments.  
+- **Size**: 28 meters in length.  
+- **Weight**: 45 metric tons.  
+- **Capacity**: 4 passengers.  
+- **Color**: Forest Green.  
+- **Price**: $6,800,000.  
+- **Compatible Accessories**: Adaptive Landing Gear, Hazard Detection Systems.  
+- **Notes**: Regularly calibrate terrain sensors to avoid landing malfunctions.  

@@ -1,0 +1,9 @@
+## Stark 5
+- **Description**: Ideal for cargo and trade missions, offering exceptional storage capacity.  
+- **Size**: 45 meters in length.  
+- **Weight**: 70 metric tons.  
+- **Capacity**: 8 passengers and up to 30 metric tons of cargo.  
+- **Color**: Industrial Gray.  
+- **Price**: $9,500,000.  
+- **Compatible Accessories**: Heavy-Duty Storage Racks, Cargo Lifting Cranes.  
+- **Notes**: Replace screws in the main cargo hold with **size 32 screws** for stability.  

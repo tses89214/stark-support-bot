@@ -1,0 +1,8 @@
+## Stark 5 Owner's Manual
+- **Steering**: Stark 5 uses a fly-by-wire steering wheel. Turning the wheel yaws the ship; the wheel has a 540-degree lock-to-lock range and self-centres within 3 seconds of release.
+- **Brakes**: Stark 5 stops with retro-thruster braking. A full stop from cruise speed takes up to 40 seconds. The brake pedal blends thrusters and drag fins automatically.
+- **Throttle**: Stark 5 has a foot-pedal throttle with cruise hold. Press the cruise button at the speed you want and release the pedal; any brake input cancels cruise hold.
+- **Climate**: Stark 5 has a fan-only cabin system with no active cooling. In hot docks, open the vent shutters before boarding. The filter must be replaced every 3 months.
+- **Interior**: Stark 5 has seating for 8 passengers; it has fabric seats with an LED cabin strip. Clean with a damp cloth only; solvents fade the fabric.
+- **Service interval**: Service Stark 5 every 125 flight hours. Serial numbers start with SK05.
+- **Warning**: Never charge the power cell unattended overnight.

@@ -1,0 +1,9 @@
+## Stark 1
+- **Description**: A compact spaceship designed for solo travelers or small groups, perfect for interplanetary commutes.  
+- **Size**: 15 meters in length.  
+- **Weight**: 20 metric tons.  
+- **Capacity**: 2 passengers.  
+- **Color**: Metallic Silver.  
+- **Price**: $2,000,000.  
+- **Compatible Accessories**: Solar Power Booster, Compact Cargo Pods.  
+- **Notes**: Ensure regular maintenance of the ion propulsion system every 500 light-years.  

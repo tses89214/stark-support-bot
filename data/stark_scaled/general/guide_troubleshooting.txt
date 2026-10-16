@@ -1,0 +1,6 @@
+## Troubleshooting Guide
+- **Ship will not start**: 1) Check that the main power cell indicator is green. 2) Reseat the ignition module. 3) If the indicator is amber, recharge for 30 minutes and retry. 4) If it still fails, contact customer service.
+- **Thrusters vibrate during flight**: 1) Land and let the thrusters cool for 10 minutes. 2) Inspect the thruster mounts for loose bolts. 3) Tighten the mounts to the torque in your manual. 4) Do not fly again if vibration continues.
+- **Navigation AI gives wrong heading**: 1) Restart the Advanced Navigation AI. 2) Recalibrate it against a known beacon. 3) Update its firmware from the owner portal.
+- **Cabin pressure warning**: 1) Put on emergency masks. 2) Land at the nearest station. 3) Do not open the hatch until the warning clears.
+- **Routine maintenance**: Inspect the hull every 3 months and replace filters every 6 months. Models used in dusty environments need filter changes more often.

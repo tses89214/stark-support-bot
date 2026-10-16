@@ -1,0 +1,8 @@
+## Stark 22 Owner's Manual
+- **Steering**: Stark 22 uses a dual-joystick station. The left stick controls translation and the right stick controls rotation. Press both stick buttons for 2 seconds to centre the ship.
+- **Brakes**: Stark 22 stops with retro-thruster braking. A full stop from cruise speed takes up to 40 seconds. The brake pedal blends thrusters and drag fins automatically.
+- **Throttle**: Stark 22 has a slider throttle with 5 detents. Detent 3 is cruise. Moving the slider past detent 4 needs the safety latch to be released.
+- **Climate**: Stark 22 has a fan-only cabin system with no active cooling. In hot docks, open the vent shutters before boarding. The filter must be replaced every 3 months.
+- **Interior**: Stark 22 has seating for 6 passengers; it has leather seats with wood-grain trim. Condition the leather every 3 months and keep it out of direct sunlight at the dock.
+- **Service interval**: Service Stark 22 every 150 flight hours. Serial numbers start with SK22.
+- **Warning**: Never leave the throttle unattended during docking.

@@ -1,0 +1,215 @@
+{
+ "facts": {
+  "1": {
+   "steering": 1,
+   "brake": 0,
+   "throttle": 0,
+   "climate": 0,
+   "interior": 0
+  },
+  "2": {
+   "steering": 2,
+   "brake": 0,
+   "throttle": 0,
+   "climate": 1,
+   "interior": 0
+  },
+  "3": {
+   "steering": 0,
+   "brake": 1,
+   "throttle": 0,
+   "climate": 1,
+   "interior": 0
+  },
+  "4": {
+   "steering": 1,
+   "brake": 1,
+   "throttle": 0,
+   "climate": 2,
+   "interior": 0
+  },
+  "5": {
+   "steering": 2,
+   "brake": 1,
+   "throttle": 1,
+   "climate": 2,
+   "interior": 0
+  },
+  "6": {
+   "steering": 0,
+   "brake": 0,
+   "throttle": 0,
+   "climate": 0,
+   "interior": 1
+  },
+  "7": {
+   "steering": 1,
+   "brake": 0,
+   "throttle": 0,
+   "climate": 0,
+   "interior": 1
+  },
+  "8": {
+   "steering": 2,
+   "brake": 0,
+   "throttle": 0,
+   "climate": 1,
+   "interior": 1
+  },
+  "9": {
+   "steering": 0,
+   "brake": 1,
+   "throttle": 0,
+   "climate": 1,
+   "interior": 1
+  },
+  "10": {
+   "steering": 1,
+   "brake": 1,
+   "throttle": 1,
+   "climate": 2,
+   "interior": 1
+  },
+  "11": {
+   "steering": 2,
+   "brake": 1,
+   "throttle": 0,
+   "climate": 2,
+   "interior": 2
+  },
+  "12": {
+   "steering": 0,
+   "brake": 0,
+   "throttle": 0,
+   "climate": 0,
+   "interior": 2
+  },
+  "13": {
+   "steering": 1,
+   "brake": 0,
+   "throttle": 0,
+   "climate": 0,
+   "interior": 2
+  },
+  "14": {
+   "steering": 2,
+   "brake": 0,
+   "throttle": 0,
+   "climate": 1,
+   "interior": 2
+  },
+  "15": {
+   "steering": 0,
+   "brake": 1,
+   "throttle": 1,
+   "climate": 1,
+   "interior": 2
+  },
+  "16": {
+   "steering": 1,
+   "brake": 1,
+   "throttle": 0,
+   "climate": 2,
+   "interior": 0
+  },
+  "17": {
+   "steering": 2,
+   "brake": 1,
+   "throttle": 0,
+   "climate": 2,
+   "interior": 0
+  },
+  "18": {
+   "steering": 0,
+   "brake": 0,
+   "throttle": 0,
+   "climate": 0,
+   "interior": 0
+  },
+  "19": {
+   "steering": 1,
+   "brake": 0,
+   "throttle": 0,
+   "climate": 0,
+   "interior": 0
+  },
+  "20": {
+   "steering": 2,
+   "brake": 0,
+   "throttle": 1,
+   "climate": 1,
+   "interior": 0
+  },
+  "21": {
+   "steering": 0,
+   "brake": 1,
+   "throttle": 0,
+   "climate": 1,
+   "interior": 1
+  },
+  "22": {
+   "steering": 1,
+   "brake": 1,
+   "throttle": 0,
+   "climate": 2,
+   "interior": 1
+  },
+  "23": {
+   "steering": 2,
+   "brake": 1,
+   "throttle": 0,
+   "climate": 2,
+   "interior": 1
+  },
+  "24": {
+   "steering": 0,
+   "brake": 0,
+   "throttle": 0,
+   "climate": 0,
+   "interior": 1
+  },
+  "25": {
+   "steering": 1,
+   "brake": 0,
+   "throttle": 1,
+   "climate": 0,
+   "interior": 1
+  },
+  "26": {
+   "steering": 2,
+   "brake": 0,
+   "throttle": 0,
+   "climate": 1,
+   "interior": 2
+  },
+  "27": {
+   "steering": 0,
+   "brake": 1,
+   "throttle": 0,
+   "climate": 1,
+   "interior": 2
+  },
+  "28": {
+   "steering": 1,
+   "brake": 1,
+   "throttle": 0,
+   "climate": 2,
+   "interior": 2
+  },
+  "29": {
+   "steering": 2,
+   "brake": 1,
+   "throttle": 0,
+   "climate": 2,
+   "interior": 2
+  },
+  "30": {
+   "steering": 0,
+   "brake": 0,
+   "throttle": 1,
+   "climate": 0,
+   "interior": 2
+  }
+ },
+ "models": 30
+}

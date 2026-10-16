@@ -1,0 +1,9 @@
+## Stark 10
+- **Description**: The ultimate flagship model, boasting the best technology and luxury.  
+- **Size**: 60 meters in length.  
+- **Weight**: 120 metric tons.  
+- **Capacity**: 20 passengers.  
+- **Color**: Platinum White with Holographic Effects.  
+- **Price**: $25,000,000.  
+- **Compatible Accessories**: Multi-Dimensional Communication Systems, Anti-Gravity Lounges.  
+- **Notes**: Only certified engineers should handle the anti-gravity stabilization unit during maintenance.  

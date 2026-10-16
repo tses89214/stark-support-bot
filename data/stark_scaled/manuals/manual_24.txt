@@ -1,0 +1,8 @@
+## Stark 24 Owner's Manual
+- **Steering**: Stark 24 uses a force-feedback yoke. Pull to climb, push to dive. Feedback strength is set from 1 to 5 in the Controls menu; use 2 or lower with gloves.
+- **Brakes**: Stark 24 stops with a 3-stage magnetic retarder. Stage 1 is gentle, stage 3 is for emergencies. Do not use stage 3 below 200 metres of altitude because it overheats the coils.
+- **Throttle**: Stark 24 has a slider throttle with 5 detents. Detent 3 is cruise. Moving the slider past detent 4 needs the safety latch to be released.
+- **Climate**: Stark 24 has single-zone climate control from 18 to 26 degrees Celsius. The filter must be replaced every 6 months.
+- **Interior**: Stark 24 has seating for 60 passengers; it has leather seats with wood-grain trim. Condition the leather every 3 months and keep it out of direct sunlight at the dock.
+- **Service interval**: Service Stark 24 every 100 flight hours. Serial numbers start with SK24.
+- **Warning**: Never fly with the cabin hatch seal warning lit.

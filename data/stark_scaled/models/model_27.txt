@@ -1,0 +1,9 @@
+## Stark 27
+- **Description**: An agricultural ship carrying a rotating greenhouse for growing crops in transit.  
+- **Size**: 52 meters in length.  
+- **Weight**: 85 metric tons.  
+- **Capacity**: 12 passengers.  
+- **Color**: Leaf Green.  
+- **Price**: $8,200,000.  
+- **Compatible Accessories**: Hydroponic Racks, Grow Light Array.  
+- **Notes**: Replace the grow light panels when output drops below 80 percent.  
