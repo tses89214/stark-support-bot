@@ -1,5 +1,13 @@
 # PROGRESS
 
+## 2026-10-16 收尾（下班打卡）
+- 30 型號重跑（nemotron）：`eval_guardrails` 113/116（95% 93–99%，0 失敗；錯的 3 題都是 INJECTION 邊界題）；`eval_threshold`（0.40：相關題 0/85 被擋、離題 6/15 通過；0.45：3/85 與 2/15；hit@1/3/5 = 63/71/78）；L0–L4 階梯（**1 輪**）攻擊擋下 11 → 18 → 22 → 28 → 28 /28，正常題 6/6。README 與 `results/ladder*.md` 已更新並 push（`5346315`）。
+- `eval_answers` 14/16（nemotron）：一題為審查層誤擋正確價格（追問「那多少錢」，單次變異），一題「怎麼下單」是 top-3 沒撈到下單指南（檢索限制，30 型號下的真實退步）。
+- 審查提示加了「轉介客服信箱、標註來源、通用指南不算違規」；自寫 10 題審查集仍 10/10（nemotron）。
+- **誤用 gpt-oss 的教訓**：`.env` 的 `CHAT_MODEL` 被我手動重跑時沿用，違反「同一模型」，已全部用 nemotron 重跑；之後手動跑評測一律先 `export CHAT_MODEL=...`，並看 `results/ladder.md` 抬頭的 model。
+- 試過 Cerebras（gpt-oss-120b）：每分鐘 5 次、每小時 150 次、每日 2400 次／100 萬 tokens，總時間不比 OpenRouter 短，**放棄，回 OpenRouter**（`.env.example`、`app.py` 已還原）。
+- 待辦：①額度重置後（台北 08:00）補跑 `eval_ladder.py 2` 與檢索階梯 2 輪，更新 README；②`MIN_SCORE` 在新分數分布下（相關最低 0.42 < 離題最高 0.47）要重新決定；③`eval_retrieval.py` 其他模型與 embeddinggemma-2（需 Docker）尚未重跑，`results/embeddings.md` 仍是 15 型號數字；④重啟 demo server 才會用到審查層；⑤Groq 429 的 `Retry-After` 與「系統忙碌」訊息；⑥`llm_calls` 計數偏高；⑦對話記憶、JEV 實驗仍未決。
+
 ## 2026-10-15 收尾（下班打卡）
 - 語料擴到 30 個型號：16–30 號是我逐個手寫、各自不同的規格表，已併入 `data/stark_spaceships/`（32 份），根目錄 `index.npz` 已重建（32 份）。
 - **數字已過期、尚未重跑**：`eval_retrieval.py` bge-m3 hit@3 現為 **71/85**（原 81/85，14 題漏，多是「哪個型號有某配件」被新文件分走）；`results/`、README 的檢索與階梯數字、`eval_guardrails`（111/113）都是 15 個型號時的結果。待辦：重跑 `eval_retrieval.py`（含 embeddinggemma-2，需 Docker）、`eval_ladder.py`、`eval_guardrails.py`，再更新 README / RESULTS.md；最低正常分數 0.42 對離題 0.47，`MIN_SCORE` 0.40 要重看。
