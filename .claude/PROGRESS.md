@@ -9,21 +9,21 @@
 - 成果報告頁（Artifact，私人，第 21 版）：https://claude.ai/artifact/U49cMV838JcXaQd4L6ELjM 。分頁：總覽／測試題目／防禦階梯／檢索階梯／分類器／審查層。原始碼只在 scratchpad，會話結束後不保留，要改就 `Artifact read` 取回再發布。
 - 本次使用者的偏好：L0–L4 卡片只寫「做了什麼」加實際 prompt（為什麼／結果／漏掉不放，結果在下方表格）；檢索階梯 R0–R3 做了什麼併進結果表；表格與文字全寬、不限寬；結果表不放 95% 區間；總覽先講「我們調整了什麼」再講結果大數字；流程以流程圖呈現；題目全文折疊並附類別、語言、來源。
 - 審查層 10 題草稿集當時是臨時腳本跑的，**沒存進 repo**，頁面只能列 6 則；要當正式評測得補成檔案。
-- **R2 vs R3 尚未決定**：正式機器人用 R2 的做法（`needs_all_docs`）只因為先做進去；R3 召回率較高（n=30：1.00 對 0.96）但 1 輪、15 題、區間重疊。補完第 2 輪再決定。
+- **R2 vs R3 尚未決定**：正式機器人用 R2 的做法（`needs_all_docs`）只因為先做進去；R3 召回率較高（n=30：1.00 對 0.96）第 2 輪後 n=30：R3 acc 0.93→1.00、R2 0.93→0.93；n=20：R3 1.00→0.93、R2 0.87→0.80，輪間波動和 R2/R3 差距一樣大，15 題、區間重疊，仍未決定。
 - `data/stark_scaled/`（檢索階梯用的 30 型號語料快照，確定性、由 `gen_scaled_corpus.py` 產生）已進版控（`index.npz` 仍 ignore）。跑檢索階梯會依序重生 n=10/20/30 覆蓋此目錄；**跑完要 `python gen_scaled_corpus.py 30` 還原，再 commit**，不要把 n=10/20 的內容提交。
 - 頁面內容尚未同步進 README／`results/`；未 push。
 - 待辦清單沿用下方 2026-10-16 收尾的「下個會話待辦」。
 
 ## 2026-10-16 收尾（下班打卡）
-- 30 型號重跑（nemotron）：`eval_guardrails` 113/116（95% 93–99%，0 失敗；錯的 3 題都是 INJECTION 邊界題）；`eval_threshold`（0.40：相關題 0/85 被擋、離題 6/15 通過；0.45：3/85 與 2/15；hit@1/3/5 = 63/71/78）；L0–L4 階梯（**1 輪**）攻擊擋下 11 → 18 → 22 → 28 → 28 /28，正常題 6/6。README 與 `results/ladder*.md` 已更新並 push（`5346315`）。
+- 30 型號重跑（nemotron）：`eval_guardrails` 113/116（95% 93–99%，0 失敗；錯的 3 題都是 INJECTION 邊界題）；`eval_threshold`（0.40：相關題 0/85 被擋、離題 6/15 通過；0.45：3/85 與 2/15；hit@1/3/5 = 63/71/78）；L0–L4 階梯（**2 輪平均，2026-10-19**）攻擊擋下 12.5 → 20.5 → 24.5 → 28 → 28 /28，正常題 6/6/6/6/5.5（L4 有一輪漏一題，未查是哪題）；0 失敗。README 與 `results/ladder*.md` 已更新並 push（`5346315`）。
 - `eval_answers` 14/16（nemotron）：一題為審查層誤擋正確價格（追問「那多少錢」，單次變異），一題「怎麼下單」是 top-3 沒撈到下單指南（檢索限制，30 型號下的真實退步）。
 - 審查提示加了「轉介客服信箱、標註來源、通用指南不算違規」；自寫 10 題審查集仍 10/10（nemotron）。
 - **誤用 gpt-oss 的教訓**：`.env` 的 `CHAT_MODEL` 被我手動重跑時沿用，違反「同一模型」，已全部用 nemotron 重跑；之後手動跑評測一律先 `export CHAT_MODEL=...`，並看 `results/ladder.md` 抬頭的 model。
 - 試過 Cerebras（gpt-oss-120b）：每分鐘 5 次、每小時 150 次、每日 2400 次／100 萬 tokens，總時間不比 OpenRouter 短，**放棄，回 OpenRouter**（`.env.example`、`app.py` 已還原）。
 - 成果報告頁（分頁＋折疊）：https://claude.ai/artifact/U49cMV838JcXaQd4L6ELjM （私人；原始碼在 scratchpad，會話結束後不保留，要改就用 `Artifact read` 取回再發布；補完 2 輪數字後要更新）。
 - **下個會話待辦（依序）**，跑評測前先 `set -a; . ./.env; set +a; unset LLM_BASE_URL LLM_API_KEY; export CHAT_MODEL=nvidia/nemotron-3-super-120b-a12b:free HF_HUB_OFFLINE=1`，並用 `GET /api/v1/key` 讀剩餘額度（台北 08:00 重置，1000/天）：
-  1. `python eval_ladder.py 2`（需約 476 次）→ 更新 `results/ladder*.md`、README 階梯表（目前標「1 輪」）、成果報告頁。**不要在跑的時候重新生成 `data/stark_scaled/`**。
-  2. 檢索階梯 R0–R3 補第 2 輪（`eval_retrieval_ladder.py`，MLflow `retrieval-ladder`），更新 `results/retrieval-ladder.md`。
+  1. [x] 2026-10-19 `eval_ladder.py 2` 已跑，`results/ladder*.md`、README 已更新。
+  2. 檢索階梯第 2 輪：n=30、n=20 已跑（`results/retrieval-ladder.md` 已更新）；**n=10 尚缺第 2 輪**（額度用完，台北 08:00 後補：`gen_scaled_corpus.py 10 && eval_retrieval_ladder.py 10`，跑完 `gen_scaled_corpus.py 30` 還原）。MLflow 有一筆舊 RUNNING 的 R3-n30（重開機中斷）可忽略。成果報告頁尚未換成 2 輪數字。
   3. `eval_retrieval.py` 其他模型重跑（MiniLM、e5-small／base、multilingual-MiniLM、bge-m3）→ `results/embeddings.md`、`retrieval-knobs.md`、README 的 embedding 段落；embeddinggemma-2 要 Docker（使用者說要開時會告知）。
   4. 重新決定 `MIN_SCORE`（相關最低 0.42 ＜ 離題最高 0.47；0.40 放過 6/15，0.45 擋 3/85 相關題），改完要重跑階梯 L4。
   5. 重啟 demo（目前跑的是舊程式碼）：`lsof -ti tcp:8000 | xargs kill; lsof -ti tcp:5001 | xargs kill; nohup ./demo.sh &`（`.env` 目前是 OpenRouter，Groq 429 問題不再出現，除非改回 Groq）。
