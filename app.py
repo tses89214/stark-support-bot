@@ -94,7 +94,8 @@ REPLIES = {
                "I've passed this conversation to a human agent (ticket {ticket}).",
     "ESCALATE": "I'm sorry about that. I've passed your case to a human agent (ticket {ticket}) "
                 f"who will contact you. You can also email {SUPPORT}.",
-    "HANDOFF": "I can't look up orders or give quotes myself. I've passed your request to a human agent (ticket {ticket}) "
+    "HANDOFF": "I can't help with that directly (order lookups, quotes, discounts and custom work need a person). "
+               "I've passed your request to a human agent (ticket {ticket}) "
                f"who will get back to you. You can also email {SUPPORT}.",
     "NO_ANSWER": f"I couldn't find that in our product documents. Please email {SUPPORT} and a human will help.",
 }
