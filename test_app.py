@@ -54,6 +54,21 @@ def test_classify_fails_closed_to_escalate():
     assert "classifier failed" in reason  # support staff must be able to tell a bot outage from an angry customer
 
 
+def test_greeting_gets_the_canned_intro_without_retrieval_or_answer_call():
+    # "hi" has nothing in the documents; it used to fall through to "I don't know". HELP must answer from code, one classifier call only.
+    calls = with_responses([Resp('{"category": "HELP"}')])
+    reply, route, sources = app.answer("hi", [])
+    assert route == "HELP" and reply == app.REPLIES["HELP"] and sources == [] and len(calls) == 1
+
+
+def test_handoff_opens_a_ticket_instead_of_saying_i_dont_know():
+    # An order-status question cannot be answered from the documents; the customer must reach a human, not get a dead end.
+    calls = with_responses([Resp('{"category": "HANDOFF", "reason": "order status"}')])
+    app.TICKETS = app.Path("/dev/null")
+    reply, route, sources = app.answer("Where is my order #12345?", [])
+    assert route == "HANDOFF" and "ticket" in reply and sources == [] and len(calls) == 1
+
+
 def test_classify_unknown_category_escalates():
     with_responses([Resp('{"category": "MAKE_UP_SOMETHING"}')])
     category, reason = app.classify("hi")
