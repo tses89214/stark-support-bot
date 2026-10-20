@@ -69,6 +69,13 @@ def test_handoff_opens_a_ticket_instead_of_saying_i_dont_know():
     assert route == "HANDOFF" and "ticket" in reply and sources == [] and len(calls) == 1
 
 
+def test_unparseable_index_pick_means_not_found_not_a_crash():
+    # R3 trusts the model to return JSON; prose or a cut-off reply must reach the customer as "not found", never as a 500.
+    with_responses([Resp("Sorry, I cannot pick documents for that."), Resp('{"read": ["model_1"')])
+    assert app.pick_by_index("how many models?") == []
+    assert app.pick_by_index("how many models?") == []
+
+
 def test_classify_unknown_category_escalates():
     with_responses([Resp('{"category": "MAKE_UP_SOMETHING"}')])
     category, reason = app.classify("hi")
