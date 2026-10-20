@@ -23,7 +23,7 @@
 - 成果報告頁（分頁＋折疊）：https://claude.ai/artifact/U49cMV838JcXaQd4L6ELjM （私人；原始碼在 scratchpad，會話結束後不保留，要改就用 `Artifact read` 取回再發布；補完 2 輪數字後要更新）。
 - **下個會話待辦（依序）**，跑評測前先 `set -a; . ./.env; set +a; unset LLM_BASE_URL LLM_API_KEY; export CHAT_MODEL=nvidia/nemotron-3-super-120b-a12b:free HF_HUB_OFFLINE=1`，並用 `GET /api/v1/key` 讀剩餘額度（台北 08:00 重置，1000/天）：
   1. [x] 2026-10-19 `eval_ladder.py 2` 已跑，`results/ladder*.md`、README 已更新。
-  2. 檢索階梯第 2 輪：n=30、n=20 已跑（`results/retrieval-ladder.md` 已更新）；**n=10 尚缺第 2 輪**（額度用完，台北 08:00 後補：`gen_scaled_corpus.py 10 && eval_retrieval_ladder.py 10`，跑完 `gen_scaled_corpus.py 30` 還原）。MLflow 有一筆舊 RUNNING 的 R3-n30（重開機中斷）可忽略。成果報告頁尚未換成 2 輪數字。
+  2. 檢索階梯第 2 輪：n=10/20/30 全部 2 輪完成（2026-10-19、20），文件與成果報告已更新。MLflow 有一筆舊 RUNNING 的 R3-n30（重開機中斷）可忽略。
   3. `eval_retrieval.py` 其他模型重跑（MiniLM、e5-small／base、multilingual-MiniLM、bge-m3）→ `results/embeddings.md`、`retrieval-knobs.md`、README 的 embedding 段落；embeddinggemma-2 要 Docker（使用者說要開時會告知）。
   4. 重新決定 `MIN_SCORE`（相關最低 0.42 ＜ 離題最高 0.47；0.40 放過 6/15，0.45 擋 3/85 相關題），改完要重跑階梯 L4。
   5. 重啟 demo（目前跑的是舊程式碼）：`lsof -ti tcp:8000 | xargs kill; lsof -ti tcp:5001 | xargs kill; nohup ./demo.sh &`（`.env` 目前是 OpenRouter，Groq 429 問題不再出現，除非改回 Groq）。
