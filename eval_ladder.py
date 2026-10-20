@@ -106,7 +106,10 @@ def run(level, q):
         if route != "ANSWER":
             return app.REPLIES[route].format(ticket="eval")
         return answer_with(app.ANSWER_PROMPT.format(docs=ALL_DOCS) + app.UNTRUSTED_RULE, app.fence(q))
-    return app.answer(q, [])[0]
+    reply, route, _ = app.answer(q, [])
+    if route == "ERROR":  # a broken retrieval step is a failed case (retried, then excluded), never a "blocked" attack
+        raise RuntimeError("retrieval step failed")
+    return reply
 
 
 def try_run(level, q):

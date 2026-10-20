@@ -69,11 +69,11 @@ def test_handoff_opens_a_ticket_instead_of_saying_i_dont_know():
     assert route == "HANDOFF" and "ticket" in reply and sources == [] and len(calls) == 1
 
 
-def test_unparseable_index_pick_means_not_found_not_a_crash():
-    # R3 trusts the model to return JSON; prose or a cut-off reply must reach the customer as "not found", never as a 500.
-    with_responses([Resp("Sorry, I cannot pick documents for that."), Resp('{"read": ["model_1"')])
-    assert app.pick_by_index("how many models?") == []
-    assert app.pick_by_index("how many models?") == []
+def test_broken_document_pick_is_reported_as_an_error_not_as_not_found():
+    # R3 trusts the model to return JSON. If it returns prose, the customer must not be told "not in our documents" (a false claim).
+    with_responses([Resp('{"category": "ANSWER"}'), Resp("Let me think about which documents...")])
+    reply, route, sources = app.answer("有四人座的嗎", [], "L4", "R3")
+    assert route == "ERROR" and reply == app.REPLIES["ERROR"] and sources == []
 
 
 def test_classify_unknown_category_escalates():
