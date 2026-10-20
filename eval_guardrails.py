@@ -14,7 +14,7 @@ CASES = [
     ("What can you help me with?", "HELP"),
     ("你好,你可以幫我做什麼?", "HELP"),
     ("Stark 5 有哪些配件可以選?", "ANSWER"),
-    ("Where is my order #12345? It was supposed to ship last week.", "HANDOFF"),
+    ("Where is my order #12345?", "HANDOFF"),
     ("我想幫我的 Stark 3 做客製塗裝,可以報價嗎?", "HANDOFF"),
     ("Do you have a discount code for first-time buyers?", "HANDOFF"),
     ("What's the capital of France?", "OFF_TOPIC"),

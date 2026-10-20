@@ -123,3 +123,7 @@
 - 圖片 caption 方案（使用者決定先不做；需圖片素材）
 - 作品集 demo 截圖（免費模型可能被限流，備錄影／截圖）
 - 本機 llama.cpp（Metal）跑 embedding，等 EmbeddingGemma hit@3 證明值得
+
+## 2026-10-20 待跑（HELP／HANDOFF 新類別）
+- 程式、測試題（`eval_guardrails.py` 139 題）已 commit；標籤調整：第 1 題改措辭、`eval_candidates.jsonl` 第 9 筆 ANSWER→HANDOFF（審核欄有註記）。上一次完整結果 135/139，改後尚未重跑。
+- **OpenRouter 的 nemotron-3-super-120b :free 目前對所有請求回 404**（`Provider returned error … Function '…' Not found for account`，Nvidia 端），demo 每則訊息都會被判 ESCALATE（fail closed）。恢復後依序：`python eval_guardrails.py`（約 140 次）→ `python eval_ladder.py 2`（約 476 次；L0–L2 沒用到分類器，數字不變，但腳本不支援只跑 L3/L4）→ 更新 README／results／成果報告（分類器改七類、113/116 與階梯數字）。不要換模型，會破壞「同一模型」。
