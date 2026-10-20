@@ -12,9 +12,19 @@ if os.environ.get("MLFLOW_TRACKING_URI"):
 
     def trace(span_type="TOOL"):
         return lambda fn: mlflow.trace(fn, span_type=span_type)
+
+    def record_usage(usage):
+        """Put the provider's token counts on the current span; MLflow sums them per trace (Traces tab, token usage)."""
+        span = mlflow.get_current_active_span()
+        if span and usage:
+            span.set_attribute("mlflow.chat.tokenUsage", {"input_tokens": usage.get("prompt_tokens", 0),
+                               "output_tokens": usage.get("completion_tokens", 0), "total_tokens": usage.get("total_tokens", 0)})
 else:
     def trace(span_type="TOOL"):
         return lambda fn: fn
+
+    def record_usage(usage):
+        pass
 
 ROOT = Path("data/stark_scaled")
 encoder = None  # set by the caller to share one bge-m3 copy (2GB); built lazily otherwise

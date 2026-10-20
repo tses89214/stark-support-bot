@@ -15,7 +15,7 @@ from pydantic import BaseModel
 from sentence_transformers import SentenceTransformer, util
 
 from build_index import DOCS_DIR, EMBED_MODEL, INDEX
-from doc_tools import trace
+from doc_tools import record_usage, trace
 
 SUPPORT = "customer_service@stack_spaceship.com"
 TOP_K = 3
@@ -38,7 +38,9 @@ def llm(messages, **kw):
                 json={"model": MODEL, "messages": messages, **NO_THINK, **kw}, timeout=60,
             )
             r.raise_for_status()
-            content = r.json()["choices"][0]["message"]["content"]
+            body = r.json()
+            record_usage(body.get("usage"))
+            content = body["choices"][0]["message"]["content"]
             if content:
                 return content
             raise ValueError("empty content")
