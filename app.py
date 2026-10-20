@@ -24,6 +24,7 @@ TICKETS = Path("tickets.jsonl")
 
 MODEL = os.environ["CHAT_MODEL"]  # e.g. google/gemma-4-31b-it:free
 BASE_URL = os.environ.get("LLM_BASE_URL", "https://openrouter.ai/api/v1")  # any OpenAI-compatible endpoint (Groq, Gemini, ...)
+NO_THINK = {"reasoning": {"enabled": False}} if os.environ.get("LLM_NO_THINK") else {}  # demo only: OpenRouter reasoning models otherwise spend max_tokens thinking (evals leave it unset)
 
 
 @trace("LLM")  # one span per model call, with the prompt and reply, nested under whichever step made it
@@ -34,7 +35,7 @@ def llm(messages, **kw):
             r = requests.post(
                 f"{BASE_URL}/chat/completions",
                 headers={"Authorization": f"Bearer {os.environ.get('LLM_API_KEY') or os.environ['OPENROUTER_API_KEY']}"},
-                json={"model": MODEL, "messages": messages, **kw}, timeout=60,
+                json={"model": MODEL, "messages": messages, **NO_THINK, **kw}, timeout=60,
             )
             r.raise_for_status()
             content = r.json()["choices"][0]["message"]["content"]
@@ -243,7 +244,10 @@ def answer(message, history, defense="L4", retrieval="R2"):
     if level >= 3:
         route, reason = classify(message, history)
         if route in ("ABUSIVE", "ESCALATE", "HANDOFF"):
-            return REPLIES[route].format(ticket=open_ticket(route, message, history, reason)), route, []
+            ticket = open_ticket(route, message, history, reason)  # a classifier outage still reaches a human (fail closed) ...
+            if reason.startswith("classifier failed"):  # ... but the customer is told it was our error, not that they complained
+                return REPLIES["ERROR"], "ERROR", []
+            return REPLIES[route].format(ticket=ticket), route, []
         if route != "ANSWER":
             return REPLIES[route], route, []
 
@@ -289,7 +293,11 @@ class ChatRequest(BaseModel):
 @app.post("/chat")
 def chat(req: ChatRequest):
     history = [{"role": m["role"], "content": m["content"]} for m in req.history]  # keep only role/content
-    reply, route, sources = answer(req.message, history, req.defense, req.retrieval)
+    try:
+        reply, route, sources = answer(req.message, history, req.defense, req.retrieval)
+    except Exception as e:  # noqa: BLE001 - a failed model call is an error the customer is told about, not a 500 page or a fake "not found"
+        print(f"answer failed: {e!r}", file=sys.stderr)
+        reply, route, sources = REPLIES["ERROR"], "ERROR", []
     return {"reply": reply, "route": route, "sources": sources, "history": history, "docs": {n: docs[n] for n in sources}}
 
 

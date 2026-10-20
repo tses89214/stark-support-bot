@@ -76,6 +76,18 @@ def test_broken_document_pick_is_reported_as_an_error_not_as_not_found():
     assert route == "ERROR" and reply == app.REPLIES["ERROR"] and sources == []
 
 
+def test_model_outage_is_reported_as_an_error_and_still_opens_a_ticket():
+    # An outage must not be shown as "I passed your complaint to a human" (false) nor as "not in our documents" (false).
+    with_responses([Resp(status=500), Resp(status=500)])
+    tickets, real = [], app.open_ticket
+    app.open_ticket = lambda *a, **k: tickets.append(a) or "t"
+    try:
+        reply, route, _ = app.answer("How much is the Stark 3?", [])
+    finally:
+        app.open_ticket = real
+    assert route == "ERROR" and reply == app.REPLIES["ERROR"] and len(tickets) == 1  # the human still sees it
+
+
 def test_classify_unknown_category_escalates():
     with_responses([Resp('{"category": "MAKE_UP_SOMETHING"}')])
     category, reason = app.classify("hi")
