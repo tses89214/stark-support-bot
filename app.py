@@ -1,9 +1,11 @@
 """Serving: `uvicorn app:app`. Each message goes classify -> retrieve -> answer; the browser keeps the chat history."""
+import contextvars
 import json
 import os
 import sys
 import time
 import uuid
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Literal
 
@@ -50,6 +52,7 @@ def llm(messages, **kw):
             time.sleep(2)
 
 
+POOL = ThreadPoolExecutor(max_workers=4)
 encoder = SentenceTransformer(EMBED_MODEL)
 if not INDEX.exists():
     raise SystemExit("index.npz not found: run `python build_index.py` first")
@@ -226,13 +229,13 @@ def pick_by_index(message):
     return [n for n in json.loads(raw[raw.index("{"): raw.rindex("}") + 1])["read"] if n in docs]  # an invented name is dropped
 
 
-def select_docs(message, history, retrieval):
+def select_docs(message, history, retrieval, all_docs=None):
     """Names of the documents to read, or None for 'not found'. R0 all docs | R1 top-k | R2 scope check, then top-k or every model | R3 LLM reads the index."""
     if retrieval == "R0":
         return list(names)
     if retrieval == "R3":
         return pick_by_index(message) or None
-    if retrieval == "R2" and needs_all_docs(message, history):  # a vague "which ones are there?" scores low on every doc, so it skips retrieval and the score gate
+    if retrieval == "R2" and (needs_all_docs(message, history) if all_docs is None else all_docs):  # a vague "which ones are there?" scores low on every doc, so it skips retrieval and the score gate
         return [n for n in names if n.startswith("model_")]
     # a follow-up like "how much is it?" only matches a doc if the previous user turn is part of the query
     prev = next((m["content"] for m in reversed(history) if m["role"] == "user"), "")
@@ -247,6 +250,9 @@ def answer(message, history, defense="L4", retrieval="R2", session=""):
     level = int(defense[1])
     if session:
         update_trace_session(session)
+    scope = None
+    if level == 4 and retrieval == "R2":  # the scope check does not depend on the classifier: start both together and save one round trip (wasted when the classifier blocks)
+        scope = POOL.submit(contextvars.copy_context().run, needs_all_docs, message, list(history))
     if level >= 3:
         route, reason = classify(message, history)
         if route in ("ABUSIVE", "ESCALATE", "HANDOFF"):
@@ -258,7 +264,7 @@ def answer(message, history, defense="L4", retrieval="R2", session=""):
             return REPLIES[route], route, []
 
     try:
-        sources = select_docs(message, history, retrieval) if level == 4 else list(names)
+        sources = select_docs(message, history, retrieval, scope and scope.result()) if level == 4 else list(names)
     except Exception as e:  # noqa: BLE001 - a broken retrieval step is an error, not "not found": say so instead of faking an answer
         print(f"retrieval step failed: {e!r}", file=sys.stderr)
         return REPLIES["ERROR"], "ERROR", []

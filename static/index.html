@@ -17,8 +17,19 @@
   .doc b { display:block; margin-bottom:4px; }
   h1 { font-size:18px; margin:0 0 12px; }
   #log { flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:10px; }
-  .msg { max-width:85%; padding:8px 12px; border-radius:12px; background:var(--card); white-space:pre-wrap; }
+  .msg { max-width:85%; padding:8px 12px; border-radius:12px; background:var(--card); white-space:pre-wrap; overflow-wrap:anywhere; }
   .me { align-self:flex-end; background:var(--me); color:#fff; }
+  .md { white-space:normal; }
+  .md > :first-child { margin-top:0; } .md > :last-child { margin-bottom:0; }
+  .md p, .md ul, .md ol, .md pre, .md table, .md h3, .md h4 { margin:.5em 0; }
+  .md ul, .md ol { padding-left:1.4em; }
+  .md h3, .md h4 { font-size:1em; }
+  .md code { font:.9em ui-monospace, monospace; background:rgba(127,127,127,.2); padding:1px 4px; border-radius:4px; }
+  .md pre { background:rgba(127,127,127,.2); padding:8px; border-radius:6px; overflow-x:auto; white-space:pre; }
+  .md pre code { background:none; padding:0; }
+  .md table { border-collapse:collapse; font-size:.9em; display:block; overflow-x:auto; }
+  .md th, .md td { border:1px solid var(--line); padding:3px 8px; }
+  .md hr { border:0; border-top:1px solid var(--line); }
   .meta { font-size:12px; color:var(--muted); margin-top:4px; }
   form { display:flex; gap:8px; margin-top:12px; }
   input { flex:1; padding:10px; font:inherit; color:var(--fg); background:var(--bg); border:1px solid var(--line); border-radius:8px; }
@@ -74,10 +85,50 @@ function reset() {  // another level is a different bot: old turns would leak th
 defense.addEventListener("change", reset);
 retrieval.addEventListener("change", reset);
 
+// Small markdown subset for model replies: headings, lists, tables, code, bold/italic, links. HTML is escaped first, so a reply cannot inject markup.
+function md(src) {
+  const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const inline = (s) => esc(s)
+    .replace(/`([^`]+)`/g, "<code>$1</code>")
+    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+    .replace(/(^|[^*])\*([^*\s][^*]*)\*/g, "$1<em>$2</em>")
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+  const lines = src.replace(/\r/g, "").split("\n"), out = [];
+  for (let i = 0; i < lines.length; i++) {
+    const l = lines[i];
+    if (l.trim().startsWith("```")) {
+      const code = [];
+      for (i++; i < lines.length && !lines[i].trim().startsWith("```"); i++) code.push(lines[i]);
+      out.push(`<pre><code>${esc(code.join("\n"))}</code></pre>`);
+    } else if (/^\s*[-*]\s+/.test(l) || /^\s*\d+[.)]\s+/.test(l)) {
+      const tag = /^\s*\d/.test(l) ? "ol" : "ul", items = [];
+      for (; i < lines.length && /^\s*([-*]|\d+[.)])\s+/.test(lines[i]); i++) items.push(`<li>${inline(lines[i].replace(/^\s*([-*]|\d+[.)])\s+/, ""))}</li>`);
+      i--;
+      out.push(`<${tag}>${items.join("")}</${tag}>`);
+    } else if (/^\s*\|.*\|\s*$/.test(l)) {
+      const rows = [];
+      for (; i < lines.length && /^\s*\|.*\|\s*$/.test(lines[i]); i++) rows.push(lines[i].trim().slice(1, -1).split("|").map((c) => c.trim()));
+      i--;
+      const body = rows.filter((r) => !r.every((c) => /^:?-{2,}:?$/.test(c)));
+      out.push("<table>" + body.map((r, n) => "<tr>" + r.map((c) => `<${n ? "td" : "th"}>${inline(c)}</${n ? "td" : "th"}>`).join("") + "</tr>").join("") + "</table>");
+    } else if (/^#{1,6}\s/.test(l)) {
+      out.push(`<h3>${inline(l.replace(/^#+\s*/, ""))}</h3>`);
+    } else if (/^\s*(---+|\*\*\*+)\s*$/.test(l)) {
+      out.push("<hr>");
+    } else if (l.trim()) {
+      const para = [];
+      for (; i < lines.length && lines[i].trim() && !/^\s*([-*]|\d+[.)])\s+|^\s*\||^#{1,6}\s|^\s*```/.test(lines[i]); i++) para.push(inline(lines[i]));
+      i--;
+      out.push(`<p>${para.join("<br>")}</p>`);
+    }
+  }
+  return out.join("");
+}
+
 function add(text, cls, meta) {
   const div = document.createElement("div");
   div.className = "msg " + cls;
-  div.textContent = text;
+  if (cls === "bot" && meta) { div.classList.add("md"); div.innerHTML = md(text); } else div.textContent = text;
   if (meta) { const m = document.createElement("div"); m.className = "meta"; m.textContent = meta; div.append(m); }
   log.append(div);
   log.scrollTop = log.scrollHeight;

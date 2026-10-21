@@ -57,7 +57,7 @@ def test_classify_fails_closed_to_escalate():
 def test_greeting_gets_the_canned_intro_without_retrieval_or_answer_call():
     # "hi" has nothing in the documents; it used to fall through to "I don't know". HELP must answer from code, one classifier call only.
     calls = with_responses([Resp('{"category": "HELP"}')])
-    reply, route, sources = app.answer("hi", [])
+    reply, route, sources = app.answer("hi", [], "L4", "R1")
     assert route == "HELP" and reply == app.REPLIES["HELP"] and sources == [] and len(calls) == 1
 
 
@@ -65,7 +65,7 @@ def test_handoff_opens_a_ticket_instead_of_saying_i_dont_know():
     # An order-status question cannot be answered from the documents; the customer must reach a human, not get a dead end.
     calls = with_responses([Resp('{"category": "HANDOFF", "reason": "order status"}')])
     app.TICKETS = app.Path("/dev/null")
-    reply, route, sources = app.answer("Where is my order #12345?", [])
+    reply, route, sources = app.answer("Where is my order #12345?", [], "L4", "R1")
     assert route == "HANDOFF" and "ticket" in reply and sources == [] and len(calls) == 1
 
 
@@ -82,7 +82,7 @@ def test_model_outage_is_reported_as_an_error_and_still_opens_a_ticket():
     tickets, real = [], app.open_ticket
     app.open_ticket = lambda *a, **k: tickets.append(a) or "t"
     try:
-        reply, route, _ = app.answer("How much is the Stark 3?", [])
+        reply, route, _ = app.answer("How much is the Stark 3?", [], "L4", "R1")
     finally:
         app.open_ticket = real
     assert route == "ERROR" and reply == app.REPLIES["ERROR"] and len(tickets) == 1  # the human still sees it
@@ -101,7 +101,7 @@ def test_ticket_records_reason():
 
     app.TICKETS = Path(tempfile.mkdtemp()) / "tickets.jsonl"
     with_responses([Resp('{"category": "ESCALATE", "reason": "damaged on arrival"}')])
-    reply, route, _ = app.answer("My ship arrived damaged", [])
+    reply, route, _ = app.answer("My ship arrived damaged", [], "L4", "R1")
     record = json.loads(app.TICKETS.read_text())
     assert route == "ESCALATE" and record["reason"] == "damaged on arrival"
     assert "damaged on arrival" not in reply  # the reason is for staff, not shown to the customer
