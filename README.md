@@ -20,11 +20,10 @@ project is not started.
 | L1 | answer rules ("answer only from the docs") | 21.5 / 28 (64–86%) | 6 / 6 | 15.2k |
 | L2 | input fence + untrusted-input rule | 25 / 28 (79–95%) | 6 / 6 | 15.5k |
 | L3 | input classifier and routing | 28 / 28 (94–100%) | 6 / 6 | 4.2k |
-| L4 | document retrieval, review (= the real bot; numbers measured with R2 = bge-m3 top-3 + score floor, the bot now defaults to R3) | 28 / 28 (94–100%) | 6 / 6 | 2.0k |
 
 What it shows:
 - **Every defense adds blocked attacks** (17 to 21.5 to 25 to 28 of 28), the answer rules (+4.5) and the input fence (+3.5) at no extra call, the classifier (+3) at one call. Neighbouring intervals overlap (L0 vs L1, L1 vs L2, L2 vs L3), so the firm gaps are the wider ones: L0 to L2, L0 to L3 and L1 to L3. Do not rank the individual steps by size: with 28 attacks a one- or two-attack difference is noise.
-- **Retrieval (L4) shrinks the prompt about 7x** (14.9k to 2.0k chars, 32 docs).
+- **Retrieval shrinks the prompt about 7x** (14.9k to 2.0k chars, 32 docs). Retrieval is measured on its own ladder (R0 to R3), not here; `eval_ladder` still runs an L4 row for the full bot, which is not reported in the table because it blocks the same 28/28 as L3 and was last measured with R2.
 - **Normal questions are answered 6/6 at every level**: the defenses did not cost helpfulness on these six. (Earlier runs showed 5.5/6 at L4 twice; one was a judging bug, the model wrote `Stark 8` with a narrow no-break space, which a plain substring check missed, and matching now normalises Unicode.)
 - **Embedding choice matters most for Chinese**: bge-m3 gets hit@3 81/85 on the original 15-model corpus (71/85 after it grew to 30 models; the other models' numbers below are still the 15-model ones, not rerun), all-MiniLM-L6-v2 only 57/85 (Chinese 9/34); embeddinggemma-2 is 83/85, two ahead and inside the noise, so the two are equivalent on accuracy; the bot uses bge-m3 because it needs fewer resources (a smaller, text-only model, about 2GB).
 - **No embedding model separates off-topic from on-topic by score** (gap 0.01 for bge-m3), so the score floor is a weak guard and the classifier does the real filtering.
