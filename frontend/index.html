@@ -14,6 +14,11 @@
   aside { padding:16px 0; height:100vh; box-sizing:border-box; overflow-y:auto; }
   aside h2 { font-size:14px; color:var(--muted); margin:0 0 8px; font-weight:600; }
   .doc { background:var(--card); border-radius:8px; padding:6px 12px; margin-bottom:6px; font-size:13px; white-space:pre-wrap; }
+  #focus { border:2px solid var(--me); border-radius:10px; padding:10px 14px; margin-bottom:18px; font-size:16px; }
+  #focus .row { display:flex; gap:10px; align-items:baseline; padding:2px 0; }
+  #focus .k { flex:0 0 10em; font-size:12px; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); }
+  #focus .v { font-size:18px; font-weight:600; overflow-wrap:anywhere; }
+  #focus .empty { color:var(--muted); font-size:14px; }
   .doc summary { cursor:pointer; font-weight:600; }
   .doc[open] summary { margin-bottom:4px; }
   h1 { font-size:18px; margin:0 0 12px; }
@@ -68,10 +73,10 @@
   </form>
 </main>
 <aside>
+  <h2>🧭 Conversation focus (what the bot thinks this chat is about)</h2>
+  <div id="focus"></div>
   <h2>📄 Source documents (what the answer should be based on)</h2>
   <div id="docs"><p class="meta">Documents used for each answer appear here.</p></div>
-  <h2>🧭 Conversation focus (what the bot thinks this chat is about)</h2>
-  <div id="focus" class="meta">Nothing yet.</div>
 </aside>
 </div>
 <script>
@@ -145,8 +150,15 @@ function add(text, cls, meta) {
 
 // Right-hand panel, second block: the server's Focus after the last turn.
 function showFocus(f) {
-  const parts = [f && f.talking_about.length && "talking about " + f.talking_about.join(", "), f && f.interested_in && "interested in " + f.interested_in, f && f.goal && "goal: " + f.goal];
-  document.getElementById("focus").textContent = parts.filter(Boolean).join(" · ") || "Nothing yet.";
+  const box = document.getElementById("focus");
+  box.replaceChildren();
+  const rows = f ? [["Talking about", f.talking_about.join(", ")], ["Interested in", f.interested_in], ["Goal", f.goal]].filter(([, v]) => v) : [];
+  for (const [k, v] of rows) {
+    const r = document.createElement("div"), a = document.createElement("span"), b = document.createElement("span");
+    r.className = "row"; a.className = "k"; b.className = "v"; a.textContent = k; b.textContent = v;
+    r.append(a, b); box.append(r);
+  }
+  if (!rows.length) { const e = document.createElement("div"); e.className = "empty"; e.textContent = "Nothing yet: it fills in as the chat goes on."; box.append(e); }
 }
 
 // Right-hand panel: the documents the last answer was based on (name -> full text).
