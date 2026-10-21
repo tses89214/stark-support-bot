@@ -154,3 +154,9 @@
 - 額度（`GET /api/v1/key`，晚間實測）：key1 已用 916／1000（剩 84）、key2 已用 668／1000（剩 332）。**key2 現為 1000/天**（使用者已處理），兩把可分開跑；額度是帳號層級。重置為台北 08:00。zsh 讀額度不能用 `${!var}`，用函式傳 key。
 - 10-22 08:10 的 cron 沒裝上，檢索階梯 21 題版仍未跑。08:00 重置後手動執行 `.claude/rerun_retrieval_ultra.sh`（約 760 次，額度 <800 會自動跳過；key1 或 key2 擇一，開跑前先讀計數器）。
 - 下個會話待辦：沿用上方「2026-10-21 收工狀態」的 (1)–(5)（21 題數字、R2 vs R3、`eval_answers` 用 ultra 重跑、瀏覽器驗證、push 先問）。
+
+## 2026-10-21 深夜：專案分層（commit c466663，已 commit、未 push）
+- 新結構：`backend/`（app、sessions、doc_tools、build_index）、`frontend/index.html`、`data/`（語料 `stark_spaceships/`、`stark_scaled/`，以及 gitignored 的 `data/runtime/`：index.npz、sessions.db、tickets.jsonl、mlflow.db、ladder_calls.jsonl）、`evals/`、`tests/`。指令：`uvicorn backend.app:app`、`python -m backend.build_index`、`python -m tests.test_app`、MLflow 為 `sqlite:///data/runtime/mlflow.db`。已刪 `.claude/rerun_ultra.sh`、`rerun_after_reset.sh`。
+- `/chat` 的 `session` 現為必填（舊分頁會得 422，不再靜默沒記憶）。
+- **未修**：追問「what is your recommendation」時，分類器的獨立問題沒帶「家庭、4 座」，回答步驟看得到使用者舊話、審查只看獨立問題 → 審查判草稿「憑空捏造需求」→ UNVERIFIED。選項：獨立問題帶入先前條件，或審查也給使用者先前的話。
+- **踩雷**：用 `python -c "import evals.…"` 檢查 import 會直接執行腳本（evals 無 `__main__` 保護）並消耗額度；key1 今晚已用到 1006/1000。檢查 import 改用 `compileall`。
