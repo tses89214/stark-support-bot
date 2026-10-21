@@ -507,22 +507,22 @@ Reply with JSON only: {"ok": true} or {"ok": false, "problems": ["&lt;short, quo
 
 <div class="panel" id="p-conversation" role="tabpanel" aria-labelledby="t-conversation">
   <h2>為了讓對話順暢，多做了哪些設計</h2>
-  <p>前面的階梯量的是「擋得住、找得到」。真的拿來聊天，問題是別的：客人說「它是什麼顏色？」機器人要知道「它」是誰；問過的事不要再答一次；客人只說「我想找船」，不要隨便丟一台。下面是針對這些問題加的設計。每一項附上「怎麼知道有用」，沒有量過的就直說。</p>
+  <p>前面的階梯量的是「擋得住、找得到」。真的拿來聊天，問題是別的：客人說「它是什麼顏色？」機器人要知道「它」是誰；問過的事不要再答一次；客人只說「我想找船」，不要隨便丟一台。下面是針對這些問題加的設計。</p>
 
   <div class="tbl"><table>
-    <thead><tr><th>要解決的問題</th><th>做法</th><th>目前的證據</th></tr></thead>
+    <thead><tr><th>要解決的問題</th><th>做法</th></tr></thead>
     <tbody>
-      <tr><td class="wrap">瀏覽器可以偽造或弄丟歷史</td><td class="wrap">對話存在伺服器（SQLite，一輪一列）。<code>/chat</code> 一定要帶 <code>session</code>，沒帶回 422，舊分頁不會再靜默地失去記憶。工單記下 session 與 trace，客服能看到完整對話。</td><td class="wrap">單元測試</td></tr>
-      <tr><td class="wrap">「它」「那台」指誰</td><td class="wrap">分類器把追問改寫成獨立問題；問題裡提到的型號由程式在句尾附上 <code>(about Stark 1)</code>，不靠模型記住。分類器回報的型號必須真的出現在對話裡，否則丟掉。</td><td class="wrap">單元測試（編造的 Stark 99 被丟掉）</td></tr>
-      <tr><td class="wrap">對話狀態散在各處</td><td class="wrap">每一輪都填一份 <code>Focus</code>，由伺服器保存：正在談的型號、客人有興趣的型號（候選清單）、已說出的需求（人數、用途、預算、大小）、已經反問幾次。離題、注入、辱罵的輪次不改變 Focus。網頁右側的卡片顯示前三項（已反問次數不顯示）。</td><td class="wrap">單元測試；MLflow 的 <code>next_focus</code> span 看得到每輪結果</td></tr>
-      <tr><td class="wrap">問型號時撈到錯的文件</td><td class="wrap">問題裡的型號，程式一定把該型號的文件放進來（釘住）；向量檢索的查詢則把型號名稱與 about 後綴去掉，只留主題，否則型號名稱會蓋過保固、訂購這類政策文件。</td><td class="wrap">單次真實對話：中文「Stark 3 的保固期」可以答出 3 年／2 萬飛行小時。檢索評測題庫沒有保固題</td></tr>
-      <tr><td class="wrap">舊問題被再答一次</td><td class="wrap">先前的客人訊息放進 system prompt 的「已回答、只作背景」區塊，只有最新一句是 user 輪。之前把它們當聊天輪送入時，「what color is it?」曾被塞進另一題的回覆。</td><td class="wrap">單元測試；發生過的真實案例</td></tr>
-      <tr><td class="wrap">審查者誤判追問</td><td class="wrap">審查層也看得到客人最近 3 則先前訊息。原本只看獨立問題，「what is your recommendation」被判成憑空捏造需求而回 UNVERIFIED。</td><td class="wrap">單一案例，沒有系統評測</td></tr>
-      <tr><td class="wrap">信箱寫錯或被模型改寫</td><td class="wrap">回覆裡任何 <code>customer_service@…</code> 都由程式換成固定的 <code>customer_service@stark_spaceship.com</code>；審查提示加一條規則要求原樣。</td><td class="wrap">單元測試</td></tr>
-      <tr><td class="wrap">回覆太長太慢</td><td class="wrap">最終版回答提示加「列出最符合的 5 台，並說還有更多，不報數字」。不寫數量是因為模型會算錯，審查者又會因此退回。起因是一次 86 秒的回覆：第一份草稿 55 秒、被退回、重寫又 25 秒。</td><td class="wrap">一個 trace 的觀察；沒有量長度或時間的前後對照</td></tr>
-      <tr><td class="wrap">客人只說「我想找船」就被推薦一台</td><td class="wrap">先問再推薦，規則見下。</td><td class="wrap">單元測試＋單次真實對話</td></tr>
-      <tr><td class="wrap">介面不好用</td><td class="wrap">輸入框改多行（Enter 送出、Shift+Enter 換行、輸入法組字中不誤送、回覆未回來時不能再送）；右側來源文件逐份摺疊，內容以 markdown 顯示。</td><td class="wrap">headless 瀏覽器部分檢查＋目視</td></tr>
-      <tr><td class="wrap">預設怎麼選文件</td><td class="wrap">預設檢索由 R2 改為 R3（使用者決定）。理由是失敗時的行為：R2 撈錯文件會答錯，R3 選不到時退回問客人。不是統計上 R3 比較好，兩者的區間仍重疊。</td><td class="wrap">「檢索階梯」分頁的失敗案例；統計上未分出高下</td></tr>
+      <tr><td class="wrap">瀏覽器可以偽造或弄丟歷史</td><td class="wrap">對話存在伺服器（SQLite，一輪一列）。<code>/chat</code> 一定要帶 <code>session</code>，沒帶回 422，舊分頁不會再靜默地失去記憶。工單記下 session 與 trace，客服能看到完整對話。</td></tr>
+      <tr><td class="wrap">「它」「那台」指誰</td><td class="wrap">分類器把追問改寫成獨立問題；問題裡提到的型號由程式在句尾附上 <code>(about Stark 1)</code>，不靠模型記住。分類器回報的型號必須真的出現在對話裡，否則丟掉。</td></tr>
+      <tr><td class="wrap">對話狀態散在各處</td><td class="wrap">每一輪都填一份 <code>Focus</code>，由伺服器保存：正在談的型號、客人有興趣的型號（候選清單）、已說出的需求（人數、用途、預算、大小）、已經反問幾次。離題、注入、辱罵的輪次不改變 Focus。網頁右側的卡片顯示前三項（已反問次數不顯示）。</td></tr>
+      <tr><td class="wrap">問型號時撈到錯的文件</td><td class="wrap">問題裡的型號，程式一定把該型號的文件放進來（釘住）；向量檢索的查詢則把型號名稱與 about 後綴去掉，只留主題，否則型號名稱會蓋過保固、訂購這類政策文件。</td></tr>
+      <tr><td class="wrap">舊問題被再答一次</td><td class="wrap">先前的客人訊息放進 system prompt 的「已回答、只作背景」區塊，只有最新一句是 user 輪。之前把它們當聊天輪送入時，「what color is it?」曾被塞進另一題的回覆。</td></tr>
+      <tr><td class="wrap">審查者誤判追問</td><td class="wrap">審查層也看得到客人最近 3 則先前訊息。原本只看獨立問題，「what is your recommendation」被判成憑空捏造需求而回 UNVERIFIED。</td></tr>
+      <tr><td class="wrap">信箱寫錯或被模型改寫</td><td class="wrap">回覆裡任何 <code>customer_service@…</code> 都由程式換成固定的 <code>customer_service@stark_spaceship.com</code>；審查提示加一條規則要求原樣。</td></tr>
+      <tr><td class="wrap">回覆太長太慢</td><td class="wrap">最終版回答提示加「列出最符合的 5 台，並說還有更多，不報數字」。不寫數量是因為模型會算錯，審查者又會因此退回。起因是一次 86 秒的回覆：第一份草稿 55 秒、被退回、重寫又 25 秒。</td></tr>
+      <tr><td class="wrap">客人只說「我想找船」就被推薦一台</td><td class="wrap">先問再推薦，規則見下。</td></tr>
+      <tr><td class="wrap">介面不好用</td><td class="wrap">輸入框改多行（Enter 送出、Shift+Enter 換行、輸入法組字中不誤送、回覆未回來時不能再送）；右側來源文件逐份摺疊，內容以 markdown 顯示。</td></tr>
+      <tr><td class="wrap">預設怎麼選文件</td><td class="wrap">預設檢索由 R2 改為 R3（使用者決定）。理由是失敗時的行為：R2 撈錯文件會答錯，R3 選不到時退回問客人。不是統計上 R3 比較好，兩者的區間仍重疊。</td></tr>
     </tbody></table></div>
 
   <h2>先問再推薦（CLARIFY）</h2>
@@ -552,7 +552,7 @@ flowchart TD
   </div>
 
   <h2>Focus 長什麼樣子</h2>
-  <p>每一輪結束後存一份，網頁右側的卡片顯示它。下面是依程式邏輯排出的示意，不是真實對話的紀錄。</p>
+  
   <div class="tbl"><table>
     <thead><tr><th>客人說</th><th>該輪結束後的 Focus</th></tr></thead>
     <tbody>
