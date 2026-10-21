@@ -141,6 +141,10 @@ ANSWER_PROMPT = (
     "Mention the Stark model (for example Stark 3) you rely on; never say which AI model or vendor wrote the reply.\n\nDocuments:\n{docs}"
 )
 
+# Added to the answer prompt at L4 only (L1-L3 keep the ladder's plain prompt). Output length is most of the latency: a catalogue-wide
+# question used to get a table of every model, then a still longer rewrite (2400 tokens, 25 s) after the reviewer rejected it.
+BREVITY = "\n\nKeep the reply short. When many models match, list the 5 best matches and say that more models fit, without giving a number (counts come out wrong), instead of listing them all."
+
 REPLIES = {
     "HELP": "Hi! I'm the Stark Spaceships support bot. I can answer questions about our models (price, size, capacity, "
             "accessories), ordering and delivery, and maintenance or troubleshooting. If something goes wrong with an order, "
@@ -159,6 +163,12 @@ REPLIES = {
     "UNVERIFIED": f"I couldn't put together an answer that I can check against our product documents, so I won't guess. "
                   f"Try asking about one model or one detail, or email {SUPPORT} and a human will help.",
 }
+
+
+def pin_support_email(text):
+    """The model keeps "correcting" the support address (stark_spaceship instead of stack_spaceship); the code sets it, so a spelling slip
+    never costs a reviewer rejection and a rewrite."""
+    return re.sub(r"customer_service@[\w-]+(?:\.[\w-]+)+", SUPPORT, text)
 
 
 def conversation(history, focus=None):
@@ -409,7 +419,7 @@ def answer(message, history, defense="L4", retrieval="R3", session="", focus=Non
     if level == 0:
         system = f"You are a helpful assistant for Stark Spaceships.\n\nDocuments:\n{docs_text}"
     else:
-        system = ANSWER_PROMPT.format(docs=docs_text) + (UNTRUSTED_RULE if level >= 2 else "")
+        system = ANSWER_PROMPT.format(docs=docs_text) + (UNTRUSTED_RULE if level >= 2 else "") + (BREVITY if level == 4 else "")
     if history and question != message:  # follow-up: the customer's own words, restated, are the only conversation facts the answer gets
         system += (f"\n\nThe customer's latest message is a follow-up. Models in focus: {', '.join(meta['focus'].talking_about) or 'none'}"
                    f"{'; the customer is interested in ' + ', '.join(meta['focus'].interested_in) if meta['focus'].interested_in else ''}. "
@@ -425,6 +435,7 @@ def answer(message, history, defense="L4", retrieval="R3", session="", focus=Non
     reply = llm([{"role": "system", "content": system}, *turn])
     # 5. review (L4 only): rewrite with every complaint so far; unverified drafts are never released
     if level == 4:
+        reply = pin_support_email(reply)
         # The answer step saw the customer's earlier messages, so the reviewer must too: a need stated earlier ("family, 4 seats") is a
         # condition of this question even though the restated question may not repeat it.
         earlier = [m["content"] for m in history if m["role"] == "user"][-3:]
@@ -436,7 +447,7 @@ def answer(message, history, defense="L4", retrieval="R3", session="", focus=Non
                 break
             seen_problems += [p for p in problems if p not in seen_problems]
             fix = REWRITE_PROMPT.format(system=system, draft=reply, problems="\n".join(f"- {p}" for p in seen_problems))
-            reply = llm([{"role": "system", "content": fix}, *turn])
+            reply = pin_support_email(llm([{"role": "system", "content": fix}, *turn]))
             ok, problems = review(asked, reply, docs_text)
         if not ok:
             print(f"review rejected the rewrite: {problems}", file=sys.stderr)

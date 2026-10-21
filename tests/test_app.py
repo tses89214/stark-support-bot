@@ -325,6 +325,31 @@ def test_earlier_customer_messages_are_context_not_pending_questions():
     assert "SECRET-ASSISTANT-PROSE" not in json.dumps(sent["messages"])  # earlier assistant replies stay out
 
 
+def test_support_email_is_set_by_code_and_the_l4_prompt_asks_for_a_short_reply():
+    # the model spelled the address "stark_spaceship" and the reviewer then rejected the draft: a rewrite (+25 s) for a typo the code can fix
+    sent = []
+
+    def fake_llm(messages, **kw):
+        system = messages[0]["content"]
+        if "input filter" in system:
+            return '{"category": "ANSWER", "question": "How do I order?"}'
+        if "how many product documents" in system:
+            return '{"scope": "FEW"}'
+        if "final reviewer" in system:
+            sent.append(messages[1]["content"])
+            return '{"ok": true}'
+        sent.append(system)
+        return "Email customer_service@stark_spaceship.com. Or customer_service@stack_spaceship.com."
+
+    app.llm = fake_llm
+    app.encoder = types.SimpleNamespace(encode=lambda q: q)
+    app.util = types.SimpleNamespace(semantic_search=lambda q, v, top_k: [[{"corpus_id": i, "score": 0.9} for i in range(top_k)]])
+    reply, route, _ = app.answer("How do I order?", [], "L4", "R1")
+    assert route == "ANSWER" and reply == f"Email {app.SUPPORT}. Or {app.SUPPORT}."
+    assert "stark_spaceship" not in sent[-1]  # the reviewer is shown the corrected draft
+    assert any("Keep the reply short" in m for m in sent) and app.BREVITY.strip() not in app.ANSWER_PROMPT
+
+
 def test_chat_without_session_is_rejected():
     # a stale tab sends no session; silently answering with no memory made the bot look broken (follow-ups refused as off-topic)
     import pydantic
