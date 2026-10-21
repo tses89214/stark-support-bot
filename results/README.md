@@ -4,6 +4,7 @@ Each page covers one question; they are independent, read the one you need.
 
 | Page | Question | Produced by |
 |---|---|---|
+| [Full report (HTML)](report.html) | All of the above as one tabbed page (Traditional Chinese), including the 對話順暢 tab: the conversation-flow design (server sessions, Focus, CLARIFY, pinned docs) and what is not yet measured. Open in a browser. | written by hand from these pages; same as the private Artifact |
 | [Defense ladder](ladder.md) | How much does each defense (answer rules, input fence, classifier, retrieval) add, from a deliberately defenseless bot to the real one? Scores, intervals, caveats. | `python -m evals.eval_ladder` (live LLM calls) |
 | [Input classifier](guardrails.md) | How accurate is the 7-category input filter, and what does it get wrong? | `python -m evals.eval_guardrails` (live LLM calls) |
 | [Ladder examples](ladder-examples.md) | What does the model actually receive at each level, and what does it reply to real attacks? | same run as the ladder |
