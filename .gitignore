@@ -178,3 +178,4 @@ ladder_calls.jsonl
 mlflow.db
 mlruns/
 mlartifacts/
+sessions.db

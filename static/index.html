@@ -36,6 +36,7 @@
   button { padding:10px 16px; font:inherit; border:0; border-radius:8px; background:var(--me); color:#fff; cursor:pointer; }
   button:disabled { opacity:.5; }
   #modes { display:flex; flex-wrap:wrap; gap:12px; margin:0 0 12px; font-size:13px; color:var(--muted); }
+  #modes button { padding:4px 10px; font-size:13px; background:var(--card); color:var(--fg); border:1px solid var(--line); margin-left:auto; }
   #modes select { font:inherit; color:var(--fg); background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:4px 6px; }
 </style>
 </head>
@@ -57,6 +58,7 @@
       <option value="R2" selected>R2 scope check + top-3</option>
       <option value="R3">R3 LLM reads index</option>
     </select></label>
+    <button type="button" id="newchat" title="Forget this conversation and start over">↻ New chat</button>
   </div>
   <div id="log"></div>
   <form id="form">
@@ -71,18 +73,17 @@
 </div>
 <script>
 const log = document.getElementById("log"), input = document.getElementById("input"), form = document.getElementById("form");
-let history = [];
-let session = crypto.randomUUID();  // one per chat, so MLflow groups its traces
+let session = crypto.randomUUID();  // one per chat: the server keeps the history under it, and MLflow groups the traces by it
 const defense = document.getElementById("defense"), retrieval = document.getElementById("retrieval");
 
 function reset() {  // another level is a different bot: old turns would leak the previous one's answers into this one
-  history = [];
-  session = crypto.randomUUID();
+  session = crypto.randomUUID();  // a new id is a new server-side conversation
   log.replaceChildren();
   showDocs({});
   retrieval.disabled = defense.value !== "L4";  // L0-L3 always read every document
 }
 defense.addEventListener("change", reset);
+document.getElementById("newchat").addEventListener("click", () => { reset(); input.focus(); });
 retrieval.addEventListener("change", reset);
 
 // Small markdown subset for model replies: headings, lists, tables, code, bold/italic, links. HTML is escaped first, so a reply cannot inject markup.
@@ -160,10 +161,9 @@ form.addEventListener("submit", async (e) => {
   const wait = add("…", "bot");
   form.querySelector("button").disabled = true;
   try {
-    const res = await fetch("/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message, history, session, defense: defense.value, retrieval: retrieval.value }) });
+    const res = await fetch("/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message, session, defense: defense.value, retrieval: retrieval.value }) });
     if (!res.ok) throw new Error(res.status);
     const data = await res.json();
-    history = data.history;
     wait.remove();
     showDocs(data.docs);
     add(data.reply, "bot", `route: ${data.route}` + (data.sources.length ? ` · sources: ${data.sources.join(", ")}` : ""));

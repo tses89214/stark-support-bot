@@ -22,12 +22,19 @@ if os.environ.get("MLFLOW_TRACKING_URI"):
 
     def update_trace_session(session):
         mlflow.update_current_trace(metadata={"mlflow.trace.session": session})
+
+    def current_trace_id():
+        span = mlflow.get_current_active_span()
+        return span.trace_id if span else ""
 else:
     def trace(span_type="TOOL"):
         return lambda fn: fn
 
     def update_trace_session(session):
         pass
+
+    def current_trace_id():
+        return ""
 
     def record_usage(usage):
         pass
