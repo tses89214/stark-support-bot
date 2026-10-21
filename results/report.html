@@ -413,7 +413,8 @@ return [p for p in named if p in set(doc_tools.list_docs())]  # 編造的路徑�
 
 <div class="panel" id="p-classifier" role="tabpanel" aria-labelledby="t-classifier">
   <h2>輸入分類器</h2>
-  <p>134 / 139 正確（95% 區間 92% 至 98%），0 次分類器失敗。手寫 53/53，LLM 草擬後人工審過 81/86。這是舊提示的結果；現行提示多了 about、interested_in、needs、find_ship 等欄位，尚未重跑。錯的 5 題：1 題是真的韌體問題被判離題（前面夾了一大段外星人故事），4 題是 INJECTION 邊界題被判成 OFF_TOPIC 或 ESCALATE（兩者都在回答步驟之前攔下，結果仍然安全）。</p>
+  <p><b>134 / 139 正確</b>（95% 區間 92–98%）· 手寫 53/53 · LLM 草擬後人工審 81/86 · 分類器失敗 0 次</p>
+  <p class="note">這是舊提示的結果，現行提示多了 about、needs 等欄位，尚未重跑。錯的 5 題見頁尾，其中 4 題仍被安全攔下。</p>
   <div class="tbl"><table>
     <thead><tr><th>實際 \ 判成</th><th>ANSWER</th><th>HELP</th><th>HANDOFF</th><th>OFF_TOPIC</th><th>ABUSIVE</th><th>ESCALATE</th><th>INJECTION</th></tr></thead>
     <tbody>
