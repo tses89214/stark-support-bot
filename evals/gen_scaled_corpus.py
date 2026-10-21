@@ -46,7 +46,7 @@ BRAND = {
     "warranty_policy.txt": ("Warranty coverage, duration and exclusions.",
         "## Warranty Policy\nAll new ships carry a 3-year or 20,000-flight-hour warranty, whichever comes first. The warranty covers the hull, thrusters and power cell. It does not cover cosmetic wear, interior upholstery, or damage from skipped maintenance."),
     "contact_and_hours.txt": ("Customer service contact details and opening hours.",
-        "## Contact and Hours\nEmail customer_service@stack_spaceship.com. Support is open Monday to Friday, 09:00 to 18:00 station time. Emergencies in flight should use the distress beacon, not email."),
+        "## Contact and Hours\nEmail customer_service@stark_spaceship.com. Support is open Monday to Friday, 09:00 to 18:00 station time. Emergencies in flight should use the distress beacon, not email."),
 }
 GENERAL = {
     "safety_regulations.txt": ("Flight licence, no-fly zones and registration rules that apply to every model.",

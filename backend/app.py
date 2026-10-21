@@ -42,7 +42,7 @@ from backend.sessions import Focus
 
 # ---- settings ----
 
-SUPPORT = "customer_service@stack_spaceship.com"  # spelled "stack" in the product docs too; replies must use exactly this
+SUPPORT = "customer_service@stark_spaceship.com"  # the one support address; replies must use exactly this (pin_support_email)
 TOP_K = 3
 MIN_SCORE = 0.4  # bge-m3: on-topic top scores >= 0.45, off-topic <= 0.43 on eval_retrieval.py, so a weak guard; the prompt is the real one
 TICKETS = Path("data/runtime/tickets.jsonl")
@@ -166,7 +166,7 @@ REPLIES = {
 
 
 def pin_support_email(text):
-    """The model keeps "correcting" the support address (stark_spaceship instead of stack_spaceship); the code sets it, so a spelling slip
+    """The model keeps "correcting" the support address (any other spelling or domain); the code sets it, so a spelling slip
     never costs a reviewer rejection and a rewrite."""
     return re.sub(r"customer_service@[\w-]+(?:\.[\w-]+)+", SUPPORT, text)
 

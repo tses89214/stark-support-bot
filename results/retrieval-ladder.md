@@ -36,7 +36,7 @@ I replayed that last turn with the stored history under both retrieval modes (R2
 | Mode | Documents chosen | What the customer saw |
 |---|---|---|
 | R2 (embedding, previous user turn prefixed) | `warranty_policy`, `model_3`, `model_10` (both runs) | "There is no mention of a Stark 1 in the available documents", a false statement, then details of the Stark 3 and Stark 10 |
-| R3 (LLM reads the index) | none (both runs) | "I couldn't find that in our product documents. Please email customer_service@stack_spaceship.com" |
+| R3 (LLM reads the index) | none (both runs) | "I couldn't find that in our product documents. Please email customer_service@stark_spaceship.com" |
 
 With the question already resolved (`What color is the Stark 1?`) both modes work: R2 returns `model_1, model_13, model_3`, R3 returns `model_1` alone.
 
