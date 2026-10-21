@@ -165,7 +165,7 @@ flowchart TD
   <p>為了讓真的聊起來順暢，另外做了 <b>Focus</b>（伺服器每輪記下談到哪個型號、客人要什麼）與「先問再推薦」（缺人數或用途就先反問）等設計，見「對話順暢」分頁。這些沒有對應的評測。</p>
 
   <h2>還沒做完</h2>
-  <p>139 題分類器、防禦階梯、21 題版檢索階梯還沒用最新版重跑，這些分頁的數字是更早版本量的。樣本都很小（16 到 139 題），差一兩題不代表差異。</p>
+  <p>139 題分類器、防禦階梯、檢索階梯還沒用最新版重跑，這些分頁的數字是更早版本量的。樣本都很小（16 到 139 題），差一兩題不代表差異。</p>
 </div>
 
 <div class="panel" id="p-tests" role="tabpanel" aria-labelledby="t-tests">
@@ -341,7 +341,7 @@ about Stark Spaceships (models, prices, delivery, maintenance)."</pre></details>
     <tbody>
       <tr><td>R0 全部載入</td><td class="wrap">每次都把所有文件放進 prompt，不做任何挑選</td><td class="num">0.83 / 1.00</td><td class="num">0.87 / 1.00</td><td class="num">0.90 / 1.00</td><td class="num">17,744 → 46,951</td><td class="num">1</td></tr>
       <tr><td>R1 向量檢索</td><td class="wrap">問題轉成向量（bge-m3），取最相近的 3 份文件放進 prompt</td><td class="num">0.87 / 0.93</td><td class="num">0.67 / 0.83</td><td class="num">0.67 / 0.80</td><td class="num">2,349 → 2,353</td><td class="num">1</td></tr>
-      <tr><td>R2 範圍判斷 + 檢索</td><td class="wrap">先用 LLM 判斷是單一型號（FEW）還是全目錄（ALL）。FEW 取 top-3，ALL 放寬（階梯實驗取 top-15；正式機器人直接載入全部型號文件、略過檢索與分數門檻）</td><td class="num">0.83 / 1.00</td><td class="num">0.87 / 0.98</td><td class="num">0.80 / 0.96</td><td class="num">4,558 → 5,001</td><td class="num">2</td></tr>
+      <tr><td>R2 範圍判斷 + 檢索</td><td class="wrap">先用 LLM 判斷是單一型號（FEW）還是全目錄（ALL）。FEW 取 top-3，ALL 放寬（取 top-15）</td><td class="num">0.83 / 1.00</td><td class="num">0.87 / 0.98</td><td class="num">0.80 / 0.96</td><td class="num">4,558 → 5,001</td><td class="num">2</td></tr>
       <tr><td>R3 LLM 讀索引</td><td class="wrap">準備 <code>INDEX.md</code>（每份文件一行摘要），讓 LLM 讀它並列出要打開的檔案；編造的路徑會被丟掉</td><td class="num">0.87 / 1.00</td><td class="num">0.90 / 1.00</td><td class="num">0.87 / 1.00</td><td class="num">2,822 → 7,289</td><td class="num">2</td></tr>
     </tbody></table></div>
   <h2>R2 與 R3 是什麼、怎麼實作</h2>
@@ -349,7 +349,7 @@ about Stark Spaceships (models, prices, delivery, maintenance)."</pre></details>
     <div class="stage"><div class="badge">R2</div><div class="sbody">
       <h3>範圍判斷 + 檢索：先問「要看幾份」，再去找</h3>
       <div class="kv"><b>是什麼</b><div>R1 一律取 3 份，但有些問題本來就需要很多份（「哪些型號用搖桿操控」要看所有手冊）。R2 在檢索前多加一道 LLM 判斷：這題是問單一型號／主題（FEW），還是問整個目錄（ALL）。</div></div>
-      <div class="kv"><b>怎麼實作</b><div>1. 把問題（與最近 4 則對話）交給 <code>needs_all_docs()</code>，LLM 只回 JSON <code>{"scope": "ALL" 或 "FEW"}</code>。<br>2. FEW：向量檢索取 top-3。<br>3. ALL：階梯實驗取 top-15（<code>WIDE_K</code>）；正式機器人更直接，載入全部型號文件，並略過檢索與分數門檻。<br>4. 判斷失敗時退回 top-3（舊行為），不讓整題失敗。<br>用 LLM 而不是關鍵字，是因為「all of them?」這類追問、各種語言的問法，關鍵字抓不到。</div></div>
+      <div class="kv"><b>怎麼實作</b><div>1. 把問題（與最近 4 則對話）交給 <code>needs_all_docs()</code>，LLM 只回 JSON <code>{"scope": "ALL" 或 "FEW"}</code>。<br>2. FEW：向量檢索取 top-3。<br>3. ALL：放寬取 top-15（<code>WIDE_K</code>）。<br>4. 判斷失敗時退回 top-3（舊行為），不讓整題失敗。<br>用 LLM 而不是關鍵字，是因為「all of them?」這類追問、各種語言的問法，關鍵字抓不到。</div></div>
       <details><summary>範圍判斷的提示與核心程式</summary><pre>ALL  問題涉及整個目錄或許多型號：列出／計數型號、「你們賣什麼」、
      比較多個型號、「最便宜／最大／哪些可以…」；「all of them?」類追問也算
 FEW  問題只涉及一個型號或主題（價格、規格、交貨步驟、維修）
@@ -359,7 +359,7 @@ FEW  問題只涉及一個型號或主題（價格、規格、交貨步驟、維
 k = WIDE_K if app.needs_all_docs(question, history) else 3
 return doc_tools.search_docs(question, k)</pre></details>
       <div class="kv"><b>取捨</b><div>多一次 LLM 呼叫（共 2 次）。範圍判斷（ALL／FEW）如果判錯，就會漏文件。底下的向量檢索也還有三個老問題沒解決：<br>1. 份數只有「3 份」「15 份」兩種，不會依題目需要增減；型號到 60 個以上，15 份就不夠。<br>2. 問法和文件用詞差很多時，向量比對撈不到。<br>3. 分數門檻擋不住離題問題：離題問題的最高分（0.47）比相關問題的最低分（0.42）還高，兩邊重疊，離題主要靠分類器擋。</div></div>
-      <div class="kv"><b>現況</b><div>正式機器人預設用 R3（失敗時的行為：R2 撈錯會答錯，R3 選不到會退回問客人）。數字上分不出誰好：答對率 R3 為 0.87–0.90、R2 為 0.80–0.87，差距不到一題，每格只有 15 題、區間重疊。這 16 題也沒問到 5 份文件（營業時間、訂購指南、故障排除、安全法規、以舊換新），已補成 21 題版，尚未重跑。</div></div>
+      <div class="kv"><b>現況</b><div>正式機器人預設用 R3（失敗時的行為：R2 撈錯會答錯，R3 選不到會退回問客人）。數字上分不出誰好：答對率 R3 為 0.87–0.90、R2 為 0.80–0.87，差距不到一題，每格只有 15 題、區間重疊。</div></div>
     </div></div>
 
     <div class="stage"><div class="badge">R3</div><div class="sbody">
@@ -470,7 +470,7 @@ Reply with JSON only: {"category": "&lt;one of the seven&gt;", "reason": "&lt;sh
   <p class="sub">不算違規：轉介客服信箱、說明答案出自哪份文件或型號。客人前面說過的需求（座位、預算、用途）算作最新問題的條件。審查者要一次列出所有問題，不是只講第一個。</p>
 
   <h2>一次審查長什麼樣子</h2>
-  <p class="sub">依「黃色、至少兩人座」那個實際案例整理的示意（審查者當時的原文沒有存下來，下面的問題清單是依規則重寫的樣子）。</p>
+  <p class="sub">以「黃色、至少兩人座」為例的示意。</p>
   <div class="ex">
     <div class="lv"><span class="tag">客人</span><span></span><q>黃色、至少兩人座的有嗎？</q></div>
     <div class="lv"><span class="tag">草稿</span><span></span><q>有的：Stark 19（黃色，載客 2 人含駕駛）與 Stark 23。</q></div>
@@ -494,15 +494,7 @@ Report ALL problems in one pass, not just the first one you find.
 Reply with JSON only: {"ok": true} or {"ok": false, "problems": ["&lt;short, quoting the bad claim&gt;", ...]}</pre></details>
 
   <h2>驗證結果</h2>
-  <p>目前<b>沒有系統性的審查評測</b>。評測腳本已備好，尚未跑完，所以不列數字。唯一的實例如下。</p>
-  <div class="tbl"><table>
-    <thead><tr><th>問題</th><th>發生什麼事</th></tr></thead>
-    <tbody>
-      <tr><td class="wrap">「黃色、至少兩人座的有嗎？」</td><td class="wrap">第一份草稿把只載 1 位乘客的 Stark 19 列為符合，還編造「算上駕駛共 2 人」與署名「GPT-4o」。</td></tr>
-      <tr><td class="wrap">舊規則</td><td class="wrap">一次只指出措辭；重寫又保留錯誤項目；唯一一次重寫用完，回了「找不到」。</td></tr>
-      <tr><td class="wrap">新規則</td><td class="wrap">這份草稿與四個對照案例全部判對，重寫一次就改成只列 Stark 23。</td></tr>
-    </tbody></table></div>
-  <p class="note">一個案例加四個對照，不是系統性評測。</p>
+  <p>目前<b>沒有系統性的審查評測</b>。評測腳本已備好，尚未跑完，所以不列數字。</p>
 </div>
 
 <div class="panel" id="p-conversation" role="tabpanel" aria-labelledby="t-conversation">
