@@ -160,7 +160,7 @@ input.addEventListener("input", grow);
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const message = input.value.trim();
-  if (!message) return;
+  if (!message || form.querySelector("button").disabled) return;  // Enter (requestSubmit) ignores a disabled button: without this, a second message goes out before the first is answered
   input.value = "";
   grow();
   add(message, "me");
