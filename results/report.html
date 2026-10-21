@@ -110,23 +110,12 @@ ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:5px;font-s
   </div>
 
   <h2>我們調整了什麼</h2>
-  <p>量得出來的部分分兩條階梯：防禦與檢索。兩條都從最差的版本開始，一次只改一件事，用同一批固定題目重測，所以每個數字都對得到一個改動。階梯之後為了讓對話順暢做的設計（Focus、反問、固定信箱等）沒有對應的評測，放在「對話順暢」分頁，並列出哪些數字還沒用最新版重跑。</p>
-  <div class="tbl"><table>
-    <thead><tr><th>階段</th><th>這一步改了什麼</th></tr></thead>
-    <tbody>
-      <tr><td><b>防禦階梯</b></td><td class="wrap"></td></tr>
-      <tr><td>L0</td><td class="wrap">全部文件塞進 prompt，只有一句「你是助理」，使用者文字原樣送出（最差基準）</td></tr>
-      <tr><td>L1</td><td class="wrap">加回答規則：只能依文件回答，沒有就說不知道並提供客服信箱</td></tr>
-      <tr><td>L2</td><td class="wrap">加輸入圍欄：使用者文字標成不可信資料，並防止偽造結尾標記</td></tr>
-      <tr><td>L3</td><td class="wrap">加輸入分類器與路由：先分七類，離題與注入直接拒絕，打招呼回罐頭自我介紹，辱罵、要人工、查訂單／報價／折扣／客製開工單</td></tr>
-      <tr><td>L4</td><td class="wrap">加向量檢索，只放最相近的 3 份文件（階梯實驗的最後一層；正式機器人另有範圍判斷、審查層、簡短回答、信箱固定與反問）</td></tr>
-      <tr><td><b>檢索階梯</b></td><td class="wrap"></td></tr>
-      <tr><td>R0</td><td class="wrap">每次載入全部文件</td></tr>
-      <tr><td>R1</td><td class="wrap">向量檢索 top-3</td></tr>
-      <tr><td>R2</td><td class="wrap">先用 LLM 判斷範圍（單一型號或全目錄），再決定檢索多少</td></tr>
-      <tr><td>R3</td><td class="wrap">讓 LLM 讀文件索引，自己挑要打開的檔案（正式機器人預設，使用者決定，理由見「對話順暢」）</td></tr>
-    </tbody></table></div>
-  <p class="sub">各階段做了什麼、實際的 prompt 與結果，見「防禦階梯」與「檢索階梯」分頁；題目見「測試題目」。</p>
+  <p>兩條階梯都從最差的版本開始，一次只改一件事，用同一批固定題目重測。</p>
+  <ul>
+    <li><b>防禦階梯</b>（擋攻擊）：L0 全部文件塞進去、什麼都不防 → L1 加回答規則 → L2 加輸入圍欄 → L3 加輸入分類器與路由 → L4 加向量檢索。</li>
+    <li><b>檢索階梯</b>（找文件，型號 10→30）：R0 全部載入 → R1 向量檢索 → R2 先判斷範圍再檢索 → R3 讓 LLM 讀索引自己挑檔案（正式機器人預設）。</li>
+  </ul>
+  <p class="sub">每一層做了什麼、實際的 prompt 與結果，見「防禦階梯」「檢索階梯」分頁；題目見「測試題目」。</p>
 
   <h2>機器人怎麼處理一則訊息</h2>
   <p class="sub">共五道關卡，每一層都可能提前結束；模型出錯一律走 ERROR，不會假裝「找不到」。Focus 與反問（CLARIFY）不畫在這張圖裡，見下一節與「對話順暢」分頁。</p>
@@ -152,30 +141,11 @@ flowchart TD
   V2 -->|"仍不通過"| U["UNVERIFIED 回覆<br/>（不是「找不到」）"]
   </pre></div>
 
-    <h2>對話順暢的優化</h2>
-  <p>階梯量的是「擋得住、找得到」。真的聊天時還有別的問題，所以另外做了一批設計，核心是 <b>Focus</b>：每一輪由分類器填一份「對話現在停在哪」，存在伺服器（不是瀏覽器，也不是靠模型記）。</p>
-  <ul>
-    <li><b>Focus 四個欄位</b>：正在談的型號、客人有興趣的型號（候選）、已說出的需求（人數、用途、預算、大小）、已反問次數。「它」「那台」由程式依 Focus 解析，型號文件一定釘進 prompt。</li>
-    <li><b>先問再推薦（CLARIFY）</b>：客人只說「我想找船」，缺人數或用途就先反問（最多 2 次），不隨便丟一台。是否反問由程式判斷。</li>
-    <li><b>伺服器端對話</b>：歷史存 SQLite，<code>/chat</code> 必須帶 session；舊問題只當背景，不會被再答一次；審查者看得到最近幾則客人訊息。</li>
-    <li><b>其他</b>：回覆簡短（列 5 台、不報數字）、客服信箱由程式固定、多行輸入框、來源文件摺疊。</li>
-  </ul>
-  <p class="sub">這些只有單元測試或單次真實對話確認有作用，沒有多輪評測集；詳見「對話順暢」分頁。</p>
-
-  <h2>整個專案做了什麼</h2>
-  <ul>
-    <li><b>語料</b>：30 個型號加訂購、故障排除、保固三份指南（現在共 33 份）。</li>
-    <li><b>評測</b>：防禦階梯（28 題攻擊＋6 題正常題，用金絲雀字串判定，不用 LLM 當裁判）、檢索階梯（型號 10→30）、6 個 embedding 模型比較（85 題）、139 題七類分類器。</li>
-    <li><b>方法</b>：Wilson 95% 區間、失敗不計分、生成題標籤人工審、先查額度再開跑。</li>
-    <li><b>介面</b>：FastAPI 網頁聊天、工單寫入、MLflow tracing。</li>
-  </ul>
+    <h2>階梯之外</h2>
+  <p>為了讓真的聊起來順暢，另外做了 <b>Focus</b>（伺服器每輪記下談到哪個型號、客人要什麼）與「先問再推薦」（缺人數或用途就先反問）等設計，見「對話順暢」分頁。這些沒有對應的評測。</p>
 
   <h2>還沒做完</h2>
-  <ul>
-    <li>用最新版重跑：139 題分類器、防禦階梯、21 題版檢索階梯（要 ≥800 次額度）。這些分頁的數字是更早版本量的。</li>
-    <li>其他 embedding 模型仍是 15 型號時的數字；<code>MIN_SCORE</code> 要在新分佈下重新決定。</li>
-    <li>樣本都很小（16 到 139 題），差一兩題不代表差異。</li>
-  </ul>
+  <p>139 題分類器、防禦階梯、21 題版檢索階梯還沒用最新版重跑，這些分頁的數字是更早版本量的。樣本都很小（16 到 139 題），差一兩題不代表差異。</p>
 </div>
 
 <div class="panel" id="p-tests" role="tabpanel" aria-labelledby="t-tests" hidden>
@@ -611,5 +581,5 @@ const h=tabs.find(b=>b.id==='t-'+location.hash.slice(1));if(h)show(h);
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.0/dist/mermaid.min.js"></script>
-<script>if(window.mermaid){mermaid.initialize({startOnLoad:false,theme:"neutral"});document.querySelectorAll("#p-overview pre.mermaid, #p-conversation pre.mermaid").forEach(p=>{p.closest(".panel").hidden=false});mermaid.run().finally(()=>{document.querySelectorAll(".panel").forEach((p,k)=>{p.hidden=k>0})})}</script>
+<script>if(window.mermaid){mermaid.initialize({startOnLoad:false,theme:"neutral"});document.querySelectorAll("#p-overview pre.mermaid, #p-conversation pre.mermaid").forEach(p=>{p.closest(".panel").hidden=false});mermaid.run().finally(()=>{document.querySelectorAll("[role=tabpanel]").forEach((p,k)=>{p.hidden=k>0})})}</script>
 </body></html>
