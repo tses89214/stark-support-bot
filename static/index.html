@@ -32,7 +32,7 @@
   .md hr { border:0; border-top:1px solid var(--line); }
   .meta { font-size:12px; color:var(--muted); margin-top:4px; }
   form { display:flex; gap:8px; margin-top:12px; }
-  input { flex:1; padding:10px; font:inherit; color:var(--fg); background:var(--bg); border:1px solid var(--line); border-radius:8px; }
+  textarea { flex:1; resize:none; max-height:40vh; padding:10px; font:inherit; color:var(--fg); background:var(--bg); border:1px solid var(--line); border-radius:8px; }
   button { padding:10px 16px; font:inherit; border:0; border-radius:8px; background:var(--me); color:#fff; cursor:pointer; }
   button:disabled { opacity:.5; }
   #modes { display:flex; flex-wrap:wrap; gap:12px; margin:0 0 12px; font-size:13px; color:var(--muted); }
@@ -62,7 +62,7 @@
   </div>
   <div id="log"></div>
   <form id="form">
-    <input id="input" placeholder="Ask about our spaceships…" autocomplete="off" autofocus>
+    <textarea id="input" rows="1" placeholder="Ask about our spaceships… (Shift+Enter for a new line)" autofocus></textarea>
     <button>Send</button>
   </form>
 </main>
@@ -152,11 +152,17 @@ function showDocs(docs) {
 
 reset();
 
+// Enter sends, Shift+Enter newline (not while an IME is composing); the box grows with its text.
+input.addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); form.requestSubmit(); } });
+const grow = () => { input.style.height = "auto"; input.style.height = input.scrollHeight + 2 + "px"; };
+input.addEventListener("input", grow);
+
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const message = input.value.trim();
   if (!message) return;
   input.value = "";
+  grow();
   add(message, "me");
   const wait = add("…", "bot");
   form.querySelector("button").disabled = true;
