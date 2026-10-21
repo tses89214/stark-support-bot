@@ -75,6 +75,12 @@ def questions(n):
     q.append(("Do the Stark 4 and Stark 9 steer the same way?", {"manuals/manual_4.txt", "manuals/manual_9.txt"}, None))
     q.append(("How long is the warranty?", {"brand/warranty_policy.txt"}, lambda r: "3-year" in r or "3 year" in r or "三年" in r))
     q.append(("Who founded the company and when?", {"brand/about_stark.txt"}, lambda r: "2031" in r))
+    # one question for each document no other question points at, so every file in the library has been asked about at least once
+    q.append(("What are the support opening hours?", {"brand/contact_and_hours.txt"}, lambda r: "09:00" in r and "18:00" in r))
+    q.append(("What deposit do I pay to confirm an order?", {"general/guide_ordering_delivery.txt"}, lambda r: "20%" in r or "20 percent" in r))
+    q.append(("The ship will not start, what should I check first?", {"general/guide_troubleshooting.txt"}, lambda r: "power cell" in r.lower()))
+    q.append(("What flight licence does a pilot need?", {"general/safety_regulations.txt"}, lambda r: "class c" in r.lower()))
+    q.append(("How much is my old ship worth in a trade-in?", {"general/trade_in_program.txt"}, lambda r: "40" in r))
     q.append(("Does the Stark 3 have a swimming pool?", set(), lambda r: app.SUPPORT in r))  # not in any document: must point to support
     return q
 

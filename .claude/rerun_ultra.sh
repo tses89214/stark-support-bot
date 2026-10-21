@@ -6,6 +6,7 @@ cd /Users/po.cx.jian/github/llm-rag-tuning || exit 1
 export HTTP_PROXY=http://itt-fpx01.benq.corp.com:3128 HTTPS_PROXY=http://itt-fpx01.benq.corp.com:3128 NO_PROXY=localhost,127.0.0.1
 set -a; . ./.env; set +a
 unset LLM_BASE_URL LLM_API_KEY
+export OPENROUTER_API_KEY="$OPENROUTER_API_KEY2"  # second key = its own 1000/day free quota; the retrieval ladder uses the first
 export CHAT_MODEL=nvidia/nemotron-3-ultra-550b-a55b:free LLM_NO_THINK=1 HF_HUB_OFFLINE=1
 echo "running ultra since $(date)" > /tmp/rerun_status.log
 .venv/bin/python -m evals.eval_guardrails > /tmp/ultra_guardrails.log 2>&1

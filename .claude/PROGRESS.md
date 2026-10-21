@@ -142,3 +142,9 @@
 - 對話結構：`sessions.py`（SQLite `sessions.db`，gitignored）伺服器端保存每輪 {route, sources, question, focus, ticket, trace_id}；`/chat` 只收 `session` + `message`，忽略瀏覽器送的 history（防偽造）；進提示的歷史只有 ANSWER 輪，回答步驟只拿使用者原話 + 分類器輸出的獨立問題 + 「models in focus」（regex 從問題找 Stark N，不靠模型）；檢索與審查改用獨立問題；工單帶 session 與 trace_id。
 - 其他：分類與範圍判斷平行；回覆 markdown 渲染；`UNVERIFIED` 路由；「New chat」按鈕；cron 腳本設 proxy（cron 沒有 shell 環境，之前 HTTP 000 的原因）。
 - 待辦：10-22/23 結果出來後更新 README、results、成果報告（分類器 7 類 + 新分數、防禦與檢索階梯、模型名改 ultra、流程圖加 HELP/HANDOFF/ERROR/UNVERIFIED、對話狀態說明）；push 前先問使用者（約 20 個 commit 未 push）。
+
+## 2026-10-21 收工狀態（ultra 重跑完成，文件已更新）
+- **已完成並寫進文件的 ultra 數字**：防禦階梯（2 輪，0 失敗）攻擊擋下 17 / 21.5 / 25 / 28 / 28 /28，正常題 6/6 全層，prompt 14.9k → 2.0k chars；分類器 7 類 139 題 134/139（92–98%，0 略過，`results/guardrails.md`）；檢索階梯（16 題，n=10/20/30 各 2 輪，0 失敗）：R0 .83/.87/.90、R1 .87/.67/.67、R2 .83/.87/.80、R3 .87/.90/.87，recall R0=R3=1.00、R2 ≥ .96、R1 .93→.80；R2 對 R3 仍無法分高下，app 預設仍 R2。README、results/*、.claude 文件已改。
+- **成果報告 Artifact 已更新到 ultra 數字**（見 Artifact 最新版本）。
+- **明天 08:10（10-22）cron**：`.claude/rerun_retrieval_ultra.sh` 用 key1 重跑檢索階梯 21 題版（補 5 份先前沒被問到的文件：contact_and_hours、ordering、troubleshooting、safety、trade-in），約 760 次請求，額度 <800 會自動跳過；跑完不會更新文件，需要接手把 `results/retrieval-ladder.md`、README、報告換成 21 題的數字。Mac 要醒著。
+- **下個會話待辦**：(1) 看 `/tmp/ultra_retrieval_status.log`，更新檢索階梯 21 題數字；(2) 決定 R2 vs R3；(3) `evals/eval_answers.py` 尚未用 ultra 重跑；(4) 在瀏覽器實際驗證 markdown 渲染與 New chat 按鈕、MLflow Sessions 分組；(5) push（約 25 個 commit，先問使用者）。
