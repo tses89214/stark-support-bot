@@ -15,7 +15,7 @@ from pydantic import BaseModel
 from sentence_transformers import SentenceTransformer, util
 
 from build_index import DOCS_DIR, EMBED_MODEL, INDEX
-from doc_tools import record_usage, trace
+from doc_tools import record_usage, trace, update_trace_session
 
 SUPPORT = "customer_service@stack_spaceship.com"
 TOP_K = 3
@@ -102,6 +102,8 @@ REPLIES = {
                f"who will get back to you. You can also email {SUPPORT}.",
     "ERROR": f"Sorry, something went wrong on our side while looking that up. Please try again, or email {SUPPORT}.",
     "NO_ANSWER": f"I couldn't find that in our product documents. Please email {SUPPORT} and a human will help.",
+    "UNVERIFIED": f"I couldn't put together an answer that I can check against our product documents, so I won't guess. "
+                  f"Try asking about one model or one detail, or email {SUPPORT} and a human will help.",
 }
 
 
@@ -239,10 +241,12 @@ def select_docs(message, history, retrieval):
 
 
 @trace("CHAIN")
-def answer(message, history, defense="L4", retrieval="R2"):
+def answer(message, history, defense="L4", retrieval="R2", session=""):
     """Return (reply, route, sources). Only answered turns enter history, so blocked text never reaches the answer prompt.
     `defense` is the ladder level of eval_ladder.py (L0 bare ... L4 everything, the real bot); `retrieval` (R0-R3, see eval_retrieval_ladder.py) only applies at L4, the lower levels stuff every document."""
     level = int(defense[1])
+    if session:
+        update_trace_session(session)
     if level >= 3:
         route, reason = classify(message, history)
         if route in ("ABUSIVE", "ESCALATE", "HANDOFF"):
@@ -273,11 +277,12 @@ def answer(message, history, defense="L4", retrieval="R2"):
         ok, problems = review(message, reply, docs_text)
         if not ok:  # one rewrite with the reviewer's complaints; still failing means nothing unsafe is released
             fix = f"{system}\n\nYour previous draft was rejected by a reviewer:\n{reply}\nProblems: {'; '.join(problems)}\nRewrite it fixing every problem."
-            reply = llm([{"role": "system", "content": fix}, *turn])
+            # the rewrite sees no earlier assistant replies: an unsupported claim made in a past turn would otherwise be copied again
+            reply = llm([{"role": "system", "content": fix}, *[m for m in turn if m["role"] == "user"]])
             ok, problems = review(message, reply, docs_text)
             if not ok:
                 print(f"review rejected the rewrite: {problems}", file=sys.stderr)
-                return REPLIES["NO_ANSWER"], "NO_ANSWER", []
+                return REPLIES["UNVERIFIED"], "UNVERIFIED", []  # the docs may well cover it; the draft just could not be verified
     history += [{"role": "user", "content": message}, {"role": "assistant", "content": reply}]
     return reply, "ANSWER", sources
 
@@ -288,6 +293,7 @@ app = FastAPI()
 class ChatRequest(BaseModel):
     message: str
     history: list[dict] = []
+    session: str = ""  # groups a conversation's traces in MLflow; the page makes one per chat
     defense: Literal["L0", "L1", "L2", "L3", "L4"] = "L4"  # L0-L4, see eval_ladder.py
     retrieval: Literal["R0", "R1", "R2", "R3"] = "R2"  # R0-R3, only used at L4
 
@@ -296,7 +302,7 @@ class ChatRequest(BaseModel):
 def chat(req: ChatRequest):
     history = [{"role": m["role"], "content": m["content"]} for m in req.history]  # keep only role/content
     try:
-        reply, route, sources = answer(req.message, history, req.defense, req.retrieval)
+        reply, route, sources = answer(req.message, history, req.defense, req.retrieval, req.session)
     except Exception as e:  # noqa: BLE001 - a failed model call is an error the customer is told about, not a 500 page or a fake "not found"
         print(f"answer failed: {e!r}", file=sys.stderr)
         reply, route, sources = REPLIES["ERROR"], "ERROR", []

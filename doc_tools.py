@@ -19,9 +19,15 @@ if os.environ.get("MLFLOW_TRACKING_URI"):
         if span and usage:
             span.set_attribute("mlflow.chat.tokenUsage", {"input_tokens": usage.get("prompt_tokens", 0),
                                "output_tokens": usage.get("completion_tokens", 0), "total_tokens": usage.get("total_tokens", 0)})
+
+    def update_trace_session(session):
+        mlflow.update_current_trace(metadata={"mlflow.trace.session": session})
 else:
     def trace(span_type="TOOL"):
         return lambda fn: fn
+
+    def update_trace_session(session):
+        pass
 
     def record_usage(usage):
         pass

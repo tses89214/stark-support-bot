@@ -61,10 +61,12 @@
 <script>
 const log = document.getElementById("log"), input = document.getElementById("input"), form = document.getElementById("form");
 let history = [];
+let session = crypto.randomUUID();  // one per chat, so MLflow groups its traces
 const defense = document.getElementById("defense"), retrieval = document.getElementById("retrieval");
 
 function reset() {  // another level is a different bot: old turns would leak the previous one's answers into this one
   history = [];
+  session = crypto.randomUUID();
   log.replaceChildren();
   showDocs({});
   retrieval.disabled = defense.value !== "L4";  // L0-L3 always read every document
@@ -107,7 +109,7 @@ form.addEventListener("submit", async (e) => {
   const wait = add("…", "bot");
   form.querySelector("button").disabled = true;
   try {
-    const res = await fetch("/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message, history, defense: defense.value, retrieval: retrieval.value }) });
+    const res = await fetch("/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message, history, session, defense: defense.value, retrieval: retrieval.value }) });
     if (!res.ok) throw new Error(res.status);
     const data = await res.json();
     history = data.history;

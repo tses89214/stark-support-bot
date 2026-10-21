@@ -154,9 +154,18 @@ def test_reviewer_rewrites_once_then_blocks_instead_of_releasing_an_unsupported_
     app.util = types.SimpleNamespace(semantic_search=lambda q, v, top_k: [[{"corpus_id": i, "score": 0.9} for i in range(top_k)]])
     history = []
     reply, route, _ = app.answer("Stark 8 can be modified?", history)
-    assert reply == app.REPLIES["NO_ANSWER"] and route == "NO_ANSWER"
+    assert reply == app.REPLIES["UNVERIFIED"] and route == "UNVERIFIED"  # not "not found": the docs may cover it
     assert len(seen) == 2 and "safety claim not in documents" in seen[1]  # exactly one rewrite, told what was wrong
     assert history == []  # a rejected draft must not become context for the next turn
+
+    # the rewrite must not see earlier assistant replies: a claim invented there would be copied into the new draft
+    rewrite_inputs = []
+    app.llm = lambda messages, **kw: (
+        rewrite_inputs.append([m["role"] for m in messages]) if "rejected by a reviewer" in messages[0]["content"] else None
+    ) or fake_llm(messages, **kw)
+    drafts = iter(["a", "b", "c", "d"])
+    app.answer("and the price?", [{"role": "user", "content": "q1"}, {"role": "assistant", "content": "leasing is available"}])
+    assert rewrite_inputs and rewrite_inputs[-1].count("assistant") == 0, rewrite_inputs
 
 
 def test_defense_levels_add_one_thing_each():

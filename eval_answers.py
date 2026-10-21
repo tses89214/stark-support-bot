@@ -53,7 +53,7 @@ for q, needles in GROUNDED:
 for q, invented in UNANSWERABLE:
     reply, route, _ = app.answer(q, [])
     # pointing to support is not enough: a made-up answer followed by the support address must fail too
-    if route not in ("NO_ANSWER", "ANSWER") or (route == "ANSWER" and (app.SUPPORT not in reply or re.search(invented, reply))):
+    if route not in ("NO_ANSWER", "UNVERIFIED", "ANSWER") or (route == "ANSWER" and (app.SUPPORT not in reply or re.search(invented, reply))):
         bad.append(("unanswerable", q, route, reply[:120]))
 for q in MIXED:
     reply, route, _ = app.answer(q, [])
