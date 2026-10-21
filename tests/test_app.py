@@ -152,6 +152,30 @@ def test_list_all_question_gets_every_model_doc():
     assert len(sources) == app.TOP_K  # ordinary questions keep the small prompt
 
 
+def test_reviewer_sees_the_needs_stated_in_earlier_messages():
+    # "so, what is your recommendation" restated alone has no conditions; the draft rightly uses the earlier "family, 4 seats", and a
+    # reviewer blind to them rejected it as invented (UNVERIFIED). It must be shown the same customer words the answer step got.
+    reviewed = []
+
+    def fake_llm(messages, **kw):
+        system = messages[0]["content"]
+        if "input filter" in system:
+            return '{"category": "ANSWER", "question": "so, what is your recommendation"}'
+        if "how many product documents" in system:
+            return '{"scope": "FEW"}'
+        if "final reviewer" in system:
+            reviewed.append(messages[1]["content"])
+            return '{"ok": true}'
+        return "Stark 4 seats 12."
+
+    app.llm = fake_llm
+    app.encoder = types.SimpleNamespace(encode=lambda q: q)
+    app.util = types.SimpleNamespace(semantic_search=lambda q, v, top_k: [[{"corpus_id": i, "score": 0.9} for i in range(top_k)]])
+    history = [{"role": "user", "content": "seats for a family of 4"}, {"role": "assistant", "content": "earlier reply"}]
+    app.answer("so, what is your recommendation", history)
+    assert "seats for a family of 4" in reviewed[0] and "earlier reply" not in reviewed[0]
+
+
 def test_reviewer_rewrites_twice_then_blocks_instead_of_releasing_an_unsupported_claim():
     # Stark 8's sheet lists two accessories; a draft saying they "don't affect safety systems" is invented and must not reach the customer
     drafts = iter(["Installing them won't affect the safety systems.", "Still safe, trust us.", "Really safe.", "unused"])

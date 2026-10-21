@@ -20,12 +20,13 @@ GROUNDED = [  # (question, any of these substrings must appear in the reply)
     ("What color is the Stark 3?", ["Crimson"]),
     ("哪一款太空船可以載 30 個人?", ["Stark 8"]),
     ("How do I place an order?", ["deposit", "訂金"]),
+    ("How long is the warranty?", ["3-year", "3 year", "三年", "3 年", "3年"]),
     ("到貨後要在幾天內回報損壞?", ["7"]),
     ("The ship will not start, what should I check?", ["power cell", "ignition"]),
 ]
 UNANSWERABLE = [  # (question the docs cannot answer, regex for an invented answer that must NOT appear)
-    ("What is the warranty period of the Stark 3?", r"\d+[\s-]*(year|month)"),
-    ("Stark 3 的保固期是幾年?", r"\d+\s*(年|個月)"),
+    ("Does the Stark 3 have a lifetime free fuel plan?", r"(?i)\byes\b|是的"),
+    ("Stark 3 可以租賃嗎?月租多少?", r"(月租|每月)[^。]{0,6}\d"),
     ("Does the Stark 10 come with a free flight-school course?", r"(?i)\byes\b|是的"),
     ("Can I rent a Stark 5 instead of buying it?", r"(?i)\byes\b|\$\s?\d[\d,]*\s*(/|per )\s*(day|week|month)"),
     ("Does the price of the Stark 4 include insurance?", r"(?i)\byes\b|是的"),

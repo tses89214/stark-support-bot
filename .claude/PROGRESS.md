@@ -160,3 +160,8 @@
 - `/chat` 的 `session` 現為必填（舊分頁會得 422，不再靜默沒記憶）。
 - **未修**：追問「what is your recommendation」時，分類器的獨立問題沒帶「家庭、4 座」，回答步驟看得到使用者舊話、審查只看獨立問題 → 審查判草稿「憑空捏造需求」→ UNVERIFIED。選項：獨立問題帶入先前條件，或審查也給使用者先前的話。
 - **踩雷**：用 `python -c "import evals.…"` 檢查 import 會直接執行腳本（evals 無 `__main__` 保護）並消耗額度；key1 今晚已用到 1006/1000。檢查 import 改用 `compileall`。
+
+## 2026-10-21 深夜（續）：可讀性、保固、審查上下文
+- `backend/app.py` 加模組總覽、分段標題、步驟註解與缺的 docstring（AST 比對確認程式碼本身沒變）；sessions／frontend 補了少量註解。
+- 新增 `data/stark_spaceships/warranty_policy.txt`（同 `evals/gen_scaled_corpus.py` 的品牌保固文字，3 年／2 萬飛行小時），索引重建為 33 份。`eval_answers.py`：保固題移到有答案組，未答案組換成「終身免費燃料」「租賃」兩題。**檢索評測題庫沒加保固題**，且 33 份文件使舊的 85 題 hit@3 數字再度偏離，待 `eval_retrieval.py` 重跑時一併補題。已知限制：「Stark 3 的保固期是幾年？」中文問法 top-3 被 model_3 等佔滿，保固文件排不進。
+- 審查層現在也看到使用者先前說的話（最近 3 則）；審查提示加第 7 條（客服信箱必須是 SUPPORT 原樣）。原因：「what is your recommendation」被判 UNVERIFIED，審查只看獨立問題而回答看得到「家庭、4 座」。

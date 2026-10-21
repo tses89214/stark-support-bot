@@ -24,6 +24,7 @@ def turns(session):
 
 
 def add(session, user, reply, route, sources=(), question="", focus=(), ticket="", trace_id=""):
+    """Store one finished turn (any route, also blocked and failed ones) as the next row of the session."""
     with _lock:
         n = _db.execute("select count(*) from turns where session = ?", (session,)).fetchone()[0]
         _db.execute("insert into turns values (?,?,?,?,?,?,?,?,?,?,?)",

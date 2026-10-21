@@ -76,6 +76,7 @@ const log = document.getElementById("log"), input = document.getElementById("inp
 let session = crypto.randomUUID();  // one per chat: the server keeps the history under it, and MLflow groups the traces by it
 const defense = document.getElementById("defense"), retrieval = document.getElementById("retrieval");
 
+// New chat: a fresh session id, an empty log. Also used when defense / retrieval change, so one level never sees another's turns.
 function reset() {  // another level is a different bot: old turns would leak the previous one's answers into this one
   session = crypto.randomUUID();  // a new id is a new server-side conversation
   log.replaceChildren();
@@ -87,6 +88,7 @@ document.getElementById("newchat").addEventListener("click", () => { reset(); in
 retrieval.addEventListener("change", reset);
 
 // Small markdown subset for model replies: headings, lists, tables, code, bold/italic, links. HTML is escaped first, so a reply cannot inject markup.
+// Block by block: fenced code, lists, tables, headings, rules, then paragraphs; `inline` handles bold/italic/code/links inside a block.
 function md(src) {
   const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   const inline = (s) => esc(s)
@@ -126,6 +128,7 @@ function md(src) {
   return out.join("");
 }
 
+// Append a chat bubble. `meta` (the route/sources line) is only passed for bot replies, which are the ones rendered as markdown.
 function add(text, cls, meta) {
   const div = document.createElement("div");
   div.className = "msg " + cls;
@@ -136,6 +139,7 @@ function add(text, cls, meta) {
   return div;
 }
 
+// Right-hand panel: the documents the last answer was based on (name -> full text).
 function showDocs(docs) {
   const box = document.getElementById("docs");
   box.replaceChildren();
