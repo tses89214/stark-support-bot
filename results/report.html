@@ -19,7 +19,7 @@
   --accent:#7ba0ff; --bar:#7ba0ff; --bar-bg:#2a323d; --warn:#f0a35c; --code:#222a35; color-scheme:dark}
 body{background:var(--bg);color:var(--fg);font-family:var(--sans);line-height:1.65;
   padding-block:36px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-main{max-width:none;margin:0 auto;display:flex;flex-direction:column;gap:22px;min-width:0}
+main{max-width:52rem;margin:0 auto;display:flex;flex-direction:column;gap:22px;min-width:0}
 h1{font-size:1.65rem;line-height:1.25;margin:0;text-wrap:balance}
 h2{font-size:1.1rem;margin:0;text-wrap:balance}
 p{margin:0}
@@ -545,6 +545,25 @@ flowchart TD
     <div class="lv"><span class="tag">客人</span><span></span><q>家庭旅行用</q></div>
     <div class="lv"><span class="tag ok">ANSWER</span><span></span><q>直接推薦 Stark 4，沒有再追問預算</q></div>
   </div>
+
+  <h2>Focus 長什麼樣子</h2>
+  <p>每一輪結束後存一份，網頁右上角的藍色卡片顯示它。下面是依程式邏輯排出的示意，不是真實對話的紀錄。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>客人說</th><th>該輪結束後的 Focus</th></tr></thead>
+    <tbody>
+      <tr><td class="wrap">我想找四個人出門可以搭的飛船</td><td class="wrap"><code>needs: passengers=4</code>，<code>asked: 1</code>（機器人反問用途）</td></tr>
+      <tr><td class="wrap">家庭旅行用</td><td class="wrap"><code>talking_about: Stark 4</code>，<code>needs: passengers=4, use=family trips</code>（直接推薦 Stark 4）</td></tr>
+      <tr><td class="wrap">我喜歡 Stark 4，它是什麼顏色？</td><td class="wrap"><code>talking_about: Stark 4</code>，<code>interested_in: Stark 4</code>，需求同上</td></tr>
+      <tr><td class="wrap">順便問今天天氣</td><td class="wrap">不變（離題的輪次不改 Focus）</td></tr>
+    </tbody></table></div>
+  <div class="tbl"><table>
+    <thead><tr><th>欄位</th><th>意思</th><th>誰用它</th></tr></thead>
+    <tbody>
+      <tr><td><code>talking_about</code></td><td class="wrap">這句話在講哪些型號</td><td class="wrap">程式：解析「它」，一定讀該型號文件</td></tr>
+      <tr><td><code>interested_in</code></td><td class="wrap">客人看上的型號（候選清單，選定一台就只剩那台）</td><td class="wrap">只放進提示給模型看</td></tr>
+      <tr><td><code>needs</code></td><td class="wrap">人數、用途、預算、大小；累積，不清掉</td><td class="wrap">程式：決定要不要反問</td></tr>
+      <tr><td><code>asked</code></td><td class="wrap">已反問幾次，最多 2 次</td><td class="wrap">程式：決定停止反問；卡片不顯示</td></tr>
+    </tbody></table></div>
 
   <h2>Focus 為什麼是三列</h2>
   <p>原本還有第四列「目標」（goal），是模型自由寫的短句。它與「需求」重疊（找船時寫的就是人數與用途），其他情況只是把問題換句話說；沒有任何程式用它，也沒有像型號那樣被驗證，還出現過「goal: greeting」這種不準的值，所以刪掉。保留的三項都有程式依賴：正在談的型號用來解析「它」並釘住文件；候選清單給回答提示用；需求決定要不要反問。</p>
