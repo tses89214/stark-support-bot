@@ -4,11 +4,7 @@ refused = lost answers, off-topic questions let through = reach the answer step.
 from sentence_transformers import SentenceTransformer, util
 
 from backend.build_index import DOCS_DIR, EMBED_MODEL
-from evals.eval_retrieval import CASES, OFF_TOPIC
-
-MORE_OFF_TOPIC = ["How do I bake sourdough bread?", "What is the best way to learn guitar?", "Who won the last World Cup?",
-                  "Can you recommend a good laptop?", "Do you sell used cars?", "明天台北會下雨嗎?", "推薦一部好看的電影",
-                  "怎麼學英文比較快?", "你們有賣腳踏車嗎?", "幫我翻譯這句話成日文"]
+from evals.eval_retrieval import CASES, MORE_OFF_TOPIC, OFF_TOPIC
 
 paths = sorted(DOCS_DIR.glob("*.txt"))
 names, texts = [p.stem for p in paths], [p.read_text() for p in paths]

@@ -204,3 +204,9 @@
 - **使用者要求「全部都做」的現在可做事項，尚未開始（收工時才叫下班）**：(a) 寫兩個離線評測腳本明天跑——R3 對 15 題離題題（只跑 `app.pick_by_index`，看會不會亂點檔；離題題在 `evals/eval_retrieval.py` OFF_TOPIC＋`eval_threshold.py` MORE_OFF_TOPIC）；多輪追問題 R2 vs R3（要經分類器改寫，`select_docs(..., question=)`）；(b) 檢索題庫補保固題（`eval_retrieval.py` CASES；`warranty_policy`、`contact_and_hours` 等；補完 85 題的數字會變，報告與 README 要同步）；(c) 本檔與 DECISIONS 更新（本節即是）；(d) 小修：`llm_calls` 重複計節流、Groq 路徑 Retry-After（`app.py`／`.env.example` 已找不到 `GROQ`／`Retry-After`，可能早已清掉，先確認）。
 - 仍需人做：在 Artifact 檢視器看報告版面（窄螢幕、mermaid）。Artifact 已到 Version 66。
 - 明天 08:00 的待辦（見上節 TODO 1–6）不變；另加：評測跑完要把審查層「驗證結果」一節換成真實數字（現在只有一句「沒有系統性評測」）。
+
+## 2026-10-21 收工後續：保固題與新評測腳本（已 commit）
+- `eval_retrieval.py` 補 5 題保固題（英 3、中 2；`warranty_policy` 原本沒有題）。bge-m3 hit@3 71/85 → **76/90**，hit@1 68、hit@5 82；新題全中；MIN_SCORE 結論不變（相關最低 0.42、離題最高 0.47）。報告（檢索題 90＋15、全文表 90 題）、README、`results/retrieval-knobs.md` 已同步；Artifact Version 67。`MORE_OFF_TOPIC` 移到 `eval_retrieval.py`（`eval_threshold` 改成 import，它 import 時就會執行）。
+- 新增 `evals/eval_followups.py`（尚未對真模型跑；用假 LLM 走過整條流程與輸出格式）：(1) 15 題離題訊息，R3 底下分別量分類器（非 ANSWER）與選文件（點不到檔）兩道防線；(2) 8 個多輪追問案例，R2 vs R3 是否選到所需文件（先經分類器改寫成獨立問題）。`python -m evals.eval_followups 2`，約 110 次請求；`--dry`、`--render`。跑完把結果放進報告（檢索階梯頁補「離題與追問」，並補上 R3 沒有分數門檻時離題靠什麼擋）與 README。
+- `llm_calls` 計數：看過程式，`run_one` 在 `throttled` 外層計數，每個邏輯呼叫算一次，重試不重複計——不是 bug，不處理。Groq 路徑／`.env` 的 Groq 變數：`app.py`、`.env.example` 已找不到，無需處理。
+- 明天 08:00 待辦在原有 TODO 1–6 上加：`python -m evals.eval_followups 2`（用 key2，與 key1 的檢索階梯可平行）。

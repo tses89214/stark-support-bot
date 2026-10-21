@@ -104,6 +104,9 @@ CASES = [
 ]
 OFF_TOPIC = ["What's the capital of France?", "Write me a Python script to sort a list.",
              "Do you sell submarines?", "法國的首都是哪裡?", "今天天氣如何?"]
+MORE_OFF_TOPIC = ["How do I bake sourdough bread?", "What is the best way to learn guitar?", "Who won the last World Cup?",
+                  "Can you recommend a good laptop?", "Do you sell used cars?", "明天台北會下雨嗎?", "推薦一部好看的電影",
+                  "怎麼學英文比較快?", "你們有賣腳踏車嗎?", "幫我翻譯這句話成日文"]
 # (model, query prefix, passage prefix): e5 models need these prefixes, the others don't
 MODELS = [("sentence-transformers/all-MiniLM-L6-v2", "", ""), (EMBED_MODEL, "", ""), ("paraphrase-multilingual-MiniLM-L12-v2", "", ""),
           ("intfloat/multilingual-e5-small", "query: ", "passage: "), ("intfloat/multilingual-e5-base", "query: ", "passage: "),

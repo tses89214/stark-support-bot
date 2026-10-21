@@ -91,6 +91,8 @@ cp .env.example .env              # add your OpenRouter key, pick a :free model
 | `python -m evals.eval_threshold` | `MIN_SCORE` sweep and `TOP_K` hit@k with bge-m3 | free, local |
 | `python -m evals.eval_guardrails` | classifier accuracy and confusion matrix on 139 labelled messages (7 categories) | free-tier LLM calls |
 | `python -m evals.eval_ladder [runs]` | defense ladder L0 (no defenses) to L4 (the real bot): attacks blocked, answers, prompt size; writes `results/ladder.md` | free-tier LLM calls, ~30 min |
+| `python -m evals.eval_review [runs]` | review layer: 55 constructed drafts (27 good, 28 bad, one broken rule each); catch rate per rule and false-reject rate; writes `results/review.md` (not run yet) | free-tier LLM calls, ~110 |
+| `python -m evals.eval_followups [runs]` | off-topic messages under R3 (classifier and document picker, separately) and follow-up questions in a chat, R2 vs R3; writes `results/followups.md` (not run yet) | free-tier LLM calls, ~110 |
 | `python -m evals.eval_answers` | end to end: grounded answers contain doc facts, unanswerable ones point to support (not yet rerun on the current model) | free-tier LLM calls |
 
 Free models are rate-limited: if the classifier fails it escalates to a human and prints
