@@ -173,3 +173,10 @@
 - 分類器提示加 `needs`、`find_ship`、`just_list`，並加「never guess a slot」（修好會編造 use 的問題）。真實單次對話驗證：「四個人…」→ 反問用途；「家庭旅行用」→ 直接推薦 Stark 4。
 - 測試 30 項全過、ruff 乾淨。**未驗證**：139 題分類器、防禦階梯（L4 現為 R3＋簡短＋信箱固定＋CLARIFY）、`eval_answers` 用 ultra 皆未重跑。
 - 下次待辦：(1) 把「對話順暢度優化」寫進 `results/conversation.md`＋README＋私人 Artifact 報告（https://claude.ai/artifact/U49cMV838JcXaQd4L6ELjM，先 read 再 republish），並誠實標示未量測；(2) 08:00 後用額度重跑 21 題檢索階梯、139 題分類器、防禦階梯；(3) push 先問。
+
+## 2026-10-21 收工（續）：成果報告巡檢與 push
+- 成果報告：新分頁「對話順暢」（12 項設計＋證據等級、CLARIFY 流程圖、真實對話、Focus 示意、未量測清單）；總覽新增「對話順暢的優化」一節，並改寫「我們調整了什麼」；總覽流程圖拆掉 Focus／CLARIFY（太擠）。版面欄寬 52rem。
+- 全報告巡檢修正：R2「目前正式」→ 預設已改 R3；L4 描述（階梯最後一層，其後加的審查／簡短／信箱固定／反問未重測）；分類器完整提示換成現行七類版本；誤判清單換成 `guardrails.md` 的五題；文件數 33；日期；「還沒做完」補三項未重跑。`stack_spaceship` 全部改成 `stark_spaceship`（報告、`ladder-examples.md`、`ladder_raw.json`，並 `--render` 重生）。
+- 版本控制副本 `results/report.html`（獨立頁，mermaid 由 CDN 載入，未在瀏覽器開過）；線上 Artifact 已到 Version 33；兩份要同步改。
+- **已 push**：`feat/openrouter` 到 `32d636d`（原 `4957129`）。
+- 下次待辦（不變）：08:00 後手動跑 `.claude/rerun_retrieval_ultra.sh`（21 題檢索階梯，額度 ≥800）、139 題分類器、防禦階梯、`eval_answers` 用 ultra；結果再手動寫回 `results/`、README、報告；瀏覽器檢查報告版面與 mermaid；`ladder_raw.json` 已手改信箱字串，下次重跑會整份覆蓋。

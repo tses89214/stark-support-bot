@@ -32,3 +32,5 @@
 - 評測腳本現在在 `evals/`，從專案根目錄用 `python -m evals.eval_ladder` 執行。
 
 - 2026-10-21：Focus 只剩 talking_about / interested_in / needs / asked（goal 已刪）。`CLARIFY` 路由由程式在 L4 觸發（缺 passengers/use、最多反問 2 次）。分類器 prompt 改了，139 題與階梯尚未重跑。email 由程式固定為 `customer_service@stark_spaceship.com`。
+
+- 2026-10-21：成果報告有兩份要同步：私人 Artifact（https://claude.ai/artifact/U49cMV838JcXaQd4L6ELjM，Version 33）與 `results/report.html`。使用者偏好：報告欄寬窄一點、段落精簡（曾要求刪「Focus 為什麼三列」、總覽流程圖不放 Focus）。`python -m evals.eval_ladder --render` 需設 `CHAT_MODEL` 才能 import（不呼叫 LLM）。
