@@ -48,10 +48,10 @@ nav button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 .tbl{overflow-x:auto;width:100%;box-sizing:border-box}
 table{border-collapse:collapse;width:100%;min-width:100%;font-size:.88rem}
 details>.tbl,details>.rows,details>.ex{width:100%}
-th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top;overflow-wrap:anywhere}
 th{color:var(--muted);font-weight:600;font-size:.78rem;letter-spacing:.04em}
-td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right}
-td.wrap{white-space:normal;min-width:11rem}
+td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+td.wrap{min-width:9rem}
 .note{font-size:.86rem;color:var(--muted);border-left:3px solid var(--line);padding-left:12px}
 .warn{color:var(--warn)}
 .ex{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:14px;display:flex;flex-direction:column;gap:8px;min-width:0}
@@ -80,6 +80,7 @@ pre{margin:0;background:var(--code);border-radius:4px;padding:9px 11px;font:400 
 .flow div{display:grid;grid-template-columns:5.6rem minmax(0,1fr);gap:10px;font-size:.88rem;border-bottom:1px solid var(--line);padding-bottom:6px}
 .flow b{font-family:var(--mono);font-weight:500;color:var(--accent);font-size:.8rem}
 ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:5px;font-size:.9rem}
+@media (max-width:640px){th,td{padding:6px 7px}td.wrap{min-width:7rem}table{font-size:.84rem}.lv{grid-template-columns:1fr;gap:2px}}
 @media (max-width:520px){.row{grid-template-columns:1fr 4.6rem}.row .track{grid-column:1 / -1;order:3}
   .stage{grid-template-columns:1fr}.kv{grid-template-columns:1fr;gap:0}.flow div{grid-template-columns:1fr;gap:0}}
 </style>
@@ -474,9 +475,24 @@ Reply with JSON only: {"category": "&lt;one of the seven&gt;", "reason": "&lt;sh
 
 <div class="panel" id="p-review" role="tabpanel" aria-labelledby="t-review">
   <h2>回答審查層</h2>
-  <p>回答產生後，第三個 LLM 對照來源文件檢查：事實須在文件內、數字須相符、不承諾折扣退款交期。不過就帶著所有被指出的問題重寫（最多兩次），仍不過就回 UNVERIFIED（「我做不出能對照文件查證的答案，所以不猜」，與「文件沒有」不同），且不進對話歷史。審查器自己出錯一律視為不過。</p><p>規則重點：每個被列為符合的項目都要滿足問題的每個條件、一次列出全部問題、不得署名是哪個 AI 模型寫的。</p>
+  <p>回答寫好後，由第三個 LLM 拿來源文件逐項檢查，把關三件事：<b>事實在文件內、數字相符、不承諾折扣／退款／交期</b>。</p>
+  <ul>
+    <li><b>不過</b>：帶著所有被指出的問題重寫，最多兩次。</li>
+    <li><b>兩次仍不過</b>：回 UNVERIFIED（「我做不出能對照文件查證的答案，所以不猜」），不進對話歷史。這和「文件沒有」是兩回事。</li>
+    <li><b>審查器自己出錯</b>：一律視為不過。</li>
+  </ul>
+  <p class="sub">審查規則：每個被列為符合的項目都要滿足問題的每個條件；一次列出全部問題；不得署名是哪個 AI 模型寫的。</p>
+
   <h2>驗證結果</h2>
-  <p>目前<b>沒有系統性的審查評測</b>。先前的「自寫 10 題 10/10」「端到端 14/16」是前一個模型的結果，規則與提示之後又改過，尚未用 ultra 重跑，所以不列數字。</p><p class="note">唯一的實例：問「黃色、至少兩人座的有嗎？」，第一份草稿把只載 1 位乘客的 Stark 19 列為符合，還編造「算上駕駛共 2 人」與署名「GPT-4o」。舊規則一次只指出措辭，重寫又保留錯誤項目，唯一一次重寫用完而回了「找不到」。新規則在這份草稿與四個對照案例上全部判對，重寫一次就改成只列 Stark 23。這是一個案例加四個對照，不是系統性評測。</p>
+  <p>目前<b>沒有系統性的審查評測</b>。先前的「自寫 10 題 10/10」「端到端 14/16」是前一個模型的結果，規則與提示之後改過，尚未用 ultra 重跑，所以不列數字。唯一的實例如下。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>問題</th><th>發生什麼事</th></tr></thead>
+    <tbody>
+      <tr><td class="wrap">「黃色、至少兩人座的有嗎？」</td><td class="wrap">第一份草稿把只載 1 位乘客的 Stark 19 列為符合，還編造「算上駕駛共 2 人」與署名「GPT-4o」。</td></tr>
+      <tr><td class="wrap">舊規則</td><td class="wrap">一次只指出措辭；重寫又保留錯誤項目；唯一一次重寫用完，回了「找不到」。</td></tr>
+      <tr><td class="wrap">新規則</td><td class="wrap">這份草稿與四個對照案例全部判對，重寫一次就改成只列 Stark 23。</td></tr>
+    </tbody></table></div>
+  <p class="note">一個案例加四個對照，不是系統性評測。</p>
 </div>
 
 <div class="panel" id="p-conversation" role="tabpanel" aria-labelledby="t-conversation">
