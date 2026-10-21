@@ -21,7 +21,7 @@
 - **誤用 gpt-oss 的教訓**：`.env` 的 `CHAT_MODEL` 被我手動重跑時沿用，違反「同一模型」，已全部用 nemotron 重跑；之後手動跑評測一律先 `export CHAT_MODEL=...`，並看 `results/ladder.md` 抬頭的 model。
 - 試過 Cerebras（gpt-oss-120b）：每分鐘 5 次、每小時 150 次、每日 2400 次／100 萬 tokens，總時間不比 OpenRouter 短，**放棄，回 OpenRouter**（`.env.example`、`app.py` 已還原）。
 - 成果報告頁（分頁＋折疊）：https://claude.ai/artifact/U49cMV838JcXaQd4L6ELjM （私人；原始碼在 scratchpad，會話結束後不保留，要改就用 `Artifact read` 取回再發布；補完 2 輪數字後要更新）。
-- **下個會話待辦（依序）**，跑評測前先 `set -a; . ./.env; set +a; unset LLM_BASE_URL LLM_API_KEY; export CHAT_MODEL=nvidia/nemotron-3-super-120b-a12b:free HF_HUB_OFFLINE=1`，並用 `GET /api/v1/key` 讀剩餘額度（台北 08:00 重置，1000/天）：
+- **下個會話待辦（依序）**，跑評測前先 `set -a; . ./.env; set +a; unset LLM_BASE_URL LLM_API_KEY; export CHAT_MODEL=nvidia/nemotron-3-ultra-550b-a55b:free LLM_NO_THINK=1 HF_HUB_OFFLINE=1`，並用 `GET /api/v1/key` 讀剩餘額度（台北 08:00 重置，1000/天）：
   1. [x] 2026-10-19 `eval_ladder.py 2` 已跑，`results/ladder*.md`、README 已更新。
   2. 檢索階梯第 2 輪：n=10/20/30 全部 2 輪完成（2026-10-19、20），文件與成果報告已更新。MLflow 有一筆舊 RUNNING 的 R3-n30（重開機中斷）可忽略。
   3. `eval_retrieval.py` 其他模型重跑（MiniLM、e5-small／base、multilingual-MiniLM、bge-m3）→ `results/embeddings.md`、`retrieval-knobs.md`、README 的 embedding 段落；embeddinggemma-2 要 Docker（使用者說要開時會告知）。
@@ -43,7 +43,7 @@
 ## 當前狀態（2026-10-12）
 - 定位：作品集為主、學習實驗為輔；目標是「先做出能動的」（見 DECISIONS.md）。
 - LLM 後端：OpenRouter 免費模型（`llm()` in `app.py`），不再用 OpenAI / HF Inference（HF 需付費額度，402）。
-- 目前模型：`nvidia/nemotron-3-super-120b-a12b:free`（Gemma 免費版曾被上游 429 限流）。
+- 目前模型：`nvidia/nemotron-3-ultra-550b-a55b:free`（Gemma 免費版曾被上游 429 限流）。
 - `eval_guardrails.py`：30 題，29/29（另 1 題因模型回空內容無法評）；免費層可能限流，需看 stderr 的 `classify failed`。
 - 完整服務與 bge-m3 檢索評測已驗證（見下）。
 - `demo.ipynb` 與 fine-tuning 檔擱置（CLAUDE.md 已標註）。

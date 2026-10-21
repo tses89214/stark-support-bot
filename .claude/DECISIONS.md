@@ -33,7 +33,7 @@
 ## 2026-10-12 LLM 後端：OpenRouter 免費模型（取代 HF Inference）
 - HF Inference Providers 對此帳號回 402（無額度），標價 0 的模型也一樣；OpenRouter 有 `:free` 模型。
 - `app.py` 用 `requests` 自寫 `llm()`，不依賴任何廠商 SDK；失敗重試一次，`classify()` 失敗關閉為 ESCALATE 並印 stderr。
-- 目前模型 `nvidia/nemotron-3-super-120b-a12b:free`（Gemma 免費版被上游 429）。免費層有速率限制，demo 需備案。
+- 目前模型 `nvidia/nemotron-3-ultra-550b-a55b:free`（Gemma 免費版被上游 429）。免費層有速率限制，demo 需備案。
 - 路由函式 `chat()` 與 helper 撞名曾讓服務壞掉，helper 故名 `llm()`。
 
 ## 2026-10-12 依賴版本被 Intel Mac 限制
