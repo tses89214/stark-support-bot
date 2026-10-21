@@ -180,3 +180,7 @@
 - 版本控制副本 `results/report.html`（獨立頁，mermaid 由 CDN 載入，未在瀏覽器開過）；線上 Artifact 已到 Version 33；兩份要同步改。
 - **已 push**：`feat/openrouter` 到 `32d636d`（原 `4957129`）。
 - 下次待辦（不變）：08:00 後手動跑 `.claude/rerun_retrieval_ultra.sh`（21 題檢索階梯，額度 ≥800）、139 題分類器、防禦階梯、`eval_answers` 用 ultra；結果再手動寫回 `results/`、README、報告；瀏覽器檢查報告版面與 mermaid；`ladder_raw.json` 已手改信箱字串，下次重跑會整份覆蓋。
+
+## 2026-10-21 晚：審查層系統性評測（腳本完成、尚未跑）
+- 新增 `evals/eval_review.py`：55 題固定案例（27 份好草稿＋28 份壞草稿，七條審查規則各 4 題），草稿由程式從文件組出，標準答案已知，不用 LLM 當裁判。量兩個數字：抓壞率（每條規則）與好草稿誤殺率，附 Wilson 區間。`python -m evals.eval_review [runs]`，`--dry` 只列題數，`--render` 由 `results/review_raw.json` 重生 `results/review.md`。
+- 已通過 `--dry` 與 ruff；**還沒跑**：今晚額度只剩 27、需約 110（2 輪×55），腳本會拒絕開跑。08:00 重置後執行，跑完把結果補進報告「審查層」分頁與 `results/README.md`（現在該分頁寫「沒有系統性評測」）。
