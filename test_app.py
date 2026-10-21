@@ -133,9 +133,9 @@ def test_list_all_question_gets_every_model_doc():
     assert len(sources) == app.TOP_K  # ordinary questions keep the small prompt
 
 
-def test_reviewer_rewrites_once_then_blocks_instead_of_releasing_an_unsupported_claim():
+def test_reviewer_rewrites_twice_then_blocks_instead_of_releasing_an_unsupported_claim():
     # Stark 8's sheet lists two accessories; a draft saying they "don't affect safety systems" is invented and must not reach the customer
-    drafts = iter(["Installing them won't affect the safety systems.", "Still safe, trust us.", "unused"])
+    drafts = iter(["Installing them won't affect the safety systems.", "Still safe, trust us.", "Really safe.", "unused"])
     seen = []
 
     def fake_llm(messages, **kw):
@@ -155,13 +155,13 @@ def test_reviewer_rewrites_once_then_blocks_instead_of_releasing_an_unsupported_
     history = []
     reply, route, _ = app.answer("Stark 8 can be modified?", history)
     assert reply == app.REPLIES["UNVERIFIED"] and route == "UNVERIFIED"  # not "not found": the docs may cover it
-    assert len(seen) == 2 and "safety claim not in documents" in seen[1]  # exactly one rewrite, told what was wrong
+    assert len(seen) == 3 and "safety claim not in documents" in seen[1]  # draft + two rewrites, each told what was wrong
     assert history == []  # a rejected draft must not become context for the next turn
 
     # the rewrite must not see earlier assistant replies: a claim invented there would be copied into the new draft
     rewrite_inputs = []
     app.llm = lambda messages, **kw: (
-        rewrite_inputs.append([m["role"] for m in messages]) if "rejected by a reviewer" in messages[0]["content"] else None
+        rewrite_inputs.append([m["role"] for m in messages]) if "A reviewer rejected your previous draft" in messages[0]["content"] else None
     ) or fake_llm(messages, **kw)
     drafts = iter(["a", "b", "c", "d"])
     app.answer("and the price?", [{"role": "user", "content": "q1"}, {"role": "assistant", "content": "leasing is available"}])
