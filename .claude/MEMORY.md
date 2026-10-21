@@ -34,3 +34,5 @@
 - 2026-10-21：Focus 只剩 talking_about / interested_in / needs / asked（goal 已刪）。`CLARIFY` 路由由程式在 L4 觸發（缺 passengers/use、最多反問 2 次）。分類器 prompt 改了，139 題與階梯尚未重跑。email 由程式固定為 `customer_service@stark_spaceship.com`。
 
 - 2026-10-21：成果報告有兩份要同步：私人 Artifact（https://claude.ai/artifact/U49cMV838JcXaQd4L6ELjM，Version 33）與 `results/report.html`。使用者偏好：報告欄寬窄一點、段落精簡（曾要求刪「Focus 為什麼三列」、總覽流程圖不放 Focus）。`python -m evals.eval_ladder --render` 需設 `CHAT_MODEL` 才能 import（不呼叫 LLM）。
+
+- 2026-10-21 晚：報告是給面試官看的（Artifact 已到 Version 66，`results/report.html` 同步）。使用者偏好：不放開發流水帳、題目來源、「證據」欄、示意說明；閱讀順序先背景再題目再結果；總覽流程圖不出現 L/R 編號；防禦階梯停在 L3。報告改動先改 scratchpad 版再同步兩份。
