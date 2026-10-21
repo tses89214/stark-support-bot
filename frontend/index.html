@@ -13,7 +13,7 @@
   main { padding:16px 0; display:flex; flex-direction:column; height:100vh; box-sizing:border-box; min-width:0; }
   aside { padding:16px 0; height:100vh; box-sizing:border-box; overflow-y:auto; }
   aside h2 { font-size:14px; color:var(--muted); margin:0 0 8px; font-weight:600; }
-  .doc { background:var(--card); border-radius:8px; padding:6px 12px; margin-bottom:6px; font-size:13px; white-space:pre-wrap; }
+  .doc { background:var(--card); border-radius:8px; padding:6px 12px; margin-bottom:6px; font-size:13px; }
   #focus { border:2px solid var(--me); border-radius:10px; padding:10px 14px; margin-bottom:18px; font-size:16px; }
   #focus .row { display:flex; gap:10px; align-items:baseline; padding:2px 0; }
   #focus .k { flex:0 0 10em; font-size:12px; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); }
@@ -61,8 +61,8 @@
     <label>Retrieval <select id="retrieval">
       <option value="R0">R0 all documents</option>
       <option value="R1">R1 top-3 embedding</option>
-      <option value="R2" selected>R2 scope check + top-3</option>
-      <option value="R3">R3 LLM reads index</option>
+      <option value="R2">R2 scope check + top-3</option>
+      <option value="R3" selected>R3 LLM reads index</option>
     </select></label>
     <button type="button" id="newchat" title="Forget this conversation and start over">↻ New chat</button>
   </div>
@@ -169,7 +169,10 @@ function showDocs(docs) {
     d.className = "doc";
     const t = document.createElement("summary");
     t.textContent = name;
-    d.append(t, text);
+    const body = document.createElement("div");
+    body.className = "md";  // the same markdown subset as the replies (headings, bold, lists, tables)
+    body.innerHTML = md(text);
+    d.append(t, body);
     box.append(d);
   }
   if (!box.children.length) box.innerHTML = '<p class="meta">No documents used for this reply.</p>';

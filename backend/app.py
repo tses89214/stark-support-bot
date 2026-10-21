@@ -368,7 +368,7 @@ def select_docs(message, history, retrieval, all_docs=None, question=None):
 
 
 @trace("CHAIN")
-def answer(message, history, defense="L4", retrieval="R2", session="", focus=None, meta=None):
+def answer(message, history, defense="L4", retrieval="R3", session="", focus=None, meta=None):
     """Return (reply, route, sources). Only answered turns enter history, so blocked text never reaches the answer prompt.
     `defense` is the ladder level of eval_ladder.py (L0 bare ... L4 everything, the real bot); `retrieval` (R0-R3, see eval_retrieval_ladder.py) only applies at L4, the lower levels stuff every document.
     `focus` = the conversation's Focus so far (sessions.Focus). `meta` (a dict, optional) is filled with what the session store keeps: question, focus, ticket, trace_id."""
@@ -415,8 +415,13 @@ def answer(message, history, defense="L4", retrieval="R2", session="", focus=Non
                    f"{'; the customer is interested in ' + ', '.join(meta['focus'].interested_in) if meta['focus'].interested_in else ''}. "
                    f"Restated on its own: {question.replace('=====', '- - -')}")
     wrap = fence if level >= 2 else (lambda t: t)
-    past = [{**m, "content": wrap(m["content"])} for m in history if m["role"] == "user"]  # earlier assistant replies are not fed back: a claim invented there would be copied again
-    turn = [*past, {"role": "user", "content": wrap(message)}]
+    # Earlier customer messages go in the system prompt as context, not as chat turns: as turns the model answered them again
+    # (a "what color is it?" two questions ago was answered inside the reply to "which models seat more than 10?").
+    # Earlier assistant replies are not fed back at all: a claim invented there would be copied again.
+    earlier = [m["content"] for m in history if m["role"] == "user"][-3:]
+    if earlier:
+        system += "\n\nEarlier customer messages, already answered: context only, do not answer them again:\n" + wrap("\n".join(f"- {t}" for t in earlier))
+    turn = [{"role": "user", "content": wrap(message)}]
     reply = llm([{"role": "system", "content": system}, *turn])
     # 5. review (L4 only): rewrite with every complaint so far; unverified drafts are never released
     if level == 4:
@@ -450,7 +455,7 @@ class ChatRequest(BaseModel):
     session: str = Field(min_length=1)  # one id per chat, made by the page. Required: a stale tab without one gets a 422, not a bot with no memory.
     # The history lives on the server under this id, so nothing the browser sends can forge it.
     defense: Literal["L0", "L1", "L2", "L3", "L4"] = "L4"  # L0-L4, see eval_ladder.py
-    retrieval: Literal["R0", "R1", "R2", "R3"] = "R2"  # R0-R3, only used at L4
+    retrieval: Literal["R0", "R1", "R2", "R3"] = "R3"  # R0-R3, only used at L4; R3 is the default (see results/retrieval-ladder.md)
 
 
 @app.post("/chat")

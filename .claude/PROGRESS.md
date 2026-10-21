@@ -165,3 +165,4 @@
 - `backend/app.py` 加模組總覽、分段標題、步驟註解與缺的 docstring（AST 比對確認程式碼本身沒變）；sessions／frontend 補了少量註解。
 - 新增 `data/stark_spaceships/warranty_policy.txt`（同 `evals/gen_scaled_corpus.py` 的品牌保固文字，3 年／2 萬飛行小時），索引重建為 33 份。`eval_answers.py`：保固題移到有答案組，未答案組換成「終身免費燃料」「租賃」兩題。**檢索評測題庫沒加保固題**，且 33 份文件使舊的 85 題 hit@3 數字再度偏離，待 `eval_retrieval.py` 重跑時一併補題。已知限制：「Stark 3 的保固期是幾年？」中文問法 top-3 被 model_3 等佔滿，保固文件排不進。
 - 審查層現在也看到使用者先前說的話（最近 3 則）；審查提示加第 7 條（客服信箱必須是 SUPPORT 原樣）。原因：「what is your recommendation」被判 UNVERIFIED，審查只看獨立問題而回答看得到「家庭、4 座」。
+- 預設檢索 R3、來源文件改摺疊＋markdown、Focus 卡片、`interested_in` 改清單；回答提示不再把舊使用者話當聊天輪（見 DECISIONS）。**待辦**：防禦階梯（L4 現為 R3）與分類器 139 題需用新程式重跑，key 額度 08:00 後。

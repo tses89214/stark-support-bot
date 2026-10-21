@@ -61,7 +61,7 @@ LEVELS = [
     ("L1", "+ answer rules (answer only from the docs)"),
     ("L2", "+ input fence and untrusted-input rule"),
     ("L3", "+ input classifier and routing"),
-    ("L4", "+ embedding retrieval (bge-m3, top-3, score floor) = app.answer"),
+    ("L4", "+ document retrieval (app.answer default, R3 since 2026-10-21; the published numbers were measured with R2: bge-m3 top-3, score floor) + review = app.answer"),
 ]
 ALL_DOCS = "\n".join(app.docs.values())
 stats = {"calls": 0, "chars": 0, "failures": 0}
