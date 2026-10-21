@@ -16,6 +16,7 @@ from backend import app  # must follow the sentence_transformers stub
 class Resp:
     def __init__(self, content=None, status=200):
         self.content, self.status = content, status
+        self.status_code = status
 
     def raise_for_status(self):
         if self.status >= 400:
@@ -46,6 +47,22 @@ def test_llm_gives_up_after_one_retry():
         assert len(calls) == 2
     else:
         raise AssertionError("should raise after the retry")
+
+
+def test_a_429_key_sits_out_and_the_retry_uses_another_key():
+    # quota is per account: a spent key must not eat every other request; the retry has to land on a key that still works
+    sent = []
+    app.KEYS, app._cool = ["spent", "fresh"], {}
+    app.requests.post = lambda *a, **k: (sent.append(k["headers"]["Authorization"]), Resp(status=429) if "spent" in sent[-1] else Resp("ok"))[1]
+    app.time.sleep = lambda s: None
+    assert app.llm([]) == "ok" and sent == ["Bearer spent", "Bearer fresh"]
+    sent.clear()
+    assert [app.llm([]), app.llm([])] == ["ok", "ok"] and set(sent) == {"Bearer fresh"}  # the spent key is skipped while it cools down
+
+
+def test_every_openrouter_key_in_the_env_is_found():
+    env = {"OPENROUTER_API_KEY": "a", "OPENROUTER_API_KEY_2": "b", "OPENROUTER_API_KEY_work": "c", "OPENROUTER_API_KEY3": "d", "OPENROUTER_KEY_API_KEY_1": "e", "OPENROUTER_API_KEY_x": "", "OPENROUTER_BASE": "no", "OTHER_KEY": "no"}
+    assert app.keys_from(env) == ["a", "d", "b", "c", "e"]  # sorted by name; any OPENROUTER_*KEY*; empty values and other variables are not keys
 
 
 def test_classify_fails_closed_to_escalate():

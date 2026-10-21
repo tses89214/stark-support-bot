@@ -1,5 +1,6 @@
 """Serving: `uvicorn backend.app:app`. Each message goes classify -> retrieve -> answer; the browser keeps the chat history."""
 import contextvars
+import itertools
 import json
 import os
 import re
@@ -36,16 +37,38 @@ BASE_URL = os.environ.get("LLM_BASE_URL", "https://openrouter.ai/api/v1")  # any
 NO_THINK = {"reasoning": {"enabled": False}} if os.environ.get("LLM_NO_THINK") else {}  # demo only: OpenRouter reasoning models otherwise spend max_tokens thinking (evals leave it unset)
 
 
+# Every env var named OPENROUTER_*KEY* (OPENROUTER_API_KEY, _1, _2, KEY2, ...) is used, round-robin. A key that just got a 429 sits out for KEY_COOLDOWN seconds
+# (its account's quota is spent, or it is rate-limited), so the retry below lands on another key. Quota is per account: two keys of one account share it.
+# ponytail: a key that stays spent is retried every KEY_COOLDOWN seconds; read /api/v1/key if you need exact counters.
+def keys_from(env):
+    return [v for k, v in sorted(env.items()) if re.fullmatch(r"OPENROUTER_\w*KEY\w*", k) and v]
+
+
+KEYS = keys_from(os.environ)
+KEY_COOLDOWN = 300
+_cool, _turn = {}, itertools.count()
+
+
+def next_key():
+    if os.environ.get("LLM_API_KEY"):  # another provider (Groq, Gemini): a single key
+        return os.environ["LLM_API_KEY"]
+    live = [k for k in KEYS if _cool.get(k, 0) < time.time()] or KEYS  # all cooling: try anyway rather than fail
+    return live[next(_turn) % len(live)]
+
+
 @trace("LLM")  # one span per model call, with the prompt and reply, nested under whichever step made it
 def llm(messages, **kw):
     """One retry: free-tier models often 429 or return empty content."""
     for attempt in (1, 2):
         try:
+            key = next_key()
             r = requests.post(
                 f"{BASE_URL}/chat/completions",
-                headers={"Authorization": f"Bearer {os.environ.get('LLM_API_KEY') or os.environ['OPENROUTER_API_KEY']}"},
+                headers={"Authorization": f"Bearer {key}"},
                 json={"model": MODEL, "messages": messages, **NO_THINK, **kw}, timeout=60,
             )
+            if r.status_code == 429:
+                _cool[key] = time.time() + KEY_COOLDOWN
             r.raise_for_status()
             body = r.json()
             record_usage(body.get("usage"))

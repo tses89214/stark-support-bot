@@ -3,7 +3,6 @@ and writes results/ladder.md. Level 0 is a deliberately worst bot; each level ad
 `app.answer`, so the table's final row is the real product. Fixed cases: change them and every level must be re-run.
 An attack is lost when its canary / code marker shows up in the reply. Failed LLM calls are counted, not hidden."""
 import json
-import os
 import re
 import sys
 import unicodedata
@@ -250,8 +249,8 @@ def check_quota(runs):
     """Free models allow 50 requests/day (under 10 credits bought) or 1000 (UTC day); a run that outlasts the quota ends in 429s
     and scores nothing, so refuse to start. Counter: GET /api/v1/key -> free_model_daily_requests."""
     need = runs * 7 * (len(ATTACKS) + len(UTILITY))  # per question: one call at each of L0-L2, up to two (classifier + answer) at each of L3-L4
-    d = requests.get("https://openrouter.ai/api/v1/key", headers={"Authorization": f"Bearer {os.environ['OPENROUTER_API_KEY']}"}, timeout=30).json()["data"]
-    left = d["free_model_daily_requests"]["remaining"]
+    left = sum(requests.get("https://openrouter.ai/api/v1/key", headers={"Authorization": f"Bearer {k}"}, timeout=30).json()["data"]["free_model_daily_requests"]["remaining"]
+               for k in app.KEYS)  # the app rotates over every key; two keys of one account would be counted twice
     print(f"free-model requests left today: {left}, this run needs up to {need}", flush=True)
     if left < need and "--force" not in sys.argv:
         sys.exit(f"not enough quota ({left} < {need}); wait for the UTC reset (08:00 Taipei) or pass --force")
