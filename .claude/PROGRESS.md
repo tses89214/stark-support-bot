@@ -184,3 +184,13 @@
 ## 2026-10-21 晚：審查層系統性評測（腳本完成、尚未跑）
 - 新增 `evals/eval_review.py`：55 題固定案例（27 份好草稿＋28 份壞草稿，七條審查規則各 4 題），草稿由程式從文件組出，標準答案已知，不用 LLM 當裁判。量兩個數字：抓壞率（每條規則）與好草稿誤殺率，附 Wilson 區間。`python -m evals.eval_review [runs]`，`--dry` 只列題數，`--render` 由 `results/review_raw.json` 重生 `results/review.md`。
 - 已通過 `--dry` 與 ruff；**還沒跑**：今晚額度只剩 27、需約 110（2 輪×55），腳本會拒絕開跑。08:00 重置後執行，跑完把結果補進報告「審查層」分頁與 `results/README.md`（現在該分頁寫「沒有系統性評測」）。
+
+## TODO（2026-10-22 08:00 台北額度重置後）
+額度：兩把 key 各 1000/天、帳號層級；開跑前先讀 `GET /api/v1/key` 計數器，不夠就別加 `--force`。兩把可分開同時跑，各一個 eval。
+1. **審查層評測**（約 110 次）：`python -m evals.eval_review 2` → `results/review.md`、`review_raw.json`；結果補進報告「審查層」分頁（現在寫「沒有系統性評測」）、`results/README.md`；若誤殺率高，再逐條調審查提示並重測。
+2. **21 題檢索階梯**（約 760 次，需 ≥800）：`.claude/rerun_retrieval_ultra.sh`（用 key1；會重生 `data/stark_scaled`，跑完 `python -m evals.gen_scaled_corpus 30` 還原，不要 commit n=10/20）→ 手動更新 `results/retrieval-ladder.md`、README、報告檢索階梯頁，再決定 R2 vs R3 是否有新證據。
+3. **139 題分類器**（約 140 次）：`python -m evals.eval_guardrails`（現行提示多了 about/needs/find_ship 欄位）→ 更新 `results/guardrails.md`、報告分類器頁。
+4. **防禦階梯**（`python -m evals.eval_ladder 2`，L4 現為 R3＋簡短＋信箱固定＋反問）→ 更新 `results/ladder.md`、報告；`eval_answers.py` 也用 ultra 重跑。
+5. **其他**：`MIN_SCORE` 維持 0.40 直到階梯重跑；檢索評測題庫補保固題（`eval_retrieval.py`，33 份文件使舊 85 題數字偏離）；瀏覽器實際檢查報告版面（含窄螢幕）與 mermaid；分類器偏愛填 `about`、審查者偏嚴兩個已知問題。
+6. 每次改報告：同步 Artifact 與 `results/report.html`（先改 scratchpad 版，兩份一起 apply）。
+注意：session-only cron d6402cc2（10-22 08:03）只在此 Claude 會話開著且 Mac 醒著時才會觸發；不確定時就手動跑。
