@@ -14,7 +14,7 @@ import numpy as np
 import requests
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sentence_transformers import SentenceTransformer, util
 
 import sessions
@@ -341,14 +341,14 @@ app = FastAPI()
 
 class ChatRequest(BaseModel):
     message: str
-    session: str = ""  # the page makes one per chat; the history lives on the server, so nothing the browser sends can forge it
+    session: str = Field(min_length=1)  # required: a page that sends none (a stale tab) gets a 422 instead of a bot with no memory. The page makes one per chat; the history lives on the server, so nothing the browser sends can forge it
     defense: Literal["L0", "L1", "L2", "L3", "L4"] = "L4"  # L0-L4, see eval_ladder.py
     retrieval: Literal["R0", "R1", "R2", "R3"] = "R2"  # R0-R3, only used at L4
 
 
 @app.post("/chat")
 def chat(req: ChatRequest):
-    history, focus = sessions.history(req.session) if req.session else ([], [])
+    history, focus = sessions.history(req.session)
     meta = {}
     try:
         reply, route, sources = answer(req.message, history, req.defense, req.retrieval, req.session, focus, meta)

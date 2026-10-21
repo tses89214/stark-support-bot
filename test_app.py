@@ -215,6 +215,17 @@ def test_followup_is_resolved_by_the_server_not_by_the_browser():
     assert last["user"] == "and the price?" and last["question"] == "What is the price of the Stark 4?" and last["focus"] == ["Stark 4"]
 
 
+def test_chat_without_session_is_rejected():
+    # a stale tab sends no session; silently answering with no memory made the bot look broken (follow-ups refused as off-topic)
+    import pydantic
+    for body in ({"message": "hi"}, {"message": "hi", "session": ""}):
+        try:
+            app.ChatRequest.model_validate(body)
+        except pydantic.ValidationError:
+            continue
+        raise AssertionError(f"accepted {body}")
+
+
 def test_defense_levels_add_one_thing_each():
     # the demo selector must mirror eval_ladder.py: L0 sends raw text with no rules, L2 fences it, L3 adds the classifier call
     seen = []
