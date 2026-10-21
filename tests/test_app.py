@@ -269,7 +269,7 @@ def test_focus_resolves_it_even_when_the_model_does_not_rewrite_the_question():
         if "input filter" in system:
             seen["classifier_input"] = messages[1]["content"]
             return json.dumps({"category": "ANSWER", "question": "what color is it ?", "about": ["Stark 1", "Stark 99"],
-                               "interested_in": "Stark 1", "goal": "buy a small honeymoon ship"})
+                               "interested_in": ["Stark 1", "Stark 99"], "goal": "buy a small honeymoon ship"})
         if "how many product documents" in system:
             return '{"scope": "FEW"}'
         if "final reviewer" in system:
@@ -285,18 +285,20 @@ def test_focus_resolves_it_even_when_the_model_does_not_rewrite_the_question():
     assert meta["question"] == "what color is it ? (about Stark 1)"  # Stark 99 is not in the conversation: dropped, not trusted
     assert sources[0] == "model_1"  # the resolved model's sheet is always read ...
     assert seen["query"] == "what color is it ?"  # ... while the embedding query stays free of the model name (it would drown policy / guide questions)
-    assert meta["focus"] == Focus(["Stark 1"], "Stark 1", "buy a small honeymoon ship")
+    assert meta["focus"] == Focus(["Stark 1"], ["Stark 1"], "buy a small honeymoon ship")
     assert "Models in focus: Stark 1" in seen["classifier_input"]  # the focus goes into the next classifier call
 
 
 def test_blocked_turns_keep_the_focus_and_greetings_carry_it_forward():
     # an injection attempt or off-topic aside must not move the conversation; the state is filled every turn but only by turns that count
-    kept = Focus(["Stark 4"], "Stark 4", "order a ship")
-    assert kept.after("OFF_TOPIC", [], {"interested_in": "Stark 9", "goal": "x"}) is kept
+    kept = Focus(["Stark 4"], ["Stark 4"], "order a ship")
+    assert kept.after("OFF_TOPIC", [], {"interested_in": ["Stark 9"], "goal": "x"}) is kept
     assert kept.after("INJECTION", ["Stark 9"], {}) is kept
     assert kept.after("HELP", [], {}) == kept  # nothing new said: nothing lost
-    assert kept.after("ANSWER", ["Stark 7"], {"interested_in": "", "goal": ""}) == Focus(["Stark 7"], "Stark 4", "order a ship")
+    assert kept.after("ANSWER", ["Stark 7"], {"interested_in": [], "goal": ""}) == Focus(["Stark 7"], ["Stark 4"], "order a ship")
+    assert kept.after("ANSWER", [], {"interested_in": ["Stark 4", "Stark 7"]}).interested_in == ["Stark 4", "Stark 7"]  # a shortlist; a new answer replaces the old one
     assert Focus.load('["Stark 2"]') == Focus(["Stark 2"])  # rows stored before the class existed
+    assert Focus.load('{"talking_about": ["Stark 2"], "interested_in": "Stark 2", "goal": ""}') == Focus(["Stark 2"], ["Stark 2"])  # ... or with one model
 
 
 def test_chat_without_session_is_rejected():

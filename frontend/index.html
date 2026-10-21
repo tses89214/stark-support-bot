@@ -152,7 +152,7 @@ function add(text, cls, meta) {
 function showFocus(f) {
   const box = document.getElementById("focus");
   box.replaceChildren();
-  const rows = f ? [["Talking about", f.talking_about.join(", ")], ["Interested in", f.interested_in], ["Goal", f.goal]].filter(([, v]) => v) : [];
+  const rows = f ? [["Talking about", f.talking_about.join(", ")], ["Interested in", f.interested_in.join(", ")], ["Goal", f.goal]].filter(([, v]) => v) : [];
   for (const [k, v] of rows) {
     const r = document.createElement("div"), a = document.createElement("span"), b = document.createElement("span");
     r.className = "row"; a.className = "k"; b.className = "v"; a.textContent = k; b.textContent = v;

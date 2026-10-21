@@ -22,7 +22,7 @@ class Focus:
     """Where the conversation stands, filled in again on every turn and kept by the server (never by the browser or the answer prompt):
     later steps use it to resolve 'it' / 'that one' without asking a model to remember."""
     talking_about: list = field(default_factory=list)  # Stark models the latest question is about, e.g. ["Stark 1"]
-    interested_in: str = ""  # the one model the customer said they like or want to order; "" until they choose
+    interested_in: list = field(default_factory=list)  # the shortlist: models the customer said they like or want to order; a pick replaces it
     goal: str = ""  # what the customer is trying to do, in a few words ("choose a small honeymoon ship"); only read by the filter prompts
 
     def __bool__(self):
@@ -31,7 +31,7 @@ class Focus:
     def lines(self):
         """The focus as prompt lines for the filter steps."""
         return "".join(f"\n{label}: {value}" for label, value in (
-            ("Models in focus", ", ".join(self.talking_about)), ("Customer is interested in", self.interested_in), ("Customer's goal", self.goal)) if value)
+            ("Models in focus", ", ".join(self.talking_about)), ("Customer is interested in", ", ".join(self.interested_in)), ("Customer's goal", self.goal)) if value)
 
     def after(self, route, models, seen):
         """The focus after this turn. `models` = Stark models found in the standalone question; `seen` = what the classifier read from the
@@ -44,7 +44,11 @@ class Focus:
     def load(text):
         """From the stored JSON; rows written before this class existed hold a bare list of models."""
         data = json.loads(text)
-        return Focus(list(data)) if isinstance(data, list) else Focus(**data)
+        if isinstance(data, list):
+            return Focus(list(data))
+        if isinstance(data.get("interested_in"), str):  # stored when it was a single model
+            data["interested_in"] = [data["interested_in"]] if data["interested_in"] else []
+        return Focus(**data)
 
 
 def turns(session):
