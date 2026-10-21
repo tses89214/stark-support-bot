@@ -3,6 +3,8 @@
 # Does not change docs; results land in results/ladder*.md, ladder_raw.json and /tmp/rerun_*.log. Same model as before, never another one.
 cd /Users/po.cx.jian/github/llm-rag-tuning || exit 1
 grep -qE '^(done|running)' /tmp/rerun_status.log 2>/dev/null && exit 0
+# cron has no shell profile: the corporate proxy must be set here or every request times out (HTTP 000)
+export HTTP_PROXY=http://itt-fpx01.benq.corp.com:3128 HTTPS_PROXY=http://itt-fpx01.benq.corp.com:3128 NO_PROXY=localhost,127.0.0.1
 set -a; . ./.env; set +a
 unset LLM_BASE_URL LLM_API_KEY LLM_NO_THINK
 export CHAT_MODEL=nvidia/nemotron-3-super-120b-a12b:free HF_HUB_OFFLINE=1
