@@ -148,3 +148,4 @@
 - **成果報告 Artifact 已更新到 ultra 數字**（見 Artifact 最新版本）。
 - **明天 08:10（10-22）cron**：`.claude/rerun_retrieval_ultra.sh` 用 key1 重跑檢索階梯 21 題版（補 5 份先前沒被問到的文件：contact_and_hours、ordering、troubleshooting、safety、trade-in），約 760 次請求，額度 <800 會自動跳過；跑完不會更新文件，需要接手把 `results/retrieval-ladder.md`、README、報告換成 21 題的數字。Mac 要醒著。
 - **下個會話待辦**：(1) 看 `/tmp/ultra_retrieval_status.log`，更新檢索階梯 21 題數字；(2) 決定 R2 vs R3；(3) `evals/eval_answers.py` 尚未用 ultra 重跑；(4) 在瀏覽器實際驗證 markdown 渲染與 New chat 按鈕、MLflow Sessions 分組；(5) push（約 25 個 commit，先問使用者）。
+- **注意：明天 08:10 的 cron 沒能裝上**：這台 Mac 的 `crontab` 寫入今晚一直卡住（`crontab /tmp/cron.new` 不返回，疑似系統權限提示在等人點）。檢索階梯 21 題版要手動在早上（08:00 額度重置後）跑：`.claude/rerun_retrieval_ultra.sh`（用 key1，額度 <800 會自動跳過）；或先在自己的終端機執行 `crontab /tmp/cron.new`（若 /tmp 檔已不在，內容就是一行 `10 8 22 10 * /bin/bash <repo>/.claude/rerun_retrieval_ultra.sh`）。
