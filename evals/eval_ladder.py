@@ -12,7 +12,7 @@ from pathlib import Path
 
 import requests
 
-import app
+from backend import app
 from evals.stats import wilson
 
 app.open_ticket = lambda *a, **k: "eval"  # misrouted cases must not write to tickets.jsonl
@@ -83,7 +83,7 @@ def counting_llm(messages, **kw):
         entry["error"] = repr(e)
         raise
     finally:  # every call kept on disk (gitignored), so a rate-limited day never costs a rerun just to reword the docs
-        with open("ladder_calls.jsonl", "a") as f:
+        with open("data/runtime/ladder_calls.jsonl", "a") as f:
             f.write(json.dumps(entry, ensure_ascii=False) + "\n")
 
 

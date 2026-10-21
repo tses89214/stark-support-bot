@@ -6,7 +6,10 @@ import sqlite3
 import threading
 import time
 
-_db = sqlite3.connect(os.environ.get("SESSIONS_DB", "sessions.db"), check_same_thread=False)
+DB = os.environ.get("SESSIONS_DB", "data/runtime/sessions.db")
+if DB != ":memory:":
+    os.makedirs(os.path.dirname(DB), exist_ok=True)
+_db = sqlite3.connect(DB, check_same_thread=False)
 _db.row_factory = sqlite3.Row
 _db.execute("""create table if not exists turns (session text, n integer, ts text, user text, reply text, route text,
                sources text, question text, focus text, ticket text, trace_id text, primary key (session, n))""")

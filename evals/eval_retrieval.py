@@ -4,7 +4,7 @@ import sys
 
 from sentence_transformers import SentenceTransformer, util
 
-from build_index import DOCS_DIR, EMBED_MODEL
+from backend.build_index import DOCS_DIR, EMBED_MODEL
 from evals.stats import wilson
 
 CASES = [

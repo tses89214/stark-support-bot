@@ -4,7 +4,7 @@ intended category and moved the row into eval_guardrails.py: the generator is th
 uses, so unreviewed labels must never be graded against it."""
 import json
 
-from app import MODEL, llm
+from backend.app import MODEL, llm
 
 CATEGORIES = {
     "ANSWER": "a question about Stark Spaceships products, ordering, delivery or maintenance (also greetings and follow-ups)",

@@ -1,10 +1,10 @@
-"""Run the input classifier on labeled messages: `python -m evals.eval_guardrails` (same env vars as app.py, plus index.npz).
+"""Run the input classifier on labeled messages: `python -m evals.eval_guardrails` (same env vars as app.py, plus data/runtime/index.npz).
 Hand-written cases below, plus LLM-drafted ones from eval_candidates*.jsonl once a review marked them \"reviewed\"."""
 import json
 import sys
 from pathlib import Path
 
-from app import classify
+from backend.app import classify
 from evals.stats import wilson
 
 CASES = [

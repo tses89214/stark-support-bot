@@ -3,16 +3,16 @@
 # Needs .env (see .env.example) and `pip install -r requirements-eval.txt` for the MLflow side.
 cd "$(dirname "$0")" || exit 1
 [ -f .env ] || { echo "missing .env: copy .env.example and fill it in"; exit 1; }
-[ -f index.npz ] || .venv/bin/python build_index.py
+[ -f data/runtime/index.npz ] || .venv/bin/python -m backend.build_index
 for port in 8000 5001; do
   lsof -ti tcp:$port >/dev/null && { echo "port $port is already in use (old demo still running? lsof -ti tcp:$port | xargs kill)"; exit 1; }
 done
 
 export CHAT_MODEL=nvidia/nemotron-3-ultra-550b-a55b:free LLM_NO_THINK=1  # fixed for the demo; overrides .env
-export MLFLOW_TRACKING_URI=sqlite:///mlflow.db MLFLOW_EXPERIMENT_NAME=chatbot-demo MLFLOW_DISABLE_AGENT_HINT=1
+export MLFLOW_TRACKING_URI=sqlite:///data/runtime/mlflow.db MLFLOW_EXPERIMENT_NAME=chatbot-demo MLFLOW_DISABLE_AGENT_HINT=1
 trap 'kill $(jobs -p) 2>/dev/null' EXIT
 .venv/bin/mlflow ui --backend-store-uri "$MLFLOW_TRACKING_URI" --port 5001 >/dev/null 2>&1 &
-.venv/bin/uvicorn app:app --env-file .env &
+.venv/bin/uvicorn backend.app:app --env-file .env &
 
 until curl -s -o /dev/null localhost:8000/; do sleep 2; done  # bge-m3 takes a while to load
 echo "chat:   http://localhost:8000"

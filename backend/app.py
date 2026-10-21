@@ -1,4 +1,4 @@
-"""Serving: `uvicorn app:app`. Each message goes classify -> retrieve -> answer; the browser keeps the chat history."""
+"""Serving: `uvicorn backend.app:app`. Each message goes classify -> retrieve -> answer; the browser keeps the chat history."""
 import contextvars
 import json
 import os
@@ -17,14 +17,19 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 from sentence_transformers import SentenceTransformer, util
 
-import sessions
-from build_index import DOCS_DIR, EMBED_MODEL, INDEX
-from doc_tools import current_trace_id, record_usage, trace, update_trace_session
+from backend import sessions
+from backend.build_index import DOCS_DIR, EMBED_MODEL, INDEX
+from backend.doc_tools import (
+    current_trace_id,
+    record_usage,
+    trace,
+    update_trace_session,
+)
 
 SUPPORT = "customer_service@stack_spaceship.com"
 TOP_K = 3
 MIN_SCORE = 0.4  # bge-m3: on-topic top scores >= 0.45, off-topic <= 0.43 on eval_retrieval.py, so a weak guard; the prompt is the real one
-TICKETS = Path("tickets.jsonl")
+TICKETS = Path("data/runtime/tickets.jsonl")
 
 MODEL = os.environ["CHAT_MODEL"]  # e.g. google/gemma-4-31b-it:free
 BASE_URL = os.environ.get("LLM_BASE_URL", "https://openrouter.ai/api/v1")  # any OpenAI-compatible endpoint (Groq, Gemini, ...)
@@ -57,7 +62,7 @@ def llm(messages, **kw):
 POOL = ThreadPoolExecutor(max_workers=4)
 encoder = SentenceTransformer(EMBED_MODEL)
 if not INDEX.exists():
-    raise SystemExit("index.npz not found: run `python build_index.py` first")
+    raise SystemExit("index.npz not found: run `python -m backend.build_index` first")
 index = np.load(INDEX)
 names, vectors = list(index["names"]), index["vectors"]
 docs = {n: (DOCS_DIR / f"{n}.txt").read_text() for n in names}  # ponytail: whole docs in prompt, no chunking; fine for 10 short files
@@ -363,4 +368,4 @@ def chat(req: ChatRequest):
 
 @app.get("/")
 def home():
-    return FileResponse("static/index.html")
+    return FileResponse("frontend/index.html")

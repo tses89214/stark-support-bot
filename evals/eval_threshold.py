@@ -3,7 +3,7 @@ Part 1: MIN_SCORE sweep. A question is refused when its best doc score is below 
 refused = lost answers, off-topic questions let through = reach the answer step. Part 2: hit@k for TOP_K."""
 from sentence_transformers import SentenceTransformer, util
 
-from build_index import DOCS_DIR, EMBED_MODEL
+from backend.build_index import DOCS_DIR, EMBED_MODEL
 from evals.eval_retrieval import CASES, OFF_TOPIC
 
 MORE_OFF_TOPIC = ["How do I bake sourdough bread?", "What is the best way to learn guitar?", "Who won the last World Cup?",

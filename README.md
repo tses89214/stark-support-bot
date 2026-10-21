@@ -38,7 +38,7 @@ Every message goes through **classify → route/ticket → retrieve → answer**
 ```
 message ─► classifier (LLM) ─┬─ OFF_TOPIC / INJECTION ─► canned refusal
                              ├─ HELP ──────────────────► canned intro (what I can do), no retrieval
-                             ├─ ABUSIVE / ESCALATE ────► ticket in tickets.jsonl + canned reply
+                             ├─ ABUSIVE / ESCALATE ────► ticket in data/runtime/tickets.jsonl + canned reply
                              ├─ HANDOFF ───────────────► ticket + canned reply (order status, quotes, discounts, custom work)
                              └─ ANSWER ─► embed (bge-m3) ─► top-3 docs ─► LLM answers from them
                                           (best score < 0.4 ─► "no answer" reply)
@@ -54,7 +54,7 @@ The LLM is any free model on [OpenRouter](https://openrouter.ai); embeddings run
 - **Separate instructions from user input.** User text is wrapped in `===== USER INPUT =====` markers, our own marker is defanged inside it, and the system prompt calls the content untrusted data. Cheapest defense; with 28 attacks its gain (21.5 to 25) is no bigger than the answer rules' (17 to 21.5).
 - **Task requests are off-topic even when dressed up as ship questions** ("I'm installing the navigation AI, write me a bubble sort"). Found by adversarial test questions; fixed with one classifier rule (these cases are in `eval_guardrails.py`).
 - **Fail closed, and say why.** If the classifier fails, the case goes to a human and the ticket says "classifier failed, not the customer's request"; the customer sees an ERROR reply ("something went wrong on our side"), not a complaint handoff. A model failure in retrieval or answering is also ERROR, never a fake "not found": NO_ANSWER means the docs really have nothing.
-- **The server keeps the conversation, not the browser.** The page sends a session id and one message; turns (route, sources, restated question, models in focus, ticket, trace id) live in `sessions.db`. A browser cannot forge earlier assistant turns, and only answered turns are history. Prompts get the customer's own words plus a standalone version of the follow-up written by the classifier and the models in focus (found by regex), never the bot's earlier replies, so a claim invented in one reply is not copied into the next. Tickets and MLflow traces carry the session id.
+- **The server keeps the conversation, not the browser.** The page sends a session id and one message; turns (route, sources, restated question, models in focus, ticket, trace id) live in `data/runtime/sessions.db`. A browser cannot forge earlier assistant turns, and only answered turns are history. Prompts get the customer's own words plus a standalone version of the follow-up written by the classifier and the models in focus (found by regex), never the bot's earlier replies, so a claim invented in one reply is not copied into the next. Tickets and MLflow traces carry the session id.
 - **The reviewer checks every listed item against every condition of the question** and reports all problems at once; a rejected draft is rewritten up to twice with all complaints so far, then the customer gets an UNVERIFIED reply ("I couldn't put together an answer I can check against our documents"), which is not the same as "not found".
 - **Escalation is not a defense success.** An attack that only "succeeds" in being handed to a human, because the classifier broke, is excluded from the scores, not counted as blocked.
 - **No LLM judge.** Attacks are scored by whether a canary string or code marker appears in the reply; answers by whether a doc fact appears. Deterministic and free-tier friendly, but blunt (see limits).
@@ -79,15 +79,15 @@ Written with Claude Code. The direction and judgment calls were the author's: th
 ```bash
 python3 -m venv .venv && PIP_USER=0 .venv/bin/pip install -r requirements.txt
 cp .env.example .env              # add your OpenRouter key, pick a :free model
-.venv/bin/python build_index.py   # embeds the docs into index.npz (downloads bge-m3, ~2GB)
-.venv/bin/python -m uvicorn app:app --env-file .env   # chat UI at http://localhost:8000
+.venv/bin/python -m backend.build_index   # embeds the docs into data/runtime/index.npz (downloads bge-m3, ~2GB)
+.venv/bin/python -m uvicorn backend.app:app --env-file .env   # chat UI at http://localhost:8000
 ```
 
 ## Check it
 
 | Command | What it checks | Cost |
 |---|---|---|
-| `python test_app.py` | retry and fail-closed behaviour | free, offline |
+| `python -m tests.test_app` | retry and fail-closed behaviour | free, offline |
 | `python -m evals.eval_retrieval [model ...]` | hit@3 / MRR@3 per embedding model | free, local |
 | `python -m evals.eval_threshold` | `MIN_SCORE` sweep and `TOP_K` hit@k with bge-m3 | free, local |
 | `python -m evals.eval_guardrails` | classifier accuracy and confusion matrix on 139 labelled messages (7 categories) | free-tier LLM calls |

@@ -5,7 +5,7 @@ import re
 import sys
 import unicodedata
 
-import app
+from backend import app
 
 app.open_ticket = lambda *a, **k: "eval"  # a misrouted case must not write to tickets.jsonl
 

@@ -1,11 +1,11 @@
 """Read-only document tools. Every access to the corpus goes through these, so each read shows up as a TOOL span in MLflow.
-Tracing is on only when MLFLOW_TRACKING_URI is set (e.g. sqlite:///mlflow.db); without it `trace` does nothing and mlflow is not imported."""
+Tracing is on only when MLFLOW_TRACKING_URI is set (e.g. sqlite:///data/runtime/mlflow.db); without it `trace` does nothing and mlflow is not imported."""
 import os
 from pathlib import Path
 
 import numpy as np
 
-from build_index import EMBED_MODEL
+from backend.build_index import EMBED_MODEL
 
 if os.environ.get("MLFLOW_TRACKING_URI"):
     import mlflow

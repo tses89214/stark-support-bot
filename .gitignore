@@ -170,12 +170,10 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 
-tickets.jsonl
+# runtime files: index, sessions, tickets, mlflow db, raw call log
+data/runtime/
 index.npz
 INTERVIEW.md
 PLAN.md
-ladder_calls.jsonl
-mlflow.db
 mlruns/
 mlartifacts/
-sessions.db
