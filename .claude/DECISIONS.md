@@ -166,3 +166,8 @@
 - 決定（使用者）：bot 與網頁預設檢索由 R2 改為 R3（`answer()`、`ChatRequest`、下拉選單）。依據是 `results/retrieval-ladder.md` 的方向（R3 召回 1.00、R2 .96–.98，區間重疊）與失敗模式案例（R2 失敗時撈錯文件並答錯、R3 失敗時退回問人）；**不是**統計上分出高下，R2 vs R3 在階梯裡仍重疊。
 - 後果：`evals/eval_ladder.py` 的 L4 跟隨預設，**已發布的防禦階梯數字是 R2 量的**，下次重跑才會變成 R3（README、`eval_ladder` 標籤已註明）。測試中依賴 R2 行為的測項已明確傳 "R2"。
 - 同日修正：先前使用者話以聊天輪次送進回答提示，模型會重答舊問題（「what color is it?」被塞進「哪些型號超過 10 人」的回覆）；改成放進 system prompt 的「已回答、僅作背景」區塊，只有最新一句是 user 輪。
+
+## 2026-10-21 反問（CLARIFY）與刪除 Focus.goal
+- 是否反問由程式判斷（needs 缺 passengers/use、asked<2、非 just_list、沒指名型號），模型只負責用客人語言寫問題。原因：「路由交給程式」；上限 2 次避免追問不停。
+- `goal` 刪除：自由文字、未驗證、與 needs/interested_in 重疊、無程式依賴。保留 talking_about（解析「it」、釘型號文件）與 interested_in（shortlist，提示用）。
+- 分類器必須「不猜」需求欄位：曾把「四個人」腦補成 use=family trips 而跳過反問。

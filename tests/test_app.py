@@ -269,7 +269,7 @@ def test_focus_resolves_it_even_when_the_model_does_not_rewrite_the_question():
         if "input filter" in system:
             seen["classifier_input"] = messages[1]["content"]
             return json.dumps({"category": "ANSWER", "question": "what color is it ?", "about": ["Stark 1", "Stark 99"],
-                               "interested_in": ["Stark 1", "Stark 99"], "goal": "buy a small honeymoon ship"})
+                               "interested_in": ["Stark 1", "Stark 99"]})
         if "how many product documents" in system:
             return '{"scope": "FEW"}'
         if "final reviewer" in system:
@@ -285,20 +285,20 @@ def test_focus_resolves_it_even_when_the_model_does_not_rewrite_the_question():
     assert meta["question"] == "what color is it ? (about Stark 1)"  # Stark 99 is not in the conversation: dropped, not trusted
     assert sources[0] == "model_1"  # the resolved model's sheet is always read ...
     assert seen["query"] == "what color is it ?"  # ... while the embedding query stays free of the model name (it would drown policy / guide questions)
-    assert meta["focus"] == Focus(["Stark 1"], ["Stark 1"], "buy a small honeymoon ship")
+    assert meta["focus"] == Focus(["Stark 1"], ["Stark 1"])
     assert "Models in focus: Stark 1" in seen["classifier_input"]  # the focus goes into the next classifier call
 
 
 def test_blocked_turns_keep_the_focus_and_greetings_carry_it_forward():
     # an injection attempt or off-topic aside must not move the conversation; the state is filled every turn but only by turns that count
-    kept = Focus(["Stark 4"], ["Stark 4"], "order a ship")
-    assert kept.after("OFF_TOPIC", [], {"interested_in": ["Stark 9"], "goal": "x"}) is kept
+    kept = Focus(["Stark 4"], ["Stark 4"])
+    assert kept.after("OFF_TOPIC", [], {"interested_in": ["Stark 9"]}) is kept
     assert kept.after("INJECTION", ["Stark 9"], {}) is kept
     assert kept.after("HELP", [], {}) == kept  # nothing new said: nothing lost
-    assert kept.after("ANSWER", ["Stark 7"], {"interested_in": [], "goal": ""}) == Focus(["Stark 7"], ["Stark 4"], "order a ship")
+    assert kept.after("ANSWER", ["Stark 7"], {"interested_in": []}) == Focus(["Stark 7"], ["Stark 4"])
     assert kept.after("ANSWER", [], {"interested_in": ["Stark 4", "Stark 7"]}).interested_in == ["Stark 4", "Stark 7"]  # a shortlist; a new answer replaces the old one
     assert Focus.load('["Stark 2"]') == Focus(["Stark 2"])  # rows stored before the class existed
-    assert Focus.load('{"talking_about": ["Stark 2"], "interested_in": "Stark 2", "goal": ""}') == Focus(["Stark 2"], ["Stark 2"])  # ... or with one model
+    assert Focus.load('{"talking_about": ["Stark 2"], "interested_in": "Stark 2", "goal": "old"}') == Focus(["Stark 2"], ["Stark 2"])  # ... or with one model
 
 
 def test_earlier_customer_messages_are_context_not_pending_questions():
@@ -348,6 +348,60 @@ def test_support_email_is_set_by_code_and_the_l4_prompt_asks_for_a_short_reply()
     assert route == "ANSWER" and reply == f"Email {app.SUPPORT}. Or {app.SUPPORT}."
     assert "stack_spaceship" not in sent[-1]  # the reviewer is shown the corrected draft
     assert any("Keep the reply short" in m for m in sent) and app.BREVITY.strip() not in app.ANSWER_PROMPT
+
+
+def run_ship_search(verdict, focus=None, message="我想找四個人出門可以搭的飛船"):
+    """answer() at L4/R2 with a fake model whose classifier reply is `verdict`; returns (reply, route, meta, how many answer drafts were written)."""
+    drafts = []
+
+    def fake_llm(messages, **kw):
+        system = messages[0]["content"]
+        if "input filter" in system:
+            return json.dumps({"category": "ANSWER", "question": message, **verdict})
+        if "how many product documents" in system:
+            return '{"scope": "ALL"}'
+        if "final reviewer" in system:
+            return '{"ok": true}'
+        if "asks only for the missing details" in system or "missing details" in system.lower():
+            return "ASKING: " + system.split("Missing details:")[1].split("\n")[0].strip()
+        drafts.append(1)
+        return "Stark 2 and Stark 4."
+
+    app.llm = fake_llm
+    meta = {}
+    reply, route, _ = app.answer(message, [], "L4", "R2", "", focus, meta)
+    return reply, route, meta, len(drafts)
+
+
+def test_ship_search_without_the_essentials_gets_a_question_not_a_list():
+    # "which ships fit?" used to list the whole catalogue (long, slow, and the reviewer miscounted it); now the bot asks what it needs first
+    reply, route, meta, drafts = run_ship_search({"find_ship": True, "needs": {"passengers": "4"}})
+    assert route == "CLARIFY" and drafts == 0  # no retrieval, no draft, no review
+    assert "what they will use the ship for" in reply and "how many people" not in reply  # asks only what is still missing
+    assert meta["focus"].needs == {"passengers": "4"} and meta["focus"].asked == 1  # what it learned is kept, and the ask is counted
+
+
+def test_the_bot_recommends_once_it_knows_passengers_and_use():
+    _, route, meta, drafts = run_ship_search({"find_ship": True, "needs": {"passengers": "4", "use": "family trips"}})
+    assert route == "ANSWER" and drafts == 1 and meta["focus"].asked == 0
+    assert "needs: passengers=4, use=family trips" in meta["question"]  # the recommendation question carries what the customer said
+
+
+def test_the_bot_does_not_interrogate():
+    # it stops asking after MAX_CLARIFY rounds, and never when the customer asks for the list or names a model
+    asked_out = app.Focus(asked=app.MAX_CLARIFY)
+    assert run_ship_search({"find_ship": True}, asked_out)[1] == "ANSWER"
+    assert run_ship_search({"find_ship": True, "just_list": True})[1] == "ANSWER"
+    assert run_ship_search({"find_ship": True}, message="Is the Stark 4 big enough for a family?")[1] == "ANSWER"
+    assert run_ship_search({"find_ship": False})[1] == "ANSWER"  # a plain question is answered, never questioned back
+
+
+def test_the_clarifying_turn_is_visible_to_the_next_classifier_call():
+    # "1. 4" after the bot's own question was refused as off-topic when the question was missing from the history
+    from backend import sessions
+    sessions.add("t-clarify", "我想找四個人的飛船", "請問用途?", "CLARIFY", [], "x", app.Focus(asked=1))
+    history, focus = sessions.history("t-clarify")
+    assert [m["role"] for m in history] == ["user", "assistant"] and focus.asked == 1
 
 
 def test_chat_without_session_is_rejected():

@@ -30,3 +30,5 @@
 - cron 沒有 shell 環境：公司網路需 proxy `itt-fpx01.benq.corp.com:3128`，腳本內要自己 export，否則 curl 回 HTTP 000。Mac 睡眠時 cron 不會跑。**不要在腳本執行中編輯它**（bash 邊讀邊跑，會重跑或錯位）。
 - 對話歷史改由伺服器保存（`sessions.py`、`sessions.db`）；進提示的歷史只含使用者原話與分類器的獨立問題，不含助理舊回覆；審查最多重寫 2 次；`UNVERIFIED` 路由不是「找不到」。
 - 評測腳本現在在 `evals/`，從專案根目錄用 `python -m evals.eval_ladder` 執行。
+
+- 2026-10-21：Focus 只剩 talking_about / interested_in / needs / asked（goal 已刪）。`CLARIFY` 路由由程式在 L4 觸發（缺 passengers/use、最多反問 2 次）。分類器 prompt 改了，139 題與階梯尚未重跑。email 由程式固定為 `customer_service@stark_spaceship.com`。

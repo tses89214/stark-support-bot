@@ -166,3 +166,10 @@
 - 新增 `data/stark_spaceships/warranty_policy.txt`（同 `evals/gen_scaled_corpus.py` 的品牌保固文字，3 年／2 萬飛行小時），索引重建為 33 份。`eval_answers.py`：保固題移到有答案組，未答案組換成「終身免費燃料」「租賃」兩題。**檢索評測題庫沒加保固題**，且 33 份文件使舊的 85 題 hit@3 數字再度偏離，待 `eval_retrieval.py` 重跑時一併補題。已知限制：「Stark 3 的保固期是幾年？」中文問法 top-3 被 model_3 等佔滿，保固文件排不進。
 - 審查層現在也看到使用者先前說的話（最近 3 則）；審查提示加第 7 條（客服信箱必須是 SUPPORT 原樣）。原因：「what is your recommendation」被判 UNVERIFIED，審查只看獨立問題而回答看得到「家庭、4 座」。
 - 預設檢索 R3、來源文件改摺疊＋markdown、Focus 卡片、`interested_in` 改清單；回答提示不再把舊使用者話當聊天輪（見 DECISIONS）。**待辦**：防禦階梯（L4 現為 R3）與分類器 139 題需用新程式重跑，key 額度 08:00 後。
+
+## 2026-10-21 收工：CLARIFY 反問、需求欄位、刪 goal
+- 新路由 `CLARIFY`（程式決定，非分類類別）：L4、ANSWER、`find_ship`、非 `just_list`、訊息沒指名型號、缺 `REQUIRED_NEEDS`（passengers、use）且 `asked < MAX_CLARIFY=2` → `ask_for_needs()` 用客人語言反問，不檢索、不審查。`history()` 現含 CLARIFY 輪。
+- `Focus` 現為 `talking_about / interested_in / needs / asked`；**`goal` 已刪**（使用者同意：與 needs 重疊、無程式使用、未驗證）；舊資料的 `goal` 載入時忽略。卡片三列：Talking about / Interested in / Needs。
+- 分類器提示加 `needs`、`find_ship`、`just_list`，並加「never guess a slot」（修好會編造 use 的問題）。真實單次對話驗證：「四個人…」→ 反問用途；「家庭旅行用」→ 直接推薦 Stark 4。
+- 測試 30 項全過、ruff 乾淨。**未驗證**：139 題分類器、防禦階梯（L4 現為 R3＋簡短＋信箱固定＋CLARIFY）、`eval_answers` 用 ultra 皆未重跑。
+- 下次待辦：(1) 把「對話順暢度優化」寫進 `results/conversation.md`＋README＋私人 Artifact 報告（https://claude.ai/artifact/U49cMV838JcXaQd4L6ELjM，先 read 再 republish），並誠實標示未量測；(2) 08:00 後用額度重跑 21 題檢索階梯、139 題分類器、防禦階梯；(3) push 先問。
