@@ -194,3 +194,13 @@
 5. **其他**：`MIN_SCORE` 維持 0.40 直到階梯重跑；檢索評測題庫補保固題（`eval_retrieval.py`，33 份文件使舊 85 題數字偏離）；瀏覽器實際檢查報告版面（含窄螢幕）與 mermaid；分類器偏愛填 `about`、審查者偏嚴兩個已知問題。
 6. 每次改報告：同步 Artifact 與 `results/report.html`（先改 scratchpad 版，兩份一起 apply）。
 注意：session-only cron d6402cc2（10-22 08:03）只在此 Claude 會話開著且 Mac 醒著時才會觸發；不確定時就手動跑。
+
+## 2026-10-21 收工（報告給面試官看：重排與精簡；已 commit 並 push）
+- 報告定位改為「給面試官看」：不放開發流水帳（加入時間、來源、「使用者決定」、舊／新規則故事、「目前的證據」欄、示意說明）。
+- 總覽新順序：背景 → 用什麼題目測（五組題庫表）→ 我們調整了什麼（階梯是開發心法，兩個面向各一條）→ 結果摘要（四個數字都附背景）→ 機器人怎麼處理一則訊息（流程圖改畫 R3，四關，不出現 L/R 編號）→ 階梯之外 → 還沒做完。
+- 防禦階梯**停在 L3**（報告、README、`results/ladder.md` 的表都拿掉 L4）。理由：L3 已 28/28，L4 只是檢索＋完整機器人，混了 R2/R3＋審查＋簡短＋反問；檢索歸檢索階梯。**程式碼不動**：`answer(defense="L4")` 就是完整機器人（審查、反問都掛在 `level == 4`），`eval_ladder` 仍會量 L4，下次 `--render` 會把 L4 列加回 `ladder.md`，到時手動拿掉或標成「完整機器人（參考）」。
+- 刪「向量檢索本身調得好嗎」與「分數底線 MIN_SCORE」兩節（預設 R3 沒有分數門檻）；R2 取捨改白話（份數只有 3／15、用詞差撈不到、離題 0.47 > 相關 0.42 擋不住）。`results/retrieval-knobs.md` 仍在 repo。MIN_SCORE 0.40 程式碼保留（R1/R2 用）。
+- 表格 CSS：`overflow-wrap:break-word`（原 anywhere 會把 L0 拆成 L／0）。
+- **使用者要求「全部都做」的現在可做事項，尚未開始（收工時才叫下班）**：(a) 寫兩個離線評測腳本明天跑——R3 對 15 題離題題（只跑 `app.pick_by_index`，看會不會亂點檔；離題題在 `evals/eval_retrieval.py` OFF_TOPIC＋`eval_threshold.py` MORE_OFF_TOPIC）；多輪追問題 R2 vs R3（要經分類器改寫，`select_docs(..., question=)`）；(b) 檢索題庫補保固題（`eval_retrieval.py` CASES；`warranty_policy`、`contact_and_hours` 等；補完 85 題的數字會變，報告與 README 要同步）；(c) 本檔與 DECISIONS 更新（本節即是）；(d) 小修：`llm_calls` 重複計節流、Groq 路徑 Retry-After（`app.py`／`.env.example` 已找不到 `GROQ`／`Retry-After`，可能早已清掉，先確認）。
+- 仍需人做：在 Artifact 檢視器看報告版面（窄螢幕、mermaid）。Artifact 已到 Version 66。
+- 明天 08:00 的待辦（見上節 TODO 1–6）不變；另加：評測跑完要把審查層「驗證結果」一節換成真實數字（現在只有一句「沒有系統性評測」）。
