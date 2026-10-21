@@ -26,3 +26,24 @@ What the numbers support, and what they do not:
 - Not tested: the 16 questions never ask about five of the 67 documents (contact and hours, ordering guide, troubleshooting guide, safety regulations, trade-in). A 21-question set that asks about each of them is in `evals/eval_retrieval_ladder.py` and is scheduled to be rerun; these tables come from the 16-question set.
 
 Caveats: only two runs per cell on a free model; the manuals are templated on purpose (so catalogue questions have a computable answer); the question set is 16 questions written by the author; `llm_calls` counts calls the rate limiter refused as well, so it may read slightly high. Rerun: `python -m evals.gen_scaled_corpus N && python -m evals.eval_retrieval_ladder N` with `MLFLOW_TRACKING_URI=sqlite:///mlflow.db` (the generator wipes `data/stark_scaled/`, so never run two sizes at once).
+
+## A failure case from the live demo: what R2 and R3 do when the question cannot be resolved
+
+One real conversation (2026-10-21, defense L4, 33 documents), six turns: a honeymoon couple asks for something special, says they like a small ship, picks the Stark 1, asks how to order, asks "Any warranty?" and then **"what color is it ?"**. The classifier left the last question as it was (the "it" was not replaced), so retrieval had no model to look for. The conversation state already held `Stark 1`; nothing used it.
+
+I replayed that last turn with the stored history under both retrieval modes (R2 twice, R3 twice, same question `what color is it ?`):
+
+| Mode | Documents chosen | What the customer saw |
+|---|---|---|
+| R2 (embedding, previous user turn prefixed) | `warranty_policy`, `model_3`, `model_10` (both runs) | "There is no mention of a Stark 1 in the available documents", a false statement, then details of the Stark 3 and Stark 10 |
+| R3 (LLM reads the index) | none (both runs) | "I couldn't find that in our product documents. Please email customer_service@stack_spaceship.com" |
+
+With the question already resolved (`What color is the Stark 1?`) both modes work: R2 returns `model_1, model_13, model_3`, R3 returns `model_1` alone.
+
+What this shows, and what it does not:
+- **Not** evidence that R3 answers better: on the unresolved question neither mode answered it. One conversation, two runs per mode, is an illustration, not a measurement; the ranking above (R2 .80-.87 vs R3 .87-.90, overlapping intervals) is unchanged.
+- It does show a different **failure mode**. An embedding search always returns the nearest documents, so when the query is empty of meaning R2 fails open: wrong documents and a confident wrong sentence. R3 lets the model choose and it chose nothing, so it fails closed into the "ask a human" reply. For a support bot a refusal is cheaper than a false "there is no such model".
+- Resolved, R3 reads one document where R2 reads three, so it also costs less prompt.
+
+What was fixed in the bot (the failure was upstream of the retrieval choice): the conversation state is now a `Focus` object (`talking_about`, `interested_in`, `goal`) filled on every turn from the classifier and kept on the server; a follow-up that names no model gets the model from it (`what color is it ? (about Stark 1)`), and a model the question names is always read. The embedding query leaves the model name out, otherwise "does the Stark 1 have a warranty?" returned only model sheets and never the warranty policy. Replayed live after the fix: "what color is it ?" → `model_1` first, Metallic Silver; "Any warranty?" → `model_1, warranty_policy`, 3 years or 20,000 flight hours; "Stark 3 的保固期是幾年?" → `model_3, warranty_policy`. These live checks are single runs; the 16-question ladder above was **not** rerun with the new retrieval code (R1 and R2 here are the earlier implementation), so the table is still the evidence for R2 vs R3 and the choice is still open.
+
