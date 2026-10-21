@@ -1,6 +1,6 @@
 # Embedding model comparison
 
-Run 2026-10-13 with `python eval_retrieval.py <models>` (local, no LLM calls, deterministic). 85 questions (51 English, 34 Chinese) over 17 docs, at least 5 questions per doc (the set grew 30 to 40 to 85 on the same day; every number here is from the 85-question set). A question passes when the right doc is in the top 3.
+Run 2026-10-13 with `python -m evals.eval_retrieval <models>` (local, no LLM calls, deterministic). 85 questions (51 English, 34 Chinese) over 17 docs, at least 5 questions per doc (the set grew 30 to 40 to 85 on the same day; every number here is from the 85-question set). A question passes when the right doc is in the top 3.
 
 | Embedding model | hit@3 (95% interval) | English | Chinese | MRR@3 | Score gap (on-topic min vs off-topic max) |
 |---|---|---|---|---|---|

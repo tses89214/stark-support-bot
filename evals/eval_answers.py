@@ -1,4 +1,4 @@
-"""End-to-end check: `python eval_answers.py` (loads bge-m3, makes live LLM calls; same env vars as app.py).
+"""End-to-end check: `python -m evals.eval_answers` (loads bge-m3, makes live LLM calls; same env vars as app.py).
 Grounded cases: the reply must contain a fact that only the docs know. Unanswerable cases: the bot must point to
 support instead of inventing an answer. Substring checks are blunt on purpose: deterministic, no LLM judge."""
 import re

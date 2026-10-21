@@ -1,4 +1,4 @@
-"""Draft classifier test messages with an LLM: `python gen_candidates.py` (same env vars as app.py; ~10 LLM calls).
+"""Draft classifier test messages with an LLM: `python -m evals.gen_candidates` (same env vars as app.py; ~10 LLM calls).
 Writes eval_candidates.jsonl with status "unreviewed". Nothing here is a test case until a human has checked the
 intended category and moved the row into eval_guardrails.py: the generator is the same free model the classifier
 uses, so unreviewed labels must never be graded against it."""
@@ -35,5 +35,5 @@ if __name__ == "__main__":
                 continue
             rows += [{"message": m, "intended_category": name, "style": style, "source": f"llm:{MODEL}", "status": "unreviewed"} for m in msgs]
             print(name, style, len(rows), flush=True)
-    with open("eval_candidates.jsonl", "w") as f:
+    with open("evals/eval_candidates.jsonl", "w") as f:
         f.writelines(json.dumps(r, ensure_ascii=False) + "\n" for r in rows)

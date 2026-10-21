@@ -1,4 +1,4 @@
-"""Review LLM-drafted test messages by hand: `python review_candidates.py [file]` (default eval_candidates.jsonl).
+"""Review LLM-drafted test messages by hand: `python -m evals.review_candidates [file]` (default eval_candidates.jsonl).
 For each unreviewed row: Enter = the intended category is right, 1-5 = it is really ANSWER/OFF_TOPIC/ABUSIVE/ESCALATE/INJECTION,
 d = drop (bad message), s = skip, q = quit. Progress is saved after every row. `--export` prints accepted rows as
 eval_guardrails.py CASES lines. Only rows you accepted may be graded against the classifier."""
@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 
 LABELS = ["ANSWER", "OFF_TOPIC", "ABUSIVE", "ESCALATE", "INJECTION"]
-path = next((a for a in sys.argv[1:] if not a.startswith("--")), "eval_candidates.jsonl")
+path = next((a for a in sys.argv[1:] if not a.startswith("--")), "evals/eval_candidates.jsonl")
 rows = [json.loads(line) for line in Path(path).read_text().splitlines()]
 
 

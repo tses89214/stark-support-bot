@@ -1,10 +1,10 @@
-"""Retrieval knobs: `python eval_threshold.py` (bge-m3, local, no LLM calls).
+"""Retrieval knobs: `python -m evals.eval_threshold` (bge-m3, local, no LLM calls).
 Part 1: MIN_SCORE sweep. A question is refused when its best doc score is below the threshold, so on-topic questions
 refused = lost answers, off-topic questions let through = reach the answer step. Part 2: hit@k for TOP_K."""
 from sentence_transformers import SentenceTransformer, util
 
 from build_index import DOCS_DIR, EMBED_MODEL
-from eval_retrieval import CASES, OFF_TOPIC
+from evals.eval_retrieval import CASES, OFF_TOPIC
 
 MORE_OFF_TOPIC = ["How do I bake sourdough bread?", "What is the best way to learn guitar?", "Who won the last World Cup?",
                   "Can you recommend a good laptop?", "Do you sell used cars?", "明天台北會下雨嗎?", "推薦一部好看的電影",

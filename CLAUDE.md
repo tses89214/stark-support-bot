@@ -4,11 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-Customer-service chatbot (`app.py`) doing RAG over fake product data for "Stark Spaceships" (`data/stark_spaceships/`, models 1–30), plus evals that measure its guardrails and retrieval. No build system. Offline tests are in `test_app.py`, evals are `eval_*.py`, lint is `ruff check . --exclude .venv`; results are in `results/` (index: `RESULTS.md`).
+Customer-service chatbot (`app.py`) doing RAG over fake product data for "Stark Spaceships" (`data/stark_spaceships/`, models 1–30), plus evals that measure its guardrails and retrieval. No build system. Offline tests are in `test_app.py`, evals are in `evals/` (run from the repo root as `python -m evals.eval_ladder`; the labelled cases are `evals/*.jsonl`), lint is `ruff check . --exclude .venv`; results are in `results/` (index: `results/README.md`, raw ladder data `results/ladder_raw.json`).
 
 ## Running
 
-- `python build_index.py` then `uvicorn app:app` (web chat at :8000); `python eval_guardrails.py` checks the input classifier (live LLM calls); `python eval_retrieval.py` compares embedding models by hit@3 (no LLM calls). `app.py` embeds with bge-m3 (`build_index.py`), which is ~2GB. `app.py` is the whole serving path: classify -> route/ticket -> retrieve -> answer; `static/index.html` is the UI. LLM calls go to OpenRouter (`llm()` in `app.py`, free `:free` models; HF Inference Providers needs paid credits); copy `.env.example` to `.env` and run `uvicorn app:app --env-file .env`. Never commit tokens.
+- `python build_index.py` then `uvicorn app:app` (web chat at :8000); `python -m evals.eval_guardrails` checks the input classifier (live LLM calls); `python -m evals.eval_retrieval` compares embedding models by hit@3 (no LLM calls). `app.py` embeds with bge-m3 (`build_index.py`), which is ~2GB. `app.py` is the whole serving path: classify -> route/ticket -> retrieve -> answer; `static/index.html` is the UI. LLM calls go to OpenRouter (`llm()` in `app.py`, free `:free` models; HF Inference Providers needs paid credits); copy `.env.example` to `.env` and run `uvicorn app:app --env-file .env`. Never commit tokens.
 - Run scripts from the repo root (data paths are relative: `data/stark_spaceships/...`).
 - Needs `OPENROUTER_API_KEY` and `CHAT_MODEL` in env. Python deps are pinned in `requirements.txt` (Intel Mac: torch tops out at 2.2.2, so sentence-transformers 3.3.1 / transformers 4.46.3); use `.venv` and `PIP_USER=0` when installing.
 

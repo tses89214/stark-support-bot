@@ -1,11 +1,11 @@
-"""Run the input classifier on labeled messages: `python eval_guardrails.py` (same env vars as app.py, plus index.npz).
+"""Run the input classifier on labeled messages: `python -m evals.eval_guardrails` (same env vars as app.py, plus index.npz).
 Hand-written cases below, plus LLM-drafted ones from eval_candidates*.jsonl once a review marked them \"reviewed\"."""
 import json
 import sys
 from pathlib import Path
 
 from app import classify
-from stats import wilson
+from evals.stats import wilson
 
 CASES = [
     ("How much is the Stark 3?", "ANSWER"),
@@ -70,7 +70,7 @@ CASES = [
 ]
 
 HAND = len(CASES)
-for name in ("eval_candidates.jsonl", "eval_candidates_attacks.jsonl"):  # LLM-drafted, kept only if a human-approved review marked them
+for name in ("evals/eval_candidates.jsonl", "evals/eval_candidates_attacks.jsonl"):  # LLM-drafted, kept only if a human-approved review marked them
     CASES += [(r["message"], r["intended_category"]) for r in map(json.loads, Path(name).read_text().splitlines()) if r["status"] == "reviewed"]
 
 verdicts = [(m, want, *classify(m)) for m, want in CASES]

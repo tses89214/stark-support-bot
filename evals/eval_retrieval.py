@@ -1,11 +1,11 @@
-"""Retrieval eval: `python eval_retrieval.py [model ...]` prints hit@3 per embedding model plus the score range used to pick MIN_SCORE.
+"""Retrieval eval: `python -m evals.eval_retrieval [model ...]` prints hit@3 per embedding model plus the score range used to pick MIN_SCORE.
 No LLM calls, so it is free. Each case is (question, doc that must be in the top 3)."""
 import sys
 
 from sentence_transformers import SentenceTransformer, util
 
 from build_index import DOCS_DIR, EMBED_MODEL
-from stats import wilson
+from evals.stats import wilson
 
 CASES = [
     ("How much is the Stark 3?", "model_3"),

@@ -128,3 +128,8 @@
 - 程式、測試題（`eval_guardrails.py` 139 題）已 commit；標籤調整：第 1 題改措辭、`eval_candidates.jsonl` 第 9 筆 ANSWER→HANDOFF（審核欄有註記）。上一次完整結果 135/139，改後尚未重跑。
 - **OpenRouter 的 nemotron-3-super-120b :free 目前對所有請求回 404**（`Provider returned error … Function '…' Not found for account`，Nvidia 端），demo 每則訊息都會被判 ESCALATE（fail closed）。恢復後依序：`python eval_guardrails.py`（約 140 次）→ `python eval_ladder.py 2`（約 476 次；L0–L2 沒用到分類器，數字不變，但腳本不支援只跑 L3/L4）→ 更新 README／results／成果報告（分類器改七類、113/116 與階梯數字）。不要換模型，會破壞「同一模型」。
 - 2026-10-20 晚：已用 cron 排 **2026-10-21 08:10**（額度重置後）跑 `.claude/rerun_after_reset.sh`：先確認 nemotron-3-super 不再 404，再跑 `eval_guardrails.py`（→ `/tmp/rerun_guardrails.log`）和 `eval_ladder.py 2`（→ `/tmp/rerun_ladder.log`、`results/ladder*.md`），狀態在 `/tmp/rerun_status.log`。**Mac 要醒著；腳本不改文件**，之後仍要手動更新 README、`results/`、成果報告（分類器改七類、題數 139、階梯數字）。若 status 寫 "still unavailable"，模型還沒恢復，等恢復後手動重跑。Demo 目前在 OpenRouter `nemotron-3-ultra-550b-a55b:free` + `LLM_NO_THINK=1` 跑（`.env` 另有 GROQ_* 變數，Groq 每分鐘 8000 tokens 太小）。新增 route：`HELP`、`HANDOFF`、`ERROR`（模型失敗，與 `NO_ANSWER` 區分）。
+
+## 2026-10-21 整理與調整
+- 檔案整理：評測腳本與題庫移到 `evals/`（執行方式改為 repo 根目錄 `python -m evals.eval_ladder`），`RESULTS.md` → `results/README.md`，`ladder_raw.json` → `results/ladder_raw.json`（留在版控：README 數字與 `--render`／`--refill` 都靠它；體積 95KB，原始呼叫紀錄 `ladder_calls.jsonl` 21MB 才是 gitignored）。`PLAN.md`／`INTERVIEW.md` 本來就 gitignored，沒動。
+- 行為：審查兩次不過改回新路由 `UNVERIFIED`（不再說「找不到」）；重寫只看使用者的話，不再抄舊的機器人回覆；`/chat` 帶 `session`，trace 的 metadata `mlflow.trace.session` 讓 MLflow 把同一場對話歸一組。
+- nemotron-super `:free` 仍是 Nvidia 端 404（OpenRouter endpoint status -5；NVIDIA 論壇有大量同錯誤貼文無回應）。每小時 cron 探測，通了自動跑 `evals.eval_guardrails` 與 `evals.eval_ladder 2`。不用付費版。

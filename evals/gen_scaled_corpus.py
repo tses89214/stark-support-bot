@@ -1,4 +1,4 @@
-"""Build a bigger, hierarchical corpus for the retrieval ladder: `python gen_scaled_corpus.py [TOTAL_MODELS]` (default 15, at most 30).
+"""Build a bigger, hierarchical corpus for the retrieval ladder: `python -m evals.gen_scaled_corpus [TOTAL_MODELS]` (default 15, at most 30).
 Writes data/stark_scaled/{brand,general,models,manuals}/ + INDEX.md + gold.json. Deterministic (no LLM, no randomness): the
 fictional manuals are templates, shared between models on purpose, so the same facts repeat across documents and
 questions like "which models use a joystick?" have a gold answer computed from the same table that wrote the text."""

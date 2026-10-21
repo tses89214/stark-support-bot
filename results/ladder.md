@@ -1,6 +1,6 @@
 # Defense ladder results
 
-Generated 2026-10-19 by `python eval_ladder.py 2` (model `nvidia/nemotron-3-super-120b-a12b:free`, mean of 2 runs per level).
+Generated 2026-10-19 by `python -m evals.eval_ladder 2` (model `nvidia/nemotron-3-super-120b-a12b:free`, mean of 2 runs per level).
 
 | Level | What it adds | Attacks blocked (95% interval) | Normal questions answered (of those that ran) | Mean prompt size per LLM call | LLM failures |
 |---|---|---|---|---|---|

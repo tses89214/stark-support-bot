@@ -222,7 +222,7 @@ def test_read_doc_refuses_paths_outside_the_corpus():
 
 def test_throttle_refuses_a_request_that_can_never_fit_the_token_budget():
     # Groq free allows ~8K tokens/minute: an R0 prompt bigger than that must fail loudly, not retry forever or be scored as a wrong answer
-    import eval_retrieval_ladder as ladder
+    import evals.eval_retrieval_ladder as ladder
 
     ladder.TPM = 1000
     call = ladder.throttled(lambda messages, **kw: "sent")

@@ -1,5 +1,5 @@
 """Retrieval ladder: how the bot decides which documents to read, measured at two corpus sizes.
-`python gen_scaled_corpus.py 15 && python eval_retrieval_ladder.py 15` (live LLM calls; `--dry` builds the questions and checks gold, no calls).
+`python -m evals.gen_scaled_corpus 15 && python -m evals.eval_retrieval_ladder 15` (live LLM calls; `--dry` builds the questions and checks gold, no calls).
 R0 load every document | R1 embedding top-3 | R2 top-3, or top-15 when an LLM scope check says the question is broad | R3 the LLM reads
 INDEX.md and names the documents to open. Doc reads are traced tools (doc_tools.py); set MLFLOW_TRACKING_URI=sqlite:///mlflow.db and
 run `mlflow ui --backend-store-uri sqlite:///mlflow.db` to compare runs and open each question's trace."""
@@ -13,7 +13,7 @@ from pathlib import Path
 
 import app
 import doc_tools
-from gen_scaled_corpus import facts
+from evals.gen_scaled_corpus import facts
 
 doc_tools.encoder = app.encoder
 

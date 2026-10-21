@@ -12,7 +12,7 @@ project is not started.
 ## Results at a glance
 
 **30-model corpus, mean of 2 runs per level.** 28 attacks and 6 normal questions, free model `nvidia/nemotron-3-super-120b-a12b:free`
-(the ladder page has the scores and caveats: [results/ladder.md](results/ladder.md); real example replies: [results/ladder-examples.md](results/ladder-examples.md); all result pages: [RESULTS.md](RESULTS.md)).
+(the ladder page has the scores and caveats: [results/ladder.md](results/ladder.md); real example replies: [results/ladder-examples.md](results/ladder-examples.md); all result pages: [results/README.md](results/README.md)).
 
 | Level | Adds | Attacks blocked (95% interval) | Normal questions answered | Prompt size |
 |---|---|---|---|---|
@@ -85,11 +85,11 @@ cp .env.example .env              # add your OpenRouter key, pick a :free model
 | Command | What it checks | Cost |
 |---|---|---|
 | `python test_app.py` | retry and fail-closed behaviour | free, offline |
-| `python eval_retrieval.py [model ...]` | hit@3 / MRR@3 per embedding model | free, local |
-| `python eval_threshold.py` | `MIN_SCORE` sweep and `TOP_K` hit@k with bge-m3 | free, local |
-| `python eval_guardrails.py` | classifier accuracy and confusion matrix on 139 labelled messages (7 categories) | free-tier LLM calls |
-| `python eval_ladder.py [runs]` | defense ladder L0 (no defenses) to L4 (the real bot): attacks blocked, answers, prompt size; writes `results/ladder.md` | free-tier LLM calls, ~30 min |
-| `python eval_answers.py` | end to end: grounded answers contain doc facts, unanswerable ones point to support | free-tier LLM calls |
+| `python -m evals.eval_retrieval [model ...]` | hit@3 / MRR@3 per embedding model | free, local |
+| `python -m evals.eval_threshold` | `MIN_SCORE` sweep and `TOP_K` hit@k with bge-m3 | free, local |
+| `python -m evals.eval_guardrails` | classifier accuracy and confusion matrix on 139 labelled messages (7 categories) | free-tier LLM calls |
+| `python -m evals.eval_ladder [runs]` | defense ladder L0 (no defenses) to L4 (the real bot): attacks blocked, answers, prompt size; writes `results/ladder.md` | free-tier LLM calls, ~30 min |
+| `python -m evals.eval_answers` | end to end: grounded answers contain doc facts, unanswerable ones point to support | free-tier LLM calls |
 
 Free models are rate-limited: if the classifier fails it escalates to a human and prints
 `classify failed` on stderr, so check stderr before trusting an eval score.

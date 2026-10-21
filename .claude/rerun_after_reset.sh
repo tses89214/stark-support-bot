@@ -10,6 +10,6 @@ code=$(curl -s -o /dev/null -w '%{http_code}' https://openrouter.ai/api/v1/chat/
   -d '{"model":"'"$CHAT_MODEL"'","messages":[{"role":"user","content":"hi"}],"max_tokens":10}')
 if [ "$code" != "200" ]; then echo "model still unavailable (HTTP $code), nothing run" > /tmp/rerun_status.log; exit 1; fi
 echo "running since $(date)" > /tmp/rerun_status.log
-.venv/bin/python eval_guardrails.py > /tmp/rerun_guardrails.log 2>&1
-.venv/bin/python eval_ladder.py 2 > /tmp/rerun_ladder.log 2>&1
+.venv/bin/python -m evals.eval_guardrails > /tmp/rerun_guardrails.log 2>&1
+.venv/bin/python -m evals.eval_ladder 2 > /tmp/rerun_ladder.log 2>&1
 echo "done $(date)" > /tmp/rerun_status.log

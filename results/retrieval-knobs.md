@@ -1,6 +1,6 @@
 # Retrieval knobs: `MIN_SCORE` and `TOP_K`
 
-Run 2026-10-13 with `python eval_threshold.py` (bge-m3, local, no LLM calls): the same 85 on-topic questions and 15 off-topic ones (5 from `eval_retrieval.py` plus 10 added by hand: unrelated chat, shopping, Chinese and English). A question is refused when its best doc score is below `MIN_SCORE`.
+Run 2026-10-13 with `python -m evals.eval_threshold` (bge-m3, local, no LLM calls): the same 85 on-topic questions and 15 off-topic ones (5 from `eval_retrieval.py` plus 10 added by hand: unrelated chat, shopping, Chinese and English). A question is refused when its best doc score is below `MIN_SCORE`.
 
 | MIN_SCORE | on-topic refused (lost answers) | off-topic let through |
 |---|---|---|
