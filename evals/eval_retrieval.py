@@ -95,6 +95,12 @@ CASES = [
     ("Which ship has All-Terrain Landing Skids?", "model_15"),
     ("What deposit percentage do I pay to confirm an order?", "guide_ordering_delivery"),
     ("艙壓警告出現時該怎麼辦?", "guide_troubleshooting"),
+    # added 2026-10-21: the warranty policy had no question at all
+    ("How long is the warranty?", "warranty_policy"),
+    ("What does the warranty cover?", "warranty_policy"),
+    ("保固期是多久?", "warranty_policy"),
+    ("Is cosmetic wear covered by the warranty?", "warranty_policy"),
+    ("跳過保養造成的損壞有保固嗎?", "warranty_policy"),
 ]
 OFF_TOPIC = ["What's the capital of France?", "Write me a Python script to sort a list.",
              "Do you sell submarines?", "法國的首都是哪裡?", "今天天氣如何?"]
