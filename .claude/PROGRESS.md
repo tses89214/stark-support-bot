@@ -133,3 +133,12 @@
 - 檔案整理：評測腳本與題庫移到 `evals/`（執行方式改為 repo 根目錄 `python -m evals.eval_ladder`），`RESULTS.md` → `results/README.md`，`ladder_raw.json` → `results/ladder_raw.json`（留在版控：README 數字與 `--render`／`--refill` 都靠它；體積 95KB，原始呼叫紀錄 `ladder_calls.jsonl` 21MB 才是 gitignored）。`PLAN.md`／`INTERVIEW.md` 本來就 gitignored，沒動。
 - 行為：審查兩次不過改回新路由 `UNVERIFIED`（不再說「找不到」）；重寫只看使用者的話，不再抄舊的機器人回覆；`/chat` 帶 `session`，trace 的 metadata `mlflow.trace.session` 讓 MLflow 把同一場對話歸一組。
 - nemotron-super `:free` 仍是 Nvidia 端 404（OpenRouter endpoint status -5；NVIDIA 論壇有大量同錯誤貼文無回應）。每小時 cron 探測，通了自動跑 `evals.eval_guardrails` 與 `evals.eval_ladder 2`。不用付費版。
+
+## 2026-10-21 下午：ultra 重跑前的程式修正（全部已 commit、未 push）
+- 模型：super 的 `:free` 仍 404，不再使用；之後所有數字改以 `nvidia/nemotron-3-ultra-550b-a55b:free` + `LLM_NO_THINK=1` 重跑，**舊的 super 數字作廢**（使用者決定「當作 super 不存在」）。檢索階梯也要用 ultra 重跑才能改報告。
+- 排程（Mac 需醒著、cron 已設 proxy）：10-22 08:10 `.claude/rerun_ultra.sh`（分類器 139 題 + 防禦階梯 2 輪，約 680 次請求）；10-23 08:10 `.claude/rerun_retrieval_ultra.sh`（檢索階梯 n=10/20/30 各 2 輪，約 580 次）。額度 1000/天，兩者分兩天。兩支都不會更新文件。
+- 中途評測被我暫停：分類器 ultra 曾跑出 136/138（1 略過），但之後又改了分類器提示（新增 `question` 欄位），這個數字作廢。
+- 審查修正（trace tr-c20c…）：審查規則加第 5 條（列為符合的項目要滿足問題的每個條件）與第 6 條（不得署名 LLM），並要求一次列出全部問題；重寫最多 2 次、帶入所有退回理由；`ANSWER_PROMPT` 的「Mention the model name」改成「Mention the Stark model …; never say which AI model」（原句讓模型署名 GPT-4o）。
+- 對話結構：`sessions.py`（SQLite `sessions.db`，gitignored）伺服器端保存每輪 {route, sources, question, focus, ticket, trace_id}；`/chat` 只收 `session` + `message`，忽略瀏覽器送的 history（防偽造）；進提示的歷史只有 ANSWER 輪，回答步驟只拿使用者原話 + 分類器輸出的獨立問題 + 「models in focus」（regex 從問題找 Stark N，不靠模型）；檢索與審查改用獨立問題；工單帶 session 與 trace_id。
+- 其他：分類與範圍判斷平行；回覆 markdown 渲染；`UNVERIFIED` 路由；「New chat」按鈕；cron 腳本設 proxy（cron 沒有 shell 環境，之前 HTTP 000 的原因）。
+- 待辦：10-22/23 結果出來後更新 README、results、成果報告（分類器 7 類 + 新分數、防禦與檢索階梯、模型名改 ultra、流程圖加 HELP/HANDOFF/ERROR/UNVERIFIED、對話狀態說明）；push 前先問使用者（約 20 個 commit 未 push）。
