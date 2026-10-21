@@ -13,8 +13,9 @@
   main { padding:16px 0; display:flex; flex-direction:column; height:100vh; box-sizing:border-box; min-width:0; }
   aside { padding:16px 0; height:100vh; box-sizing:border-box; overflow-y:auto; }
   aside h2 { font-size:14px; color:var(--muted); margin:0 0 8px; font-weight:600; }
-  .doc { background:var(--card); border-radius:8px; padding:8px 12px; margin-bottom:10px; font-size:13px; white-space:pre-wrap; }
-  .doc b { display:block; margin-bottom:4px; }
+  .doc { background:var(--card); border-radius:8px; padding:6px 12px; margin-bottom:6px; font-size:13px; white-space:pre-wrap; }
+  .doc summary { cursor:pointer; font-weight:600; }
+  .doc[open] summary { margin-bottom:4px; }
   h1 { font-size:18px; margin:0 0 12px; }
   #log { flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:10px; }
   .msg { max-width:85%; padding:8px 12px; border-radius:12px; background:var(--card); white-space:pre-wrap; overflow-wrap:anywhere; }
@@ -153,9 +154,9 @@ function showDocs(docs) {
   const box = document.getElementById("docs");
   box.replaceChildren();
   for (const [name, text] of Object.entries(docs || {})) {
-    const d = document.createElement("div");
+    const d = document.createElement("details");  // native fold: one per document, closed until clicked
     d.className = "doc";
-    const t = document.createElement("b");
+    const t = document.createElement("summary");
     t.textContent = name;
     d.append(t, text);
     box.append(d);
