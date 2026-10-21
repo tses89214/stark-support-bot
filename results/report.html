@@ -129,15 +129,18 @@ ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:5px;font-s
   </div>
 
   <h2>機器人怎麼處理一則訊息</h2>
-  <p class="sub">共五道關卡，每一層都可能提前結束；模型出錯一律走 ERROR，不會假裝「找不到」。</p>
+  <p class="sub">共五道關卡，每一層都可能提前結束；模型出錯一律走 ERROR，不會假裝「找不到」。Focus 每輪更新並存回伺服器；CLARIFY 只在最終版（L4）出現，離題、注入、辱罵的輪次不改 Focus。</p>
   <div class="tbl"><pre class="mermaid">
 flowchart TD
-  M["使用者訊息"] --> C{"1 分類器 (LLM)<br/>七類判斷"}
+  M["使用者訊息"] --> F["讀伺服器上的 Focus<br/>型號、候選、需求、已反問次數"]
+  F --> C{"1 分類器 (LLM)<br/>七類判斷 + 更新 Focus"}
   C -->|"OFF_TOPIC / INJECTION"| R1["罐頭拒絕"]
   C -->|"HELP 打招呼"| H["罐頭自我介紹<br/>不檢索"]
   C -->|"ABUSIVE / ESCALATE / HANDOFF"| T["開工單 + 回覆"]
   C -->|"分類器壞掉"| ER["ERROR 回覆<br/>「我們這邊出錯」+ 開工單"]
-  C -->|"ANSWER"| S{"2 範圍判斷 (LLM)<br/>單一型號 or 全目錄"}
+  C -->|"ANSWER"| K{"找船且缺人數或用途<br/>且反問少於 2 次?"}
+  K -->|"是"| Q["CLARIFY 反問缺的欄位<br/>不檢索、不審查"]
+  K -->|"否"| S{"2 選文件（預設 R3）<br/>型號文件一定釘住"}
   S -->|"ALL 全目錄"| D["載入全部型號文件<br/>略過檢索與分數門檻"]
   S -->|"FEW"| E{"3 檢索 bge-m3<br/>取 top-3"}
   E -->|"最高分 &lt; 0.40"| N["回「找不到」"]
