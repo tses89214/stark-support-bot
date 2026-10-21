@@ -19,6 +19,7 @@ import sys
 import time
 import uuid
 from concurrent.futures import ThreadPoolExecutor
+from dataclasses import asdict
 from pathlib import Path
 from typing import Literal
 
@@ -169,6 +170,11 @@ def conversation(history, focus=None):
 def models_in(text):
     """Stark models named in a text, e.g. ['Stark 4']: deterministic, so the conversation state never depends on the model."""
     return list(dict.fromkeys(f"Stark {n}" for n in re.findall(r"\bStark\s*(\d+)", text)))
+
+
+@trace()  # a span of its own so the MLflow trace shows the Focus after this turn (its output); the store keeps the same value
+def next_focus(focus, route, question, seen):
+    return focus.after(route, models_in(question), seen)
 
 
 ABOUT_MARK = " (about "  # classify() appends " (about Stark 1)" to a follow-up that names no model; select_docs strips it for the embedding query
@@ -381,7 +387,7 @@ def answer(message, history, defense="L4", retrieval="R2", session="", focus=Non
     if level >= 3:
         route, reason, question, seen = classify(message, history, focus, full=True)
         meta["question"] = question
-        meta["focus"] = focus.after(route, models_in(question), seen)  # filled on every turn, whatever the route
+        meta["focus"] = next_focus(focus, route, question, seen)  # filled on every turn, whatever the route
         if route in ("ABUSIVE", "ESCALATE", "HANDOFF"):
             ticket = meta["ticket"] = open_ticket(route, message, history, reason, session)  # a classifier outage still reaches a human (fail closed) ...
             if reason.startswith("classifier failed"):  # ... but the customer is told it was our error, not that they complained
@@ -460,7 +466,7 @@ def chat(req: ChatRequest):
     if req.session:
         sessions.add(req.session, req.message, reply, route, sources, meta.get("question", req.message), meta.get("focus", focus),
                      meta.get("ticket", ""), meta.get("trace_id", ""))
-    return {"reply": reply, "route": route, "sources": sources, "docs": {n: docs[n] for n in sources}}
+    return {"reply": reply, "route": route, "sources": sources, "docs": {n: docs[n] for n in sources}, "focus": asdict(meta.get("focus", focus))}
 
 
 @app.get("/")

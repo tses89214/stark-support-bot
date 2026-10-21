@@ -69,6 +69,8 @@
 <aside>
   <h2>📄 Source documents (what the answer should be based on)</h2>
   <div id="docs"><p class="meta">Documents used for each answer appear here.</p></div>
+  <h2>🧭 Conversation focus (what the bot thinks this chat is about)</h2>
+  <div id="focus" class="meta">Nothing yet.</div>
 </aside>
 </div>
 <script>
@@ -81,6 +83,7 @@ function reset() {  // another level is a different bot: old turns would leak th
   session = crypto.randomUUID();  // a new id is a new server-side conversation
   log.replaceChildren();
   showDocs({});
+  showFocus(null);
   retrieval.disabled = defense.value !== "L4";  // L0-L3 always read every document
 }
 defense.addEventListener("change", reset);
@@ -139,6 +142,12 @@ function add(text, cls, meta) {
   return div;
 }
 
+// Right-hand panel, second block: the server's Focus after the last turn.
+function showFocus(f) {
+  const parts = [f && f.talking_about.length && "talking about " + f.talking_about.join(", "), f && f.interested_in && "interested in " + f.interested_in, f && f.goal && "goal: " + f.goal];
+  document.getElementById("focus").textContent = parts.filter(Boolean).join(" · ") || "Nothing yet.";
+}
+
 // Right-hand panel: the documents the last answer was based on (name -> full text).
 function showDocs(docs) {
   const box = document.getElementById("docs");
@@ -176,6 +185,7 @@ form.addEventListener("submit", async (e) => {
     const data = await res.json();
     wait.remove();
     showDocs(data.docs);
+    showFocus(data.focus);
     add(data.reply, "bot", `route: ${data.route}` + (data.sources.length ? ` · sources: ${data.sources.join(", ")}` : ""));
   } catch (err) {
     wait.textContent = "Something went wrong. Please try again.";
