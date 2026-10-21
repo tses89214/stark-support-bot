@@ -74,7 +74,7 @@
 ## TODO（2026-10-13 起）
 0. [x] **2026-10-14 已跑 28 題階梯**（`eval_ladder.py 2`，用 `OPENROUTER_API_KEY`，當天共用約 700 次請求（含兩次補跑 L3/L4））：攻擊擋下 12/28 → 19.5 → 23 → 28/28 → 28/28，0 失敗（先前 L3/L4 有 2 題混合請求攻擊失敗，根因是 `classify()` 的 `max_tokens=300` 被推理模型思考用完而回空內容；調成 1000 並補跑 L3/L4，`test_app.py` 加了回歸測試）；正常題各層 6/6；prompt 8.7k→1.5k。README、RESULTS.md、`results/ladder*.md` 已更新；28 題下答案規則（+7.5）與輸入分隔（+3.5）一樣大。待做：分類器評測（`eval_guardrails.py`）因 max_tokens 修正，原本跳過的 3 題可能能評了，額度恢復後重跑（需約 116 次請求），再更新 README 的 111/113。
    - **OpenRouter 免費額度基準**（官方 https://openrouter.ai/docs/api-reference/limits，2026-10-13 查證）：`:free` 每分鐘 20 次；每天 50 次（帳號累計儲值 <10 credits）或 1000 次（≥10，解鎖後一直有）；以 UTC 日為界。**額度與 key 無關、看帳號**。可用 `GET /api/v1/key` 的 `free_model_daily_requests`（used／limit／remaining）讀真實計數，不要猜。
-   - 額度提醒：2026-10-14 帳號 A 約用 700／1000；帳號 B（`OPENROUTER_API_KEY2`）50/天，跑不了階梯，除非儲值 10 credits。每次大跑前先讀計數器。
+   - 額度提醒：2026-10-14 帳號 A 約用 700／1000；帳號 B（`OPENROUTER_API_KEY2`）當時 50/天（2026-10-21 起已是 1000/天，見最下方）。每次大跑前先讀計數器。
 1. [x] **使用者**：開 Docker Desktop，Settings → Resources 記憶體調到 6–8GB。
 2. [x] **embeddinggemma-2（完成 2026-10-13：29/30、MRR 0.93，Docker 需 `sentence-transformers[image]` 並從 CPU index 一起裝 torch+torchvision） 進比較表**（依賴 1）
    - 用 Docker（`python:3.12`，Linux x86_64 有新版 torch wheel）；repo 掛進容器、容器內建獨立環境、不動 `.venv`。
@@ -149,3 +149,8 @@
 - **明天 08:10（10-22）cron**：`.claude/rerun_retrieval_ultra.sh` 用 key1 重跑檢索階梯 21 題版（補 5 份先前沒被問到的文件：contact_and_hours、ordering、troubleshooting、safety、trade-in），約 760 次請求，額度 <800 會自動跳過；跑完不會更新文件，需要接手把 `results/retrieval-ladder.md`、README、報告換成 21 題的數字。Mac 要醒著。
 - **下個會話待辦**：(1) 看 `/tmp/ultra_retrieval_status.log`，更新檢索階梯 21 題數字；(2) 決定 R2 vs R3；(3) `evals/eval_answers.py` 尚未用 ultra 重跑；(4) 在瀏覽器實際驗證 markdown 渲染與 New chat 按鈕、MLflow Sessions 分組；(5) push（約 25 個 commit，先問使用者）。
 - **注意：明天 08:10 的 cron 沒能裝上**：這台 Mac 的 `crontab` 寫入今晚一直卡住（`crontab /tmp/cron.new` 不返回，疑似系統權限提示在等人點）。檢索階梯 21 題版要手動在早上（08:00 額度重置後）跑：`.claude/rerun_retrieval_ultra.sh`（用 key1，額度 <800 會自動跳過）；或先在自己的終端機執行 `crontab /tmp/cron.new`（若 /tmp 檔已不在，內容就是一行 `10 8 22 10 * /bin/bash <repo>/.claude/rerun_retrieval_ultra.sh`）。
+
+## 2026-10-21 晚（下班打卡）
+- 額度（`GET /api/v1/key`，晚間實測）：key1 已用 916／1000（剩 84）、key2 已用 668／1000（剩 332）。**key2 現為 1000/天**（使用者已處理），兩把可分開跑；額度是帳號層級。重置為台北 08:00。zsh 讀額度不能用 `${!var}`，用函式傳 key。
+- 10-22 08:10 的 cron 沒裝上，檢索階梯 21 題版仍未跑。08:00 重置後手動執行 `.claude/rerun_retrieval_ultra.sh`（約 760 次，額度 <800 會自動跳過；key1 或 key2 擇一，開跑前先讀計數器）。
+- 下個會話待辦：沿用上方「2026-10-21 收工狀態」的 (1)–(5)（21 題數字、R2 vs R3、`eval_answers` 用 ultra 重跑、瀏覽器驗證、push 先問）。
