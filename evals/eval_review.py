@@ -3,7 +3,7 @@
 The reviewer (`app.review`) reads a question, a draft reply and the documents and says ok / not ok. This measures it on drafts
 whose right verdict is known by construction, so no LLM judges the judge:
   - GOOD drafts: true answers quoted from the docs, plus honest "I don't know" replies. The reviewer should pass them.
-  - BAD drafts: a true answer broken in exactly one way, one way per review rule (1-7). The reviewer should reject them.
+  - BAD drafts: a true answer broken in exactly one way, one way per review rule (1-8). The reviewer should reject them.
 Two numbers: catch rate (bad drafts rejected, per rule) and false-reject rate (good drafts rejected). Failed reviewer calls are
 retried, then counted and left out of both scores. Cases are fixed: change them and every reviewer prompt must be re-measured."""
 import json
@@ -84,6 +84,20 @@ def build_cases():
     for n, bad in ((3, "customer_service@stark.com"), (8, "support@stark_spaceships.com"), (13, "customer_service@stack_spaceship.com"), (23, "help@stark-ships.org")):
         m = s[n]
         cases.append(case(7, f"Can I order the Stark {n} by phone?", f"I don't know; please email {bad} for help.", m["text"], False))
+    # rule 8: a claim of exclusivity or absence over several documents, broken by one document. GOOD twins: the same question answered completely.
+    t = {n: spec(n)["text"] for n in (1, 3, 8, 10, 13, 19, 23, 24)}
+
+    def docs(*ns):
+        return "\n".join(t[n] for n in ns)
+
+    big, cheap = docs(1, 3, 8, 23, 24), docs(1, 3, 13, 19, 23)
+    q30, qcheap = "Which ships carry 30 or more passengers?", "Which is the cheapest ship?"
+    cases += [case(0, q30, "The Stark 8 (30 passengers), Stark 23 (40) and Stark 24 (60) carry 30 or more passengers.", big, True),
+              case(0, qcheap, "The Stark 19 is the cheapest at $1,650,000.", docs(1, 3, 13, 19), True),
+              case(8, q30, "Only the Stark 8 carries 30 or more passengers; every other model carries fewer.", big, False),
+              case(8, "Which ships carry more than 30 passengers?", "The Stark 24 is the only ship that carries more than 30 passengers.", big, False),
+              case(8, "Which ship has the largest capacity?", "The Stark 23 has the largest capacity of all the models.", docs(8, 10, 23, 24), False),
+              case(8, qcheap, "The Stark 1 is the cheapest model; no other ship costs less.", cheap, False)]
     return cases
 
 
@@ -124,7 +138,8 @@ def write_results(cases, passes, runs):
     per = score(cases, passes)
     rows = ["| Rule broken by the draft | Catch rate (bad drafts rejected) |", "|---|---|"]
     names = {1: "1 invented fact", 2: "2 wrong number", 3: "3 promise (discount / refund)", 4: "4 guess instead of 'unknown'",
-             5: "5 listed item fails a condition", 6: "6 names the AI model", 7: "7 wrong support email"}
+             5: "5 listed item fails a condition", 6: "6 names the AI model", 7: "7 wrong support email",
+             8: "8 'only' / 'cheapest' claim that another document contradicts"}
     tot_k = tot_n = 0
     for r, label in names.items():
         k, n = per.get(r, (0, 0))

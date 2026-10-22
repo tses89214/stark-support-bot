@@ -483,6 +483,19 @@ def test_throttle_refuses_a_request_that_can_never_fit_the_token_budget():
     ladder.TPM = 0
 
 
+def test_a_catalogue_question_reads_one_line_per_model_so_no_model_is_skipped():
+    # "which ships carry 30 or more?" with 30 full sheets in the prompt: the model skipped Stark 23 (40) and Stark 24 (60) and the reviewer missed it too.
+    # With many models the prompt is one line each, every capacity visible in the same place.
+    models = [n for n in app.names if n.startswith("model_")]
+    text = app.read_docs(models)
+    assert "Stark 23 |" in text and "Capacity: 40 passengers" in text and "Capacity: 60 passengers" in text
+    assert "Notes" not in text.split("\n", 1)[1] and len(text) < sum(len(app.docs[n]) for n in models) * 0.7  # shorter, and the one-line layout is what helps
+    few = app.read_docs(["model_8", "model_3"])  # a question about two models still gets the full sheets (notes included)
+    assert few == app.docs["model_8"] + "\n" + app.docs["model_3"]
+    mixed = app.read_docs(models + ["warranty_policy"])
+    assert mixed.endswith(app.docs["warranty_policy"])  # a policy or guide is never squeezed into a line
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):
