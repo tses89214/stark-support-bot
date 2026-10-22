@@ -210,3 +210,12 @@
 - 新增 `evals/eval_followups.py`（尚未對真模型跑；用假 LLM 走過整條流程與輸出格式）：(1) 15 題離題訊息，R3 底下分別量分類器（非 ANSWER）與選文件（點不到檔）兩道防線；(2) 8 個多輪追問案例，R2 vs R3 是否選到所需文件（先經分類器改寫成獨立問題）。`python -m evals.eval_followups 2`，約 110 次請求；`--dry`、`--render`。跑完把結果放進報告（檢索階梯頁補「離題與追問」，並補上 R3 沒有分數門檻時離題靠什麼擋）與 README。
 - `llm_calls` 計數：看過程式，`run_one` 在 `throttled` 外層計數，每個邏輯呼叫算一次，重試不重複計——不是 bug，不處理。Groq 路徑／`.env` 的 Groq 變數：`app.py`、`.env.example` 已找不到，無需處理。
 - 明天 08:00 待辦在原有 TODO 1–6 上加：`python -m evals.eval_followups 2`（用 key2，與 key1 的檢索階梯可平行）。
+
+## 2026-10-22 跑完的評測（重開機後手動跑；報告 Artifact 已發 Version 68，repo 與 Artifact 同步）
+- 審查層 55 稿×2：壞稿 56/56 擋下、好稿 0/54 誤擋（稿件是腳本造的，偏樂觀）→ `results/review.md`
+- 離題與追問：分類器 30/30、R3 挑文件 30/30；追問 R2 16/16、R3 16/16 → `results/followups.md`
+- 分類器（新提示）原為 132/139；使用者決定把判錯的 7 題從 `evals/eval_candidates*.jsonl` 移除 → 現為 132/132，文件已註明「事後移除、偏樂觀」，不能和舊提示 134/139 比
+- 檢索階梯 21 題 ×(n=10/20/30)×2 輪，0 失敗：n=30 答對率 R3 0.97、R0 0.95、R2 0.85、R1 0.75；R3 召回 24 輪皆 1.00；R3 vs R2 區間仍重疊 → `results/retrieval-ladder.md`
+- 評測腳本改成逐筆落地：`eval_followups`、`eval_guardrails` 寫 `results/*_partial.json`，中斷後重跑同指令即接續（檢索階梯仍是 level-run 為單位）
+- 意外：兩次 `git commit -a` 把階梯跑到一半的縮放語料（n=10）一起 commit，已用 `gen_scaled_corpus 30` 還原並 commit。以後跑階梯時不要用 `commit -a`，只 add 指定檔案
+- 尚未做：防禦階梯 `eval_ladder 2`（L4 列處理）、`eval_answers`；`2c4ad42` 之後的 commit 都還沒 push
