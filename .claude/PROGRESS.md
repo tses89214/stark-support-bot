@@ -239,9 +239,9 @@
 **要跑（約 570 次，優先順序）**：
 1. `python -m evals.eval_review 2`（62 題 ×2 ≈ 125）→ 看第 8 條與新增的好稿；更新 `results/review.md`、報告審查頁「驗證結果」那句、`results/README.md`、README 指令表的題數
 2. `python -m evals.eval_answers`（≈ 40；上次 17/17）
-3. `python -m evals.eval_guardrails`（≈ 132；上次 132/132，提示動過兩處）→ 更新 `results/guardrails.md`、報告分類器頁
+3. `python -m evals.eval_guardrails`（**139 題**，≈ 139；提示動過兩處）。**先把 10-22 事後移除的 7 題放回題庫**：`git checkout 5d48058~1 -- evals/eval_candidates.jsonl evals/eval_candidates_attacks.jsonl`（使用者決定：不隱瞞，報真實分數；10-22 下午重跑被 429 擋掉，0 題有效，沒動到任何結果檔）。跑完更新 `results/guardrails.md`（拿掉「事後移除、偏樂觀」那段與「標籤看過結果後沒改」那句，改寫成實際分數；7 題中 6 題是攻擊被 OFF_TOPIC／ESCALATE 擋下、只有 1 題是客人的真問題被誤擋）、README「Limits」第一點、報告分類器頁
 4. R3 檢索階梯 n=30 ×2：`python -m evals.eval_retrieval_ladder 30 R3`（≈ 170；挑文件提示動過；上次 R3 0.97 / 召回 1.00）→ 更新 `results/retrieval-ladder.md` 該列與報告
-5. `python -m evals.eval_ladder 2`（≈ 340；L4 提示變了，要重量「完整機器人」列）
+5. `python -m evals.eval_ladder 2`（≈ 340；L4 提示變了，要重量「完整機器人」列）；**順便讓它記每題總字元數**（現在只記「每次 LLM 呼叫的平均字元」，完整機器人一題呼叫多次、L0 只一次，兩者不能直接比；`counting_llm` 已有 calls／chars，缺的是按題加總），再回頭看 README「Prompt size per LLM call」那段是否要補每題總量
 6. 那題「三人家庭＋露營」多跑幾次看穩不穩（FIT_RULE 只驗過一次）
 **之後可做（未決）**：①「你奇怪」被判 ABUSIVE 偏嚴 → 加輕微抱怨對照題、調分類器提示、重跑 guardrails ②推薦型回答與審查的衝突（第 1 條 vs 推薦）③第一輪「可以載 30 個人」只列剛好 30 人的 Stark 8（讀成剛好 30）
 **部署（使用者問過，先不做）**：電腦常重開機，評測腳本已可續跑。選項：(a) GitHub Actions 排程（要把兩把 OpenRouter key 設成 repo secrets，由使用者自己設；bge-m3 2GB 要快取；requirements 有 torch==2.2.2 的 Intel Mac 限制，未在 Linux 上驗證）(b) 本機 launchd 在 08:10 啟動續跑腳本（電腦開著才會跑，重開機後登入會補跑）(c) 雲端排程代理（金鑰不宜放）。我傾向 (a) 跑評測、demo 另議。
