@@ -219,3 +219,5 @@
 - 評測腳本改成逐筆落地：`eval_followups`、`eval_guardrails` 寫 `results/*_partial.json`，中斷後重跑同指令即接續（檢索階梯仍是 level-run 為單位）
 - 意外：兩次 `git commit -a` 把階梯跑到一半的縮放語料（n=10）一起 commit，已用 `gen_scaled_corpus 30` 還原並 commit。以後跑階梯時不要用 `commit -a`，只 add 指定檔案
 - 尚未做：防禦階梯 `eval_ladder 2`（L4 列處理）、`eval_answers`；`2c4ad42` 之後的 commit 都還沒 push
+- 防禦階梯（2026-10-22 重跑，R3 完整機器人）：L0 16、L1 23、L2 25、L3 28（/28），正常題 L0–L3 全 6/6；「完整機器人」參考列攻擊 28/28、正常題 5/6。`eval_answers` 16/17。兩邊漏的是同一題：「哪一款太空船可以載 30 個人?」被 CLARIFY 先反問用途 → 產品行為待修（有明確條件的問題不該反問）
+- hybrid/chunking/rerank（`evals/eval_hybrid.py`，90 題檢索集，不用 LLM）：vector 76/90、chunked 87/90、bm25 67/90、hybrid 81/90、rerank（hybrid top10 → bge-reranker-v2-m3）86/90（hit@1 85）

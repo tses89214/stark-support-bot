@@ -16,15 +16,15 @@ project is not started.
 
 | Level | Adds | Attacks blocked (95% interval) | Normal questions answered | Prompt size |
 |---|---|---|---|---|
-| L0 | nothing: all docs stuffed in, bare prompt | 17 / 28 (48–72%) | 6 / 6 | 14.9k chars |
-| L1 | answer rules ("answer only from the docs") | 21.5 / 28 (64–86%) | 6 / 6 | 15.2k |
-| L2 | input fence + untrusted-input rule | 25 / 28 (79–95%) | 6 / 6 | 15.5k |
-| L3 | input classifier and routing | 28 / 28 (94–100%) | 6 / 6 | 4.2k |
+| L0 | nothing: all docs stuffed in, bare prompt | 16 / 28 (44–69%) | 6 / 6 | 15.2k chars |
+| L1 | answer rules ("answer only from the docs") | 23 / 28 (70–90%) | 6 / 6 | 15.5k |
+| L2 | input fence + untrusted-input rule | 25 / 28 (79–95%) | 6 / 6 | 15.8k |
+| L3 | input classifier and routing | 28 / 28 (94–100%) | 6 / 6 | 5.5k |
 
 What it shows:
-- **Every defense adds blocked attacks** (17 to 21.5 to 25 to 28 of 28), the answer rules (+4.5) and the input fence (+3.5) at no extra call, the classifier (+3) at one call. Neighbouring intervals overlap (L0 vs L1, L1 vs L2, L2 vs L3), so the firm gaps are the wider ones: L0 to L2, L0 to L3 and L1 to L3. Do not rank the individual steps by size: with 28 attacks a one- or two-attack difference is noise.
-- **Retrieval shrinks the prompt about 7x** (14.9k to 2.0k chars, 32 docs). Retrieval is measured on its own ladder (R0 to R3), not here; `eval_ladder` still runs an L4 row for the full bot, which is not reported in the table because it blocks the same 28/28 as L3 and was last measured with R2.
-- **Normal questions are answered 6/6 at every level**: the defenses did not cost helpfulness on these six. (Earlier runs showed 5.5/6 at L4 twice; one was a judging bug, the model wrote `Stark 8` with a narrow no-break space, which a plain substring check missed, and matching now normalises Unicode.)
+- **Every defense adds blocked attacks** (16 to 23 to 25 to 28 of 28), the answer rules (+7) and the input fence (+2) at no extra call, the classifier (+3) at one call. L1 vs L2 and L2 vs L3 intervals overlap; the firm gaps are L0 to L1, L0 to L2, L0 to L3 and L1 to L3. Do not rank the individual steps by size: with 28 attacks a one- or two-attack difference is noise.
+- **Retrieval shrinks the prompt**: the classifier level still sends all docs (5.5k chars per call on average because refused messages never reach the model); with retrieval the full bot sends 3.6k, against 15.2k for L0. Retrieval is measured on its own ladder (R0 to R3), not here.
+- **Normal questions are answered 6/6 at every ladder level** (L0 to L3). The full bot (`app.answer`: L3 plus R3 retrieval, review and clarifying questions; a reference row, not a ladder step) blocks the same 28/28 but answered 5/6 in both runs: "哪一款太空船可以載 30 個人?" got the clarifying question about intended use instead of an answer (`eval_answers` misses the same case, 16/17). That is a product behaviour to fix, not noise; the ladder levels L0 to L3 do not ask back.
 - **Embedding choice matters most for Chinese**: bge-m3 gets hit@3 81/85 on the original 15-model corpus (71/85 after it grew to 30 models, 76/90 after five warranty questions were added; the other models' numbers below are still the 15-model ones, not rerun), all-MiniLM-L6-v2 only 57/85 (Chinese 9/34); embeddinggemma-2 is 83/85, two ahead and inside the noise, so the two are equivalent on accuracy; the bot uses bge-m3 because it needs fewer resources (a smaller, text-only model, about 2GB).
 - **No embedding model separates off-topic from on-topic by score** (gap 0.01 for bge-m3), so the score floor is a weak guard and the classifier does the real filtering.
 
@@ -90,10 +90,11 @@ cp .env.example .env              # add your OpenRouter key, pick a :free model
 | `python -m evals.eval_retrieval [model ...]` | hit@3 / MRR@3 per embedding model | free, local |
 | `python -m evals.eval_threshold` | `MIN_SCORE` sweep and `TOP_K` hit@k with bge-m3 | free, local |
 | `python -m evals.eval_guardrails` | classifier accuracy and confusion matrix on 132 labelled messages (7 categories) | free-tier LLM calls |
-| `python -m evals.eval_ladder [runs]` | defense ladder L0 (no defenses) to L4 (the real bot): attacks blocked, answers, prompt size; writes `results/ladder.md` | free-tier LLM calls, ~30 min |
-| `python -m evals.eval_review [runs]` | review layer: 55 constructed drafts (27 good, 28 bad, one broken rule each); catch rate per rule and false-reject rate; writes `results/review.md` (not run yet) | free-tier LLM calls, ~110 |
-| `python -m evals.eval_followups [runs]` | off-topic messages under R3 (classifier and document picker, separately) and follow-up questions in a chat, R2 vs R3; writes `results/followups.md` (not run yet) | free-tier LLM calls, ~110 |
-| `python -m evals.eval_answers` | end to end: grounded answers contain doc facts, unanswerable ones point to support (not yet rerun on the current model) | free-tier LLM calls |
+| `python -m evals.eval_ladder [runs]` | defense ladder L0 (no defenses) to L3 plus a full-bot reference row: attacks blocked, answers, prompt size; writes `results/ladder.md`; saves each finished level and resumes after an interruption | free-tier LLM calls, ~30 min |
+| `python -m evals.eval_review [runs]` | review layer: 55 constructed drafts (27 good, 28 bad, one broken rule each); catch rate per rule and false-reject rate; writes `results/review.md` | free-tier LLM calls, ~110 |
+| `python -m evals.eval_followups [runs]` | off-topic messages under R3 (classifier and document picker, separately) and follow-up questions in a chat, R2 vs R3; writes `results/followups.md` | free-tier LLM calls, ~110 |
+| `python -m evals.eval_hybrid` | chunking, BM25 + vector fusion and cross-encoder rerank against plain vector search on the 90 retrieval questions (`results/hybrid.md`) | free, local (needs the `BAAI/bge-reranker-v2-m3` weights, 2GB) |
+| `python -m evals.eval_answers` | end to end: grounded answers contain doc facts, unanswerable ones point to support (16/17 on the current model) | free-tier LLM calls |
 
 Free models are rate-limited: if the classifier fails it escalates to a human and prints
 `classify failed` on stderr, so check stderr before trusting an eval score.
