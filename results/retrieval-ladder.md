@@ -7,25 +7,25 @@ Question: as the document set grows (10, 20, 30 models; 27, 47, 67 files), which
 - **R2** top-3, or top-15 when an LLM scope check says the question is catalogue-wide.
 - **R3** the LLM reads `INDEX.md` (one line per document) and names the files to open; invented paths are dropped.
 
-Same model for every level and size: `nvidia/nemotron-3-ultra-550b-a55b:free` (reasoning off), 16 questions per run (one is graded on retrieval only, so accuracy is out of 15), **two runs per cell (cells show the mean)**. Per-question rows and traces are in MLflow (`retrieval-ladder` experiment).
+Same model for every level and size: `nvidia/nemotron-3-ultra-550b-a55b:free` (reasoning off), 21 questions per run (one is graded on retrieval only, so accuracy is out of 20), **two runs per cell, pooled (40 graded answers per cell)**, 0 failed calls in all 24 runs. Run 2026-10-22. Per-question rows and traces are in MLflow (`retrieval-ladder` experiment).
 
 | Level | n=10 acc / recall | n=20 acc / recall | n=30 acc / recall | prompt chars (n=10 → 30) | LLM calls | seconds (n=30) |
 |---|---|---|---|---|---|---|
-| R0 | 0.83 / 1.00 | 0.87 / 1.00 | 0.90 / 1.00 | 17,744 → 46,951 | 1 | 3.6 |
-| R1 | 0.87 / 0.93 | 0.67 / 0.83 | 0.67 / 0.80 | 2,349 → 2,353 | 1 | 5.7 |
-| R2 | 0.83 / 1.00 | 0.87 / 0.98 | 0.80 / 0.96 | 4,558 → 5,001 | 2 | 5.1 |
-| R3 | 0.87 / 1.00 | 0.90 / 1.00 | 0.87 / 1.00 | 2,822 → 7,289 | 2 | 3.9 |
+| R0 | 0.93 / 1.00 | 0.93 / 1.00 | 0.95 / 1.00 | 17,744 → 46,951 | 1 | 4.4 |
+| R1 | 0.95 / 0.95 | 0.80 / 0.87 | 0.75 / 0.85 | 2,215 → 2,268 | 1 | 3.4 |
+| R2 | 1.00 / 1.00 | 0.80 / 0.98 | 0.85 / 0.97 | 4,151 → 4,880 | 2 | 6.5 |
+| R3 | 0.95 / 1.00 | 0.93 / 1.00 | 0.97 / 1.00 | 2,263 → 5,666 | 2 | 8.1 |
 
-95% Wilson intervals for accuracy on 15 graded questions: 15/15 is 0.80–1.00, 14/15 is 0.70–0.99, 13/15 is 0.62–0.96, 11/15 is 0.48–0.89. **All of these intervals overlap each other**, so read the table as direction, not as a ranking.
+95% Wilson intervals for accuracy at n=30 (40 graded answers per cell): R0 38/40 is 0.83–0.99, R1 30/40 is 0.60–0.86, R2 34/40 is 0.71–0.93, R3 39/40 is 0.87–1.00. At n=20: R0 and R3 37/40 (0.80–0.97), R1 and R2 32/40 (0.65–0.90). R3's interval at n=30 does not overlap R1's; it only just overlaps R2's.
 
 What the numbers support, and what they do not:
-- R0's prompt grows linearly with the library (about 2.6x from n=10 to n=30) and its accuracy (0.83 to 0.90) is no better than R3's (0.87 to 0.90) on this set, so loading everything buys nothing here except cost.
-- R1's recall falls as documents are added (0.93 → 0.80) because near-duplicate manuals compete for three slots, and its accuracy falls with it (0.87 → 0.67).
-- R2 and R3 keep recall at 0.96 and above; R3 reached 1.00 at all three sizes in both runs, with about 16% of R0's prompt at n=30, at the cost of a second LLM call per question. R3's accuracy (0.87 to 0.90) is 0.03 to 0.07 above R2's (0.80 to 0.87), which is one question or less and inside the run-to-run swing, so the numbers do not separate R2 from R3. The app's default was switched to R3 on 2026-10-21 by the owner's decision, based on how each fails (R2 picks wrong documents and answers wrongly; R3 that picks too few asks the customer back), not on these numbers.
+- R0's prompt grows linearly with the library (about 2.6x from n=10 to n=30) and its accuracy (0.93 to 0.95) is no better than R3's (0.93 to 0.97), so loading everything buys nothing except cost.
+- R1's recall falls as documents are added (0.95 → 0.85) because near-duplicate manuals compete for three slots, and its accuracy falls with it (0.95 → 0.75).
+- R2 keeps recall at 0.97 or above, but its accuracy fell at n=20 and n=30 (0.80 and 0.85). R3 reached recall 1.00 in all 24 runs and kept accuracy at 0.93 to 0.97, with about 12% of R0's prompt at n=30, at the cost of a second LLM call per question. R3 is ahead of R2 at n=20 and n=30 (37 vs 32, 39 vs 34 of 40) but the intervals overlap, so this is a direction supported by two sizes, not a proven gap. The app's default was switched to R3 on 2026-10-21 by the owner's decision, based on how each fails (R2 picks wrong documents and answers wrongly; R3 that picks too few asks the customer back); this run points the same way.
 - No evidence here that an R4 (R3 plus an embedding fallback) is needed; recall for R3 never dropped.
-- Not tested: the 16 questions never ask about five of the 67 documents (contact and hours, ordering guide, troubleshooting guide, safety regulations, trade-in). A 21-question set that asks about each of them is in `evals/eval_retrieval_ladder.py` and is scheduled to be rerun; these tables come from the 16-question set.
+- The 21 questions include one for each of the five documents the earlier 16-question set never asked about (contact and hours, ordering guide, troubleshooting guide, safety regulations, trade-in). Whether R1 and R2 miss those more than the others was not broken out per question; the rows are in MLflow.
 
-Caveats: only two runs per cell on a free model; the manuals are templated on purpose (so catalogue questions have a computable answer); the question set is 16 questions written by the author; `llm_calls` counts calls the rate limiter refused as well, so it may read slightly high. Rerun: `python -m evals.gen_scaled_corpus N && python -m evals.eval_retrieval_ladder N` with `MLFLOW_TRACKING_URI=sqlite:///mlflow.db` (the generator wipes `data/stark_scaled/`, so never run two sizes at once).
+Caveats: only two runs per cell on a free model; the manuals are templated on purpose (so catalogue questions have a computable answer); the question set is 21 questions written by the author; `llm_calls` counts calls the rate limiter refused as well, so it may read slightly high. Rerun: `python -m evals.gen_scaled_corpus N && python -m evals.eval_retrieval_ladder N` with `MLFLOW_TRACKING_URI=sqlite:///data/runtime/mlflow.db` (the generator wipes `data/stark_scaled/`, so never run two sizes at once; afterwards restore it with `python -m evals.gen_scaled_corpus 30`).
 
 ## A failure case from the live demo: what R2 and R3 do when the question cannot be resolved
 
@@ -41,7 +41,7 @@ I replayed that last turn with the stored history under both retrieval modes (R2
 With the question already resolved (`What color is the Stark 1?`) both modes work: R2 returns `model_1, model_13, model_3`, R3 returns `model_1` alone.
 
 What this shows, and what it does not:
-- **Not** evidence that R3 answers better: on the unresolved question neither mode answered it. One conversation, two runs per mode, is an illustration, not a measurement; the ranking above (R2 .80-.87 vs R3 .87-.90, overlapping intervals) is unchanged.
+- **Not** evidence that R3 answers better: on the unresolved question neither mode answered it. One conversation, two runs per mode, is an illustration, not a measurement; the ranking above (R2 .80-.85 vs R3 .93-.97 at n=20 and 30, overlapping intervals) points the same way.
 - It does show a different **failure mode**. An embedding search always returns the nearest documents, so when the query is empty of meaning R2 fails open: wrong documents and a confident wrong sentence. R3 lets the model choose and it chose nothing, so it fails closed into the "ask a human" reply. For a support bot a refusal is cheaper than a false "there is no such model".
 - Resolved, R3 reads one document where R2 reads three, so it also costs less prompt.
 
