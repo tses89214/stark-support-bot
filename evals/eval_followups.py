@@ -20,6 +20,7 @@ from evals.eval_retrieval import MORE_OFF_TOPIC, OFF_TOPIC
 from evals.stats import wilson
 
 RAW, OUT = Path("results/followups_raw.json"), Path("results/followups.md")
+PART = Path("results/followups_partial.json")  # every finished case is written here at once, so a crash or reboot loses at most one case
 OFF_TOPIC_ALL = OFF_TOPIC + MORE_OFF_TOPIC  # 15 messages
 
 
@@ -85,9 +86,18 @@ def retry(fn, *args):
     return None
 
 
-def one_pass():
-    off = {m: retry(off_topic_case, m) for m in OFF_TOPIC_ALL}
-    fol = {name: retry(follow_up_case, h, m, g) for name, h, m, g in FOLLOW_UPS}
+def done(key, fn, *args):
+    """fn(*args) once per key: a result already in PART (from an interrupted run) is reused, a new one is saved before moving on."""
+    saved = json.loads(PART.read_text()) if PART.exists() else {}
+    if key not in saved:
+        saved[key] = retry(fn, *args)
+        PART.write_text(json.dumps(saved, ensure_ascii=False))
+    return saved[key]
+
+
+def one_pass(i):
+    off = {m: done(f"{i}|off|{m}", off_topic_case, m) for m in OFF_TOPIC_ALL}
+    fol = {name: done(f"{i}|fol|{name}", follow_up_case, h, m, g) for name, h, m, g in FOLLOW_UPS}
     return {"off_topic": off, "follow_ups": fol}
 
 
@@ -163,6 +173,7 @@ if __name__ == "__main__":
         sys.exit()
     # per pass: off-topic = classify + pick (2 calls each); follow-up = classify + R2 scope check + R3 pick (3 calls each); retries not counted
     check_quota(runs * (2 * len(OFF_TOPIC_ALL) + 3 * len(FOLLOW_UPS)))
-    passes = [one_pass() for _ in range(runs)]
+    passes = [one_pass(i) for i in range(runs)]  # rerun the same command after an interruption: finished cases are skipped
     RAW.write_text(json.dumps({"date": str(date.today()), "runs": runs, "model": app.MODEL, "passes": passes}, ensure_ascii=False, indent=1))
+    PART.unlink(missing_ok=True)
     write_results(passes, runs)
