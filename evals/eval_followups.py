@@ -131,7 +131,10 @@ def retry(fn, *args):
 
 def done(key, fn, *args):
     """fn(*args) once per key: a result already in PART (from an interrupted run) is reused, a new one is saved before moving on."""
-    saved = json.loads(PART.read_text()) if PART.exists() else {}
+    if PART.exists():
+        saved = json.loads(PART.read_text())
+    else:
+        saved = {}
     if key not in saved:
         saved[key] = retry(fn, *args)
         PART.write_text(json.dumps(saved, ensure_ascii=False))

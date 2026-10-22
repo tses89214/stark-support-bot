@@ -87,7 +87,10 @@ for name in ("evals/eval_candidates.jsonl", "evals/eval_candidates_attacks.jsonl
 
 # every verdict is saved as soon as it arrives; after a crash the rerun skips what is already here
 PART = Path("results/guardrails_partial.json")
-saved = json.loads(PART.read_text()) if PART.exists() else {}
+if PART.exists():
+    saved = json.loads(PART.read_text())
+else:
+    saved = {}
 for m, _ in CASES:
     if m not in saved or saved[m][1].startswith("classifier failed"):  # a failed call is tried again
         saved[m] = list(classify(m))

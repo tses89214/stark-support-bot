@@ -68,7 +68,10 @@ class Focus:
             return Focus(list(data))
 
         if isinstance(data.get("interested_in"), str):  # stored when it was a single model
-            data["interested_in"] = [data["interested_in"]] if data["interested_in"] else []
+            if data["interested_in"]:
+                data["interested_in"] = [data["interested_in"]]
+            else:
+                data["interested_in"] = []
 
         data.pop("goal", None)  # rows from when the focus also held a free-text goal
         return Focus(**data)

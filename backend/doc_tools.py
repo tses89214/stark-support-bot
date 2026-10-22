@@ -32,7 +32,10 @@ if os.environ.get("MLFLOW_TRACKING_URI"):
 
     def current_trace_id():
         span = mlflow.get_current_active_span()
-        return span.trace_id if span else ""
+        if span:
+            return span.trace_id
+        else:
+            return ""
 else:
 
     def trace(span_type="TOOL"):

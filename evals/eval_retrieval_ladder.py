@@ -157,7 +157,10 @@ def pick(level, question, history=()):
         return doc_tools.search_docs(question, 3)
 
     if level == "R2":
-        return doc_tools.search_docs(question, WIDE_K if app.needs_all_docs(question, history) else 3)
+        k = 3
+        if app.needs_all_docs(question, history):
+            k = WIDE_K
+        return doc_tools.search_docs(question, k)
 
     raw = app.llm(
         [
@@ -219,20 +222,32 @@ def main(n, levels, dry):
             )
             for question, gold, check in qs:
                 r = run_one(level, question)
-                r.update(
-                    question=question,
-                    recall=len(gold & set(r["paths"])) / len(gold) if gold else None,
-                    correct=None if check is None or r["error"] else bool(check(clean(r["reply"]))),
-                )
+                r["question"] = question
+                r["recall"] = None
+                if gold:
+                    r["recall"] = len(gold & set(r["paths"])) / len(gold)
+                r["correct"] = None
+                if check is not None and not r["error"]:
+                    r["correct"] = bool(check(clean(r["reply"])))
                 rows.append(r)
-                print(level, "ERR" if r["error"] else ("ok " if r["correct"] else "-- "), question, flush=True)
+                if r["error"]:
+                    mark = "ERR"
+                elif r["correct"]:
+                    mark = "ok "
+                else:
+                    mark = "-- "
+                print(level, mark, question, flush=True)
 
             graded = [r for r in rows if r["correct"] is not None]
             recalls = [r["recall"] for r in rows if r["recall"] is not None and not r["error"]]
+            metrics = {}  # a level whose every call failed has no accuracy or recall: log nothing rather than 0
+            if graded:
+                metrics["answer_accuracy"] = sum(r["correct"] for r in graded) / len(graded)
+            if recalls:
+                metrics["doc_recall"] = sum(recalls) / len(recalls)
             mlflow.log_metrics(
-                {  # a level whose every call failed has no accuracy or recall: log nothing rather than 0
-                    **({"answer_accuracy": sum(r["correct"] for r in graded) / len(graded)} if graded else {}),
-                    **({"doc_recall": sum(recalls) / len(recalls)} if recalls else {}),
+                {
+                    **metrics,
                     "prompt_chars": sum(r["prompt_chars"] for r in rows) / len(rows),
                     "llm_calls": sum(r["llm_calls"] for r in rows) / len(rows),
                     "seconds": sum(r["seconds"] for r in rows) / len(rows),
@@ -244,4 +259,7 @@ def main(n, levels, dry):
 
 if __name__ == "__main__":
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
-    main(int(args[0]) if args else 15, args[1:] or LEVELS, "--dry" in sys.argv)
+    total = 15
+    if args:
+        total = int(args[0])
+    main(total, args[1:] or LEVELS, "--dry" in sys.argv)

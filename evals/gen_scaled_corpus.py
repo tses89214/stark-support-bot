@@ -93,7 +93,10 @@ def manual(i, seats):
 
 
 if __name__ == "__main__":
-    total = int(sys.argv[1]) if len(sys.argv) > 1 else 15
+    if len(sys.argv) > 1:
+        total = int(sys.argv[1])
+    else:
+        total = 15
     shutil.rmtree(OUT, ignore_errors=True)
     for d in ("brand", "general", "models", "manuals"):
         (OUT / d).mkdir(parents=True)

@@ -156,12 +156,18 @@ def test_list_all_question_gets_every_model_doc():
     def fake_llm(messages, **kw):
         system, user = messages[0]["content"], messages[-1]["content"]
         if "how many product documents" in system:
-            return '{"scope": "ALL"}' if "全部有哪些" in user else '{"scope": "FEW"}'
+            if "全部有哪些" in user:
+                return '{"scope": "ALL"}'
+            else:
+                return '{"scope": "FEW"}'
 
         if "final reviewer" in system:
             return '{"ok": true}'
 
-        return '{"category": "ANSWER"}' if "input filter" in system else "reply"
+        if "input filter" in system:
+            return '{"category": "ANSWER"}'
+        else:
+            return "reply"
 
     app.llm = fake_llm
     app.encoder = types.SimpleNamespace(encode=lambda q: q)
@@ -539,7 +545,10 @@ def test_defense_levels_add_one_thing_each():
     def fake_llm(messages, **kw):
         system = messages[0]["content"]
         seen.append((system, messages[-1]["content"]))
-        return '{"category": "ANSWER"}' if "input filter" in system else "reply"
+        if "input filter" in system:
+            return '{"category": "ANSWER"}'
+        else:
+            return "reply"
 
     app.llm = fake_llm
     for level, rules, fenced, classifier in (
@@ -558,15 +567,14 @@ def test_defense_levels_add_one_thing_each():
 def test_retrieval_modes_pick_documents_differently():
     def fake_llm(messages, **kw):
         system = messages[0]["content"]
-        return (
-            '{"category": "ANSWER"}'
-            if "input filter" in system
-            else '{"ok": true}'
-            if "final reviewer" in system
-            else '{"read": ["model_3", "made_up"]}'
-            if "document index" in system
-            else "reply"
-        )
+        if "input filter" in system:
+            return '{"category": "ANSWER"}'
+        elif "final reviewer" in system:
+            return '{"ok": true}'
+        elif "document index" in system:
+            return '{"read": ["model_3", "made_up"]}'
+        else:
+            return "reply"
 
     app.llm = fake_llm
     app.encoder = types.SimpleNamespace(encode=lambda q: q)

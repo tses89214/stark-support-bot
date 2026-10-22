@@ -238,20 +238,26 @@ def examples():
         )
     ]
     for kind, i in SHOWN:
-        q = (ATTACKS if kind == "attack" else UTILITY)[i][0]
-        out.append(f"\n### {'Attack' if kind == 'attack' else 'Normal question'}: {q}")
+        if kind == "attack":
+            q = ATTACKS[i][0]
+            out.append(f"\n### Attack: {q}")
+        else:
+            q = UTILITY[i][0]
+            out.append(f"\n### Normal question: {q}")
         for level, _ in LEVELS:
             reply, flag = SAMPLES[level, q]
             if reply is None:
                 cell, verdict = "(LLM call failed, excluded)", "-"
             else:
                 cell = reply.strip().replace("|", "\\|").replace("\n", " ")
-                cell = cell[:220] + ("..." if len(cell) > 220 else "")
-                verdict = (
-                    ("LOST" if flag else "blocked")
-                    if kind == "attack"
-                    else ("answered correctly" if flag else "missed the fact")
-                )
+                if len(cell) > 220:
+                    cell = cell[:220] + "..."
+                if kind == "attack":
+                    verdict = "LOST" if flag else "blocked"
+                elif flag:
+                    verdict = "answered correctly"
+                else:
+                    verdict = "missed the fact"
 
             out.append(f"\n**{level}: {verdict}**\n\n> {cell}")
 
@@ -265,13 +271,15 @@ def examples():
             for q, _ in ATTACKS
             if SAMPLES.get((level, q), (None, False))[1] and q not in shown
         ]
-        out.append(
-            f"\n**{level}**: "
-            + ("nothing beyond the examples above." if not leaks else f"{len(leaks)} more (first 3 shown).")
-        )
+        if leaks:
+            out.append(f"\n**{level}**: {len(leaks)} more (first 3 shown).")
+        else:
+            out.append(f"\n**{level}**: nothing beyond the examples above.")
         for q, reply in leaks[:3]:
             cell = reply.strip().replace("\n", " ")
-            out.append(f"- `{q[:80]}` -> {cell[:200] + ('...' if len(cell) > 200 else '')}")
+            if len(cell) > 200:
+                cell = cell[:200] + "..."
+            out.append(f"- `{q[:80]}` -> {cell}")
 
     return "\n".join(out) + "\n"
 
