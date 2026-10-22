@@ -43,20 +43,18 @@ from backend.sessions import Focus
 
 # ---- settings ----
 
-SUPPORT = (
-    "customer_service@stark_spaceship.com"  # the one support address; replies must use exactly this (pin_support_email)
-)
+# the one support address; replies must use exactly this (pin_support_email)
+SUPPORT = "customer_service@stark_spaceship.com"
 TOP_K = 3
-MIN_SCORE = 0.4  # bge-m3: on-topic top scores >= 0.45, off-topic <= 0.43 on eval_retrieval.py, so a weak guard; the prompt is the real one
+# bge-m3: on-topic top scores >= 0.45, off-topic <= 0.43 on eval_retrieval.py, so a weak guard; the prompt is the real one
+MIN_SCORE = 0.4
 TICKETS = Path("data/runtime/tickets.jsonl")
 
 MODEL = os.environ["CHAT_MODEL"]  # e.g. google/gemma-4-31b-it:free
-BASE_URL = os.environ.get(
-    "LLM_BASE_URL", "https://openrouter.ai/api/v1"
-)  # any OpenAI-compatible endpoint (Groq, Gemini, ...)
-NO_THINK = (
-    {"reasoning": {"enabled": False}} if os.environ.get("LLM_NO_THINK") else {}
-)  # demo only: OpenRouter reasoning models otherwise spend max_tokens thinking (evals leave it unset)
+# any OpenAI-compatible endpoint (Groq, Gemini, ...)
+BASE_URL = os.environ.get("LLM_BASE_URL", "https://openrouter.ai/api/v1")
+# demo only: OpenRouter reasoning models otherwise spend max_tokens thinking (evals leave it unset)
+NO_THINK = {"reasoning": {"enabled": False}} if os.environ.get("LLM_NO_THINK") else {}
 
 
 # ---- LLM client ----
@@ -79,6 +77,7 @@ def next_key():
     """The key for the next request: round-robin over the keys that are not cooling down."""
     if os.environ.get("LLM_API_KEY"):  # another provider (Groq, Gemini): a single key
         return os.environ["LLM_API_KEY"]
+
     live = [k for k in KEYS if _cool.get(k, 0) < time.time()] or KEYS  # all cooling: try anyway rather than fail
     return live[next(_turn) % len(live)]
 
@@ -97,16 +96,19 @@ def llm(messages, **kw):
             )
             if r.status_code == 429:
                 _cool[key] = time.time() + KEY_COOLDOWN
+
             r.raise_for_status()
             body = r.json()
             record_usage(body.get("usage"))
             content = body["choices"][0]["message"]["content"]
             if content:
                 return content
+
             raise ValueError("empty content")
         except Exception:
             if attempt == 2:
                 raise
+
             time.sleep(2)
 
 
@@ -114,11 +116,11 @@ POOL = ThreadPoolExecutor(max_workers=4)
 encoder = SentenceTransformer(EMBED_MODEL)
 if not INDEX.exists():
     raise SystemExit("index.npz not found: run `python -m backend.build_index` first")
+
 index = np.load(INDEX)
 names, vectors = list(index["names"]), index["vectors"]
-docs = {
-    n: (DOCS_DIR / f"{n}.txt").read_text() for n in names
-}  # ponytail: whole docs in prompt, no chunking; fine for 10 short files
+# ponytail: whole docs in prompt, no chunking; fine for 10 short files
+docs = {n: (DOCS_DIR / f"{n}.txt").read_text() for n in names}
 
 CLASSIFIER_PROMPT = """You are the input filter of a customer-service chatbot for Stark Spaceships \
 (fictional consumer spaceships: models, size, price, capacity, accessories, maintenance, delivery, orders).
@@ -196,10 +198,8 @@ def pin_support_email(text):
 # ---- asking before recommending ----
 
 NEED_SLOTS = ("passengers", "use", "budget", "size")  # what the classifier records about a ship search (Focus.needs)
-REQUIRED_NEEDS = (
-    "passengers",
-    "use",
-)  # the bot asks only for these; budget and size are used when the customer volunteers them
+# the bot asks only for these; budget and size are used when the customer volunteers them
+REQUIRED_NEEDS = ("passengers", "use")
 TABLE_MIN_MODELS = 6  # read_docs: this many model sheets or more become one line each
 MAX_CLARIFY = 2  # asking rounds per conversation; after that the bot recommends with what it has
 NEED_QUESTIONS = {
@@ -251,12 +251,14 @@ def models_in(text):
     return list(dict.fromkeys(f"Stark {n}" for n in re.findall(r"\bStark\s*(\d+)", text)))
 
 
-@trace()  # a span of its own so the MLflow trace shows the Focus after this turn (its output); the store keeps the same value
+# a span of its own so the MLflow trace shows the Focus after this turn (its output); the store keeps the same value
+@trace()
 def next_focus(focus, route, question, seen):
     return focus.after(route, models_in(question), seen)
 
 
-ABOUT_MARK = " (about "  # classify() appends " (about Stark 1)" to a follow-up that names no model; select_docs strips it for the embedding query
+# classify() appends " (about Stark 1)" to a follow-up that names no model; select_docs strips it for the embedding query
+ABOUT_MARK = " (about "
 
 
 def seen_in(verdict, known_text):
@@ -294,23 +296,24 @@ def classify(message, history=(), focus=None, full=False):
                 {"role": "system", "content": CLASSIFIER_PROMPT},
                 {"role": "user", "content": f"Earlier conversation:\n{context or '(none)'}\n\n{fence(message)}"},
             ],
+            # reasoning models spend 300+ tokens thinking on mixed requests and return empty content
             temperature=0,
-            max_tokens=1000,  # reasoning models spend 300+ tokens thinking on mixed requests and return empty content
+            max_tokens=1000,
         )
         verdict = json.loads(raw[raw.index("{") : raw.rindex("}") + 1])
         category, reason = verdict["category"], str(verdict.get("reason", ""))
         question = str(verdict.get("question") or message)
         seen = seen_in(verdict, f"{message}\n{context}")
         parts = []
-        if seen["about"] and not models_in(
-            question
-        ):  # the model may not rewrite 'it' reliably; the code makes sure the question names it
+        # the model may not rewrite 'it' reliably; the code makes sure the question names it
+        if seen["about"] and not models_in(question):
             parts.append(", ".join(seen["about"]))
+
         needs = {**(focus.needs if focus else {}), **seen["needs"]}
-        if (
-            seen["find_ship"] and needs
-        ):  # a recommendation request carries what the customer said they need, even from earlier turns
+        # a recommendation request carries what the customer said they need, even from earlier turns
+        if seen["find_ship"] and needs:
             parts.append("needs: " + ", ".join(f"{k}={v}" for k, v in needs.items()))
+
         if parts:
             question += f"{ABOUT_MARK}{'; '.join(parts)})"
     except Exception as e:  # noqa: BLE001 - any failure must escalate to a human, never crash or let the message through
@@ -322,6 +325,7 @@ def classify(message, history=(), focus=None, full=False):
             if category == "ANSWER" or category in REPLIES
             else ("ESCALATE", f"classifier returned unknown category {category!r}", message, {})
         )
+
     return out if full else out[:2]
 
 
@@ -426,10 +430,12 @@ def open_ticket(category, message, history, reason="", session=""):
     }
     with TICKETS.open("a") as f:
         f.write(json.dumps(record, ensure_ascii=False) + "\n")
+
     return ticket
 
 
-@trace()  # the documents that reach the prompt: a read per document would be noise, one span with the list is what a demo needs
+# the documents that reach the prompt: a read per document would be noise, one span with the list is what a demo needs
+@trace()
 def read_docs(sources):
     """Text of the named documents, joined for the prompt. Reading many models at once (a catalogue question: "which ships carry 30 or more people?")
     gives one line per model instead of the full sheets: the model has to compare them all, and a fixed one-line layout is far easier to scan than
@@ -437,6 +443,7 @@ def read_docs(sources):
     models = [n for n in sources if n.startswith("model_")]
     if len(models) < TABLE_MIN_MODELS:
         return "\n".join(docs[n] for n in sources)
+
     rows = []
     for n in models:
         field = lambda name, text=docs[n]: re.search(rf"\*\*{name}\*\*: (.*?)[. ]*$", text, re.MULTILINE).group(1)  # noqa: E731
@@ -444,6 +451,7 @@ def read_docs(sources):
             f"{docs[n].splitlines()[0].lstrip('# ')} | {field('Description')} | Size: {field('Size')} | Weight: {field('Weight')} | "
             f"Capacity: {field('Capacity')} | Color: {field('Color')} | Price: {field('Price')} | Accessories: {field('Compatible Accessories')}"
         )
+
     return "\n".join(
         ["One line per model (Notes left out):", *rows, *(docs[n] for n in sources if not n.startswith("model_"))]
     )
@@ -481,29 +489,28 @@ def pick_by_index(message):
         temperature=0,
         max_tokens=1000,
     )
-    return [
-        n for n in json.loads(raw[raw.index("{") : raw.rindex("}") + 1])["read"] if n in docs
-    ]  # an invented name is dropped
+    # an invented name is dropped
+    return [n for n in json.loads(raw[raw.index("{") : raw.rindex("}") + 1])["read"] if n in docs]
 
 
 def select_docs(message, history, retrieval, all_docs=None, question=None):
     """Names of the documents to read, or None for 'not found'. R0 all docs | R1 top-k | R2 scope check, then top-k or every model | R3 LLM reads the index."""
     if retrieval == "R0":
         return list(names)
-    question = (
-        question or message
-    )  # the standalone question from the classifier; followed-up words are already resolved in it
+
+    # the standalone question from the classifier; followed-up words are already resolved in it
+    question = question or message
     if retrieval == "R3":
         return pick_by_index(question) or None
-    if retrieval == "R2" and (
-        needs_all_docs(message, history) if all_docs is None else all_docs
-    ):  # a vague "which ones are there?" scores low on every doc, so it skips retrieval and the score gate
+
+    # a vague "which ones are there?" scores low on every doc, so it skips retrieval and the score gate
+    if retrieval == "R2" and (needs_all_docs(message, history) if all_docs is None else all_docs):
         return [n for n in names if n.startswith("model_")]
+
     # a follow-up like "how much is it?" only matches a doc once it is resolved; without a rewrite fall back to prefixing the previous user turn
     prev = next((m["content"] for m in reversed(history) if m["role"] == "user"), "") if question == message else ""
-    pinned = [
-        f"model_{n}" for n in re.findall(r"Stark (\d+)", question) if f"model_{n}" in docs
-    ]  # a model the question names is always read, whatever the scores say
+    # a model the question names is always read, whatever the scores say
+    pinned = [f"model_{n}" for n in re.findall(r"Stark (\d+)", question) if f"model_{n}" in docs]
     # With the model names left out the embedding finds the policy / guide the question is about ("does the Stark 1 have a warranty?" otherwise
     # returns only model sheets); the pinned sheets supply the model itself.
     topic = re.sub(r"\bStark\s*\d+\b", "", question.split(ABOUT_MARK)[0]).strip()
@@ -526,12 +533,13 @@ def answer(message, history, defense="L4", retrieval="R3", session="", focus=Non
     meta.update(question=message, focus=focus, ticket="", trace_id=current_trace_id())
     if session:
         update_trace_session(session)
+
     # 0. start the scope check early (R2 only)
     scope = None
-    if (
-        level == 4 and retrieval == "R2"
-    ):  # the scope check does not depend on the classifier: start both together and save one round trip (wasted when the classifier blocks)
+    # the scope check does not depend on the classifier: start both together and save one round trip (wasted when the classifier blocks)
+    if level == 4 and retrieval == "R2":
         scope = POOL.submit(contextvars.copy_context().run, needs_all_docs, message, list(history), focus)
+
     # 1-2. classify, then route: only ANSWER continues (L3 and up)
     question = message
     if level >= 3:
@@ -539,16 +547,17 @@ def answer(message, history, defense="L4", retrieval="R3", session="", focus=Non
         meta["question"] = question
         meta["focus"] = next_focus(focus, route, question, seen)  # filled on every turn, whatever the route
         if route in ("ABUSIVE", "ESCALATE", "HANDOFF"):
-            ticket = meta["ticket"] = open_ticket(
-                route, message, history, reason, session
-            )  # a classifier outage still reaches a human (fail closed) ...
-            if reason.startswith(
-                "classifier failed"
-            ):  # ... but the customer is told it was our error, not that they complained
+            # a classifier outage still reaches a human (fail closed) ...
+            ticket = meta["ticket"] = open_ticket(route, message, history, reason, session)
+            # ... but the customer is told it was our error, not that they complained
+            if reason.startswith("classifier failed"):
                 return REPLIES["ERROR"], "ERROR", []
+
             return REPLIES[route].format(ticket=ticket), route, []
+
         if route != "ANSWER":
             return REPLIES[route], route, []
+
         # 2b. a search by criteria with the essentials missing: ask first (L4 only), recommend once the customer has answered or after MAX_CLARIFY asks
         wanted = (
             missing_needs(meta["focus"])
@@ -567,8 +576,10 @@ def answer(message, history, defense="L4", retrieval="R3", session="", focus=Non
     except Exception as e:  # noqa: BLE001 - a broken retrieval step is an error, not "not found": say so instead of faking an answer
         print(f"retrieval step failed: {e!r}", file=sys.stderr)
         return REPLIES["ERROR"], "ERROR", []
+
     if sources is None:
         return REPLIES["NO_ANSWER"], "NO_ANSWER", []
+
     # 4. write the draft: the system prompt gets the documents and (from L2) the untrusted-input rule; the user turn is fenced
     docs_text = read_docs(sources)
     if level == 0:
@@ -579,14 +590,15 @@ def answer(message, history, defense="L4", retrieval="R3", session="", focus=Non
             + (UNTRUSTED_RULE if level >= 2 else "")
             + (BREVITY + FIT_RULE if level == 4 else "")
         )
-    if (
-        history and question != message
-    ):  # follow-up: the customer's own words, restated, are the only conversation facts the answer gets
+
+    # follow-up: the customer's own words, restated, are the only conversation facts the answer gets
+    if history and question != message:
         system += (
             f"\n\nThe customer's latest message is a follow-up. Models in focus: {', '.join(meta['focus'].talking_about) or 'none'}"
             f"{'; the customer is interested in ' + ', '.join(meta['focus'].interested_in) if meta['focus'].interested_in else ''}. "
             f"Restated on its own: {question.replace('=====', '- - -')}"
         )
+
     wrap = fence if level >= 2 else (lambda t: t)
     # Earlier customer messages go in the system prompt as context, not as chat turns: as turns the model answered them again
     # (a "what color is it?" two questions ago was answered inside the reply to "which models seat more than 10?").
@@ -596,6 +608,7 @@ def answer(message, history, defense="L4", retrieval="R3", session="", focus=Non
         system += "\n\nEarlier customer messages, already answered: context only, do not answer them again:\n" + wrap(
             "\n".join(f"- {t}" for t in earlier)
         )
+
     turn = [{"role": "user", "content": wrap(message)}]
     reply = llm([{"role": "system", "content": system}, *turn])
     # 5. review (L4 only): rewrite with every complaint so far; unverified drafts are never released
@@ -614,17 +627,17 @@ def answer(message, history, defense="L4", retrieval="R3", session="", focus=Non
         for _ in range(MAX_REWRITES):  # still failing after the last rewrite -> UNVERIFIED below
             if ok:
                 break
+
             seen_problems += [p for p in problems if p not in seen_problems]
             fix = REWRITE_PROMPT.format(system=system, draft=reply, problems="\n".join(f"- {p}" for p in seen_problems))
             reply = pin_support_email(llm([{"role": "system", "content": fix}, *turn]))
             ok, problems = review(asked, reply, docs_text)
+
         if not ok:
             print(f"review rejected the rewrite: {problems}", file=sys.stderr)
-            return (
-                REPLIES["UNVERIFIED"],
-                "UNVERIFIED",
-                [],
-            )  # the docs may well cover it; the draft just could not be verified
+            # the docs may well cover it; the draft just could not be verified
+            return REPLIES["UNVERIFIED"], "UNVERIFIED", []
+
     history += [{"role": "user", "content": message}, {"role": "assistant", "content": reply}]
     return reply, "ANSWER", sources
 
@@ -636,14 +649,12 @@ app = FastAPI()
 
 class ChatRequest(BaseModel):
     message: str
-    session: str = Field(
-        min_length=1
-    )  # one id per chat, made by the page. Required: a stale tab without one gets a 422, not a bot with no memory.
+    # one id per chat, made by the page. Required: a stale tab without one gets a 422, not a bot with no memory.
+    session: str = Field(min_length=1)
     # The history lives on the server under this id, so nothing the browser sends can forge it.
     defense: Literal["L0", "L1", "L2", "L3", "L4"] = "L4"  # L0-L4, see eval_ladder.py
-    retrieval: Literal["R0", "R1", "R2", "R3"] = (
-        "R3"  # R0-R3, only used at L4; R3 is the default (see results/retrieval-ladder.md)
-    )
+    # R0-R3, only used at L4; R3 is the default (see results/retrieval-ladder.md)
+    retrieval: Literal["R0", "R1", "R2", "R3"] = "R3"
 
 
 @app.post("/chat")
@@ -656,6 +667,7 @@ def chat(req: ChatRequest):
     except Exception as e:  # noqa: BLE001 - a failed model call is an error the customer is told about, not a 500 page or a fake "not found"
         print(f"answer failed: {e!r}", file=sys.stderr)
         reply, route, sources = REPLIES["ERROR"], "ERROR", []
+
     if req.session:
         sessions.add(
             req.session,
@@ -668,6 +680,7 @@ def chat(req: ChatRequest):
             meta.get("ticket", ""),
             meta.get("trace_id", ""),
         )
+
     return {
         "reply": reply,
         "route": route,

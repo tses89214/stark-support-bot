@@ -80,6 +80,7 @@ def build_cases():
                 True,
             )
         )
+
     for n in (1, 5, 8):  # GOOD: a match that really meets every condition
         m = s[n]
         cases.append(
@@ -91,6 +92,7 @@ def build_cases():
                 True,
             )
         )
+
     for n in (3, 8, 13, 23):
         m = s[n]
         cases.append(
@@ -102,10 +104,12 @@ def build_cases():
                 False,
             )
         )
+
     for n in (1, 5, 12, 19):  # price off by a digit
         m = s[n]
         digits = re.sub(r"\d", lambda d: str((int(d.group()) + 1) % 10), m["price"], count=1)
         cases.append(case(2, f"How much is the Stark {n}?", f"The Stark {n} costs {digits}.", m["text"], False))
+
     for n in (3, 8, 13, 23):
         m = s[n]
         cases.append(
@@ -117,6 +121,7 @@ def build_cases():
                 False,
             )
         )
+
     for n in (1, 5, 12, 19):
         m = s[n]
         cases.append(
@@ -128,6 +133,7 @@ def build_cases():
                 False,
             )
         )
+
     for n in (13, 19):  # too few seats
         m = s[n]
         assert m["seats"] < 2, "rule 5 case needs a ship with fewer than 2 seats"
@@ -140,6 +146,7 @@ def build_cases():
                 False,
             )
         )
+
     for n, other in ((8, 5), (23, 12)):  # right size, wrong colour: ask for the colour of another ship
         m, o = s[n], s[other]
         assert m["color"] != o["color"]
@@ -152,6 +159,7 @@ def build_cases():
                 False,
             )
         )
+
     for n in (1, 5, 12, 19):
         m = s[n]
         cases.append(
@@ -163,6 +171,7 @@ def build_cases():
                 False,
             )
         )
+
     for n, bad in (
         (3, "customer_service@stark.com"),
         (8, "support@stark_spaceships.com"),
@@ -179,6 +188,7 @@ def build_cases():
                 False,
             )
         )
+
     # rule 8: a claim of exclusivity or absence over several documents, broken by one document. GOOD twins: the same question answered completely.
     t = {n: spec(n)["text"] for n in (1, 3, 4, 8, 10, 13, 15, 19, 23, 24)}
 
@@ -233,6 +243,7 @@ def verdict(c):
         ok, problems = app.review(c["question"], c["draft"], c["docs"])
         if not (problems and problems[0].startswith("reviewer failed")):
             return ok, False, problems
+
     return False, True, problems
 
 
@@ -242,6 +253,7 @@ def evaluate(cases):
     for i, c in enumerate(cases):
         out[i] = verdict(c)
         print(f"  {i + 1}/{len(cases)}", end="\r", flush=True)
+
     return out
 
 
@@ -253,10 +265,12 @@ def score(cases, passes):
             if failed:
                 per.setdefault("failed", []).append(i)
                 continue
+
             c = cases[i]
             hit = not said_ok  # bad draft: a rejection is a catch; good draft (rule 0): a rejection is a false reject
             k, n = per.get(c["rule"], (0, 0))
             per[c["rule"]] = (k + hit, n + 1)
+
     return per
 
 
@@ -279,6 +293,7 @@ def write_results(cases, passes, runs):
         tot_k, tot_n = tot_k + k, tot_n + n
         lo, hi = wilson(k, n)
         rows.append(f"| {label} | {k}/{n} ({lo:.0%} to {hi:.0%}) |")
+
     lo, hi = wilson(tot_k, tot_n)
     rows.append(f"| **all bad drafts** | **{tot_k}/{tot_n} ({lo:.0%} to {hi:.0%})** |")
     fk, fn = per.get(0, (0, 0))
@@ -335,10 +350,12 @@ if __name__ == "__main__":
         raw = json.loads(RAW.read_text())
         write_results(cases, [{int(i): tuple(v) for i, v in p.items()} for p in raw["passes"]], raw["runs"])
         sys.exit()
+
     runs = int(next((a for a in sys.argv[1:] if a.isdigit()), 2))
     if "--dry" in sys.argv:  # show the cases without calling the LLM
         print(len(cases), "cases:", sum(c["ok"] for c in cases), "good,", sum(not c["ok"] for c in cases), "bad")
         sys.exit()
+
     check_quota(runs * len(cases))
     passes = [evaluate(cases) for _ in range(runs)]
     RAW.write_text(

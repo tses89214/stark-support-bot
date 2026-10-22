@@ -25,6 +25,7 @@ print(
 print("| MIN_SCORE | on-topic refused | off-topic let through |\n|---|---|---|")
 for t in [0.30, 0.35, 0.40, 0.45, 0.50, 0.55, 0.60]:
     print(f"| {t:.2f} | {sum(s < t for s in on)}/{len(on)} | {sum(s >= t for s in off)}/{len(off)} |")
+
 print("\n| TOP_K | hit@k |\n|---|---|")
 for k in (1, 3, 5):
     hits = search([q for q, _ in CASES], k)

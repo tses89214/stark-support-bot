@@ -38,6 +38,7 @@ if __name__ == "__main__":
             except Exception as e:  # noqa: BLE001 - one bad batch (free tier truncates or 429s) must not lose the others
                 print(f"{name} {style}: skipped, {e!r}", flush=True)
                 continue
+
             rows += [
                 {
                     "message": m,
@@ -49,5 +50,6 @@ if __name__ == "__main__":
                 for m in msgs
             ]
             print(name, style, len(rows), flush=True)
+
     with open("evals/eval_candidates.jsonl", "w") as f:
         f.writelines(json.dumps(r, ensure_ascii=False) + "\n" for r in rows)

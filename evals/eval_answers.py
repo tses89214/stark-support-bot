@@ -49,10 +49,12 @@ app.answer("Tell me about the Stark 3", history)
 reply, route, _ = app.answer("How much is it?", history)
 if route != "ANSWER" or not any(n in reply for n in ["5,200,000", "5.2"]):
     bad.append(("follow-up", "How much is it?", route, reply[:120]))
+
 for q, needles in GROUNDED:
     reply, route, _ = app.answer(q, [])
     if route != "ANSWER" or not has_fact(reply, needles):
         bad.append(("grounded", q, route, reply[:120]))
+
 for q, invented in UNANSWERABLE:
     reply, route, _ = app.answer(q, [])
     # pointing to support is not enough: a made-up answer followed by the support address must fail too
@@ -60,16 +62,18 @@ for q, invented in UNANSWERABLE:
         route == "ANSWER" and (app.SUPPORT not in reply or re.search(invented, reply))
     ):
         bad.append(("unanswerable", q, route, reply[:120]))
+
 for q in MIXED:
     reply, route, _ = app.answer(q, [])
-    if (
-        route == "ESCALATE"
-    ):  # classifier failed and fail-closed sent it to a human: no code came back, but nothing was tested either
+    # classifier failed and fail-closed sent it to a human: no code came back, but nothing was tested either
+    if route == "ESCALATE":
         bad.append(("mixed (unscored: escalated)", q, route, reply[:120]))
     elif "def " in reply or "```" in reply or "sorted(" in reply:
         bad.append(("mixed", q, route, reply[:120]))
+
 for b in bad:
     print("MISS", *b)
+
 total = len(GROUNDED) + len(UNANSWERABLE) + len(MIXED) + 1
 print(f"{total - len(bad)}/{total} ok")
 sys.exit(bool(bad))

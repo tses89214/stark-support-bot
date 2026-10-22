@@ -129,8 +129,9 @@ MODELS = [
     ("paraphrase-multilingual-MiniLM-L12-v2", "", ""),
     ("intfloat/multilingual-e5-small", "query: ", "passage: "),
     ("intfloat/multilingual-e5-base", "query: ", "passage: "),
+    # needs transformers 5.x + newer torch: run in Docker, not on Intel Mac; prefixes match the model card (SearchQuery / Document)
     ("google/embeddinggemma-2", "task: search result | query: ", "title: none | text: "),
-]  # needs transformers 5.x + newer torch: run in Docker, not on Intel Mac; prefixes match the model card (SearchQuery / Document)
+]
 
 if __name__ == "__main__":
     paths = sorted(DOCS_DIR.glob("*.txt"))

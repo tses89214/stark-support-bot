@@ -21,9 +21,8 @@ from evals.eval_retrieval import MORE_OFF_TOPIC, OFF_TOPIC
 from evals.stats import wilson
 
 RAW, OUT = Path("results/followups_raw.json"), Path("results/followups.md")
-PART = Path(
-    "results/followups_partial.json"
-)  # every finished case is written here at once, so a crash or reboot loses at most one case
+# every finished case is written here at once, so a crash or reboot loses at most one case
+PART = Path("results/followups_partial.json")
 OFF_TOPIC_ALL = OFF_TOPIC + MORE_OFF_TOPIC  # 15 messages
 
 
@@ -92,11 +91,13 @@ def off_topic_case(message):
     category, reason = app.classify(message)
     if failed(reason):
         return None
+
     try:
         picked = app.pick_by_index(message)
     except Exception as e:  # noqa: BLE001 - a failed call is counted, never scored
         print(f"pick failed: {e!r}", file=sys.stderr)
         return None
+
     return {"category": category, "picked": picked}
 
 
@@ -105,6 +106,7 @@ def follow_up_case(history, message, gold):
     category, reason, question, _ = app.classify(message, history, full=True)
     if failed(reason) or category != "ANSWER":
         return None
+
     out = {"question": question}
     for mode in MODES:
         try:
@@ -112,7 +114,9 @@ def follow_up_case(history, message, gold):
         except Exception as e:  # noqa: BLE001
             print(f"{mode} failed: {e!r}", file=sys.stderr)
             return None
+
         out[mode] = {"sources": sources, "hit": gold <= set(sources)}
+
     return out
 
 
@@ -121,6 +125,7 @@ def retry(fn, *args):
         result = fn(*args)
         if result is not None:
             return result
+
     return None
 
 
@@ -130,6 +135,7 @@ def done(key, fn, *args):
     if key not in saved:
         saved[key] = retry(fn, *args)
         PART.write_text(json.dumps(saved, ensure_ascii=False))
+
     return saved[key]
 
 
@@ -158,6 +164,7 @@ def write_results(passes, runs):
         for name, r in res:
             if not r["hit"]:
                 detail.append(f"- {mode} missed `{name}`: picked {r['sources']}")
+
     lost_fol = len([1 for p in passes for r in p["follow_ups"].values() if not r])
     text = f"""# Off-topic messages and follow-ups
 
@@ -211,17 +218,19 @@ if __name__ == "__main__":
         raw = json.loads(RAW.read_text())
         write_results(raw["passes"], raw["runs"])
         sys.exit()
+
     if "--dry" in sys.argv:  # show the cases without calling the LLM
         print(len(OFF_TOPIC_ALL), "off-topic messages,", len(FOLLOW_UPS), "follow-up cases")
         for name, history, message, gold in FOLLOW_UPS:
             print(f"  {name}: {len(history)} history lines, {message!r} -> {sorted(gold)}")
             assert all(g in app.names for g in gold), f"{name}: gold names a document that does not exist"
+
         sys.exit()
+
     # per pass: off-topic = classify + pick (2 calls each); follow-up = classify + R2 scope check + R3 pick (3 calls each); retries not counted
     check_quota(runs * (2 * len(OFF_TOPIC_ALL) + 3 * len(FOLLOW_UPS)))
-    passes = [
-        one_pass(i) for i in range(runs)
-    ]  # rerun the same command after an interruption: finished cases are skipped
+    # rerun the same command after an interruption: finished cases are skipped
+    passes = [one_pass(i) for i in range(runs)]
     RAW.write_text(
         json.dumps(
             {"date": str(date.today()), "runs": runs, "model": app.MODEL, "passes": passes},

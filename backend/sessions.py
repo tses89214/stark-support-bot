@@ -11,6 +11,7 @@ from dataclasses import asdict, dataclass, field
 DB = os.environ.get("SESSIONS_DB", "data/runtime/sessions.db")
 if DB != ":memory:":
     os.makedirs(os.path.dirname(DB), exist_ok=True)
+
 _db = sqlite3.connect(DB, check_same_thread=False)
 _db.row_factory = sqlite3.Row
 _db.execute("""create table if not exists turns (session text, n integer, ts text, user text, reply text, route text,
@@ -24,12 +25,10 @@ class Focus:
     later steps use it to resolve 'it' / 'that one' without asking a model to remember."""
 
     talking_about: list = field(default_factory=list)  # Stark models the latest question is about, e.g. ["Stark 1"]
-    interested_in: list = field(
-        default_factory=list
-    )  # the shortlist: models the customer said they like or want to order; a pick replaces it
-    needs: dict = field(
-        default_factory=dict
-    )  # what the customer asked for in a ship, by slot: passengers / use / budget / size (see app.NEED_SLOTS)
+    # the shortlist: models the customer said they like or want to order; a pick replaces it
+    interested_in: list = field(default_factory=list)
+    # what the customer asked for in a ship, by slot: passengers / use / budget / size (see app.NEED_SLOTS)
+    needs: dict = field(default_factory=dict)
     asked: int = 0  # how many times the bot has already asked about needs; the bot stops asking after app.MAX_CLARIFY
 
     def __bool__(self):
@@ -52,12 +51,14 @@ class Focus:
         conversation. Blocked turns (off-topic, injection, abuse) do not steer the conversation: they keep the focus as it was."""
         if route in ("OFF_TOPIC", "INJECTION", "ABUSIVE"):
             return self
+
         return Focus(
             models or self.talking_about,
             seen.get("interested_in") or self.interested_in,
+            # needs accumulate: a later answer adds to or overrides a slot, never erases it
             {**self.needs, **seen.get("needs", {})},
             self.asked,
-        )  # needs accumulate: a later answer adds to or overrides a slot, never erases it
+        )
 
     @staticmethod
     def load(text):
@@ -65,8 +66,10 @@ class Focus:
         data = json.loads(text)
         if isinstance(data, list):
             return Focus(list(data))
+
         if isinstance(data.get("interested_in"), str):  # stored when it was a single model
             data["interested_in"] = [data["interested_in"]] if data["interested_in"] else []
+
         data.pop("goal", None)  # rows from when the focus also held a free-text goal
         return Focus(**data)
 
@@ -75,6 +78,7 @@ def turns(session):
     """Every stored turn of a session, oldest first, JSON columns decoded."""
     with _lock:
         rows = _db.execute("select * from turns where session = ? order by n", (session,)).fetchall()
+
     return [{**r, "sources": json.loads(r["sources"]), "focus": Focus.load(r["focus"])} for r in map(dict, rows)]
 
 
@@ -103,14 +107,12 @@ def add(session, user, reply, route, sources=(), question="", focus=None, ticket
 
 def history(session):
     """What the prompts may see: answered and clarifying turns only, as chat messages, plus the latest non-empty Focus."""
-    answered = [
-        t for t in turns(session) if t["route"] in ("ANSWER", "CLARIFY")
-    ]  # the bot's own question must be visible, or the customer's reply to it reads as off-topic
+    # the bot's own question must be visible, or the customer's reply to it reads as off-topic
+    answered = [t for t in turns(session) if t["route"] in ("ANSWER", "CLARIFY")]
     msgs = [
         m
         for t in answered
         for m in ({"role": "user", "content": t["user"]}, {"role": "assistant", "content": t["reply"]})
     ]
-    return msgs, next(
-        (t["focus"] for t in reversed(turns(session)) if t["focus"]), Focus()
-    )  # any route: a greeting still carries the focus forward
+    # any route: a greeting still carries the focus forward
+    return msgs, next((t["focus"] for t in reversed(turns(session)) if t["focus"]), Focus())

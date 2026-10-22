@@ -68,6 +68,7 @@ def read_doc(path):
     full = (ROOT / path).resolve()
     if not full.is_relative_to(ROOT.resolve()) or full.suffix != ".txt":
         raise ValueError(f"not a corpus document: {path!r}")
+
     return full.read_text()
 
 
@@ -88,6 +89,7 @@ def search_docs(query, k=3):
             vectors = encoder.encode([read_doc(p) for p in paths])
             np.savez(cache, paths=paths, vectors=vectors)
             _vectors[ROOT] = (paths, vectors)
+
     paths, vectors = _vectors[ROOT]
     hits = util.semantic_search(encoder.encode(query), vectors, top_k=k)[0]
     return [paths[h["corpus_id"]] for h in hits]

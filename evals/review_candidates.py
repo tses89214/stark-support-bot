@@ -20,6 +20,7 @@ if "--export" in sys.argv:
     for r in rows:
         if r["status"] == "reviewed":
             print(f'    ({json.dumps(r["message"], ensure_ascii=False)}, "{r["intended_category"]}"),')
+
     sys.exit()
 
 todo = [r for r in rows if r["status"] == "unreviewed"]
@@ -30,14 +31,19 @@ for i, r in enumerate(todo, 1):
     key = input("  Enter=ok  1-5=" + "/".join(LABELS) + "  d=drop  s=skip  q=quit > ").strip().lower()
     if key == "q":
         break
+
     if key == "s":
         continue
+
     if key == "d":
         r["status"] = "dropped"
     else:
         if key in "12345" and key:
             r["intended_category"] = LABELS[int(key) - 1]
+
         r["status"] = "reviewed"
+
     save()
+
 save()
 print({s: sum(r["status"] == s for r in rows) for s in ("unreviewed", "reviewed", "dropped")})

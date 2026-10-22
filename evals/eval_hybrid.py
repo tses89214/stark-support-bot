@@ -46,6 +46,7 @@ def bm25_scores(query, docs, k1=1.5, b=0.75):
                 if t in tf
             )
         )
+
     return scores
 
 
@@ -60,6 +61,7 @@ def fuse(*rankings, k=60):
     for r in rankings:
         for pos, i in enumerate(r, 1):
             total[i] += 1 / (k + pos)
+
     return sorted(total, key=lambda i: -total[i])
 
 
@@ -105,6 +107,7 @@ if __name__ == "__main__":
         best = [-1.0] * len(names)  # a document scores as its best sentence
         for (i, _), sc in zip(pieces, util.cos_sim(qv, piece_vectors)[0].tolist()):
             best[i] = max(best[i], sc)
+
         k = ranking(bm25_scores(q, toks))
         h = fuse(v, k)
         top = h[:RERANK_TOP]
@@ -112,6 +115,7 @@ if __name__ == "__main__":
         rr = [top[j] for j in order] + h[RERANK_TOP:]
         for label, rank in (("vector", v), ("chunked", ranking(best)), ("bm25", k), ("hybrid", h), ("rerank", rr)):
             results[label].append((q, gold, [names[i] for i in rank]))
+
     print(
         f"{len(CASES)} questions, {len(names)} documents ({sum(q.isascii() for q, _ in CASES)} English, {sum(not q.isascii() for q, _ in CASES)} Chinese)\n"
     )
@@ -124,6 +128,7 @@ if __name__ == "__main__":
         print(
             f"{label:8}{sum(at(1)):>5}/{len(rows)}{sum(at(3)):>5}/{len(rows)}{sum(at(5)):>5}/{len(rows)}{sum(en):>7}/{len(en)}{sum(zh):>7}/{len(zh)}{mrr:>7.2f}   hit@3 95% {lo:.0%}-{hi:.0%}"
         )
+
     print()
     for label in ("vector", "chunked", "bm25", "hybrid", "rerank"):
         print(f"{label} misses at top-3:")

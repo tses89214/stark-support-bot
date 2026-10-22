@@ -97,6 +97,7 @@ if __name__ == "__main__":
     shutil.rmtree(OUT, ignore_errors=True)
     for d in ("brand", "general", "models", "manuals"):
         (OUT / d).mkdir(parents=True)
+
     index = ["# Stark Spaceships document index", "Read this first; open only the documents the question needs.", ""]
     gold = {"facts": {}, "models": total}
 
@@ -106,8 +107,10 @@ if __name__ == "__main__":
 
     for name, (desc, text) in BRAND.items():
         write("brand", name, desc, text)
+
     for name, (desc, text) in GENERAL.items():
         write("general", name, desc, text)
+
     for name, desc in (
         ("guide_ordering_delivery.txt", "How to place an order, deposit, delivery and damage reports."),
         (
@@ -116,6 +119,7 @@ if __name__ == "__main__":
         ),
     ):
         write("general", name, desc, (SRC / name).read_text())
+
     for i in range(1, total + 1):
         text = (SRC / f"model_{i}.txt").read_text()
         m = re.search(r"\*\*Capacity\*\*: (\d+) passengers", text)
@@ -133,6 +137,7 @@ if __name__ == "__main__":
             manual(i, seats),
         )
         gold["facts"][i] = facts(i)
+
     (OUT / "INDEX.md").write_text("\n".join(index) + "\n")
     (OUT / "gold.json").write_text(json.dumps(gold, indent=1))
     n = sum(1 for _ in OUT.rglob("*.txt"))

@@ -77,30 +77,29 @@ CASES = [
 ]
 
 HAND = len(CASES)
-for name in (
-    "evals/eval_candidates.jsonl",
-    "evals/eval_candidates_attacks.jsonl",
-):  # LLM-drafted, kept only if a human-approved review marked them
+# LLM-drafted, kept only if a human-approved review marked them
+for name in ("evals/eval_candidates.jsonl", "evals/eval_candidates_attacks.jsonl"):
     CASES += [
         (r["message"], r["intended_category"])
         for r in map(json.loads, Path(name).read_text().splitlines())
         if r["status"] == "reviewed"
     ]
 
-PART = Path(
-    "results/guardrails_partial.json"
-)  # every verdict is saved as soon as it arrives; after a crash the rerun skips what is already here
+# every verdict is saved as soon as it arrives; after a crash the rerun skips what is already here
+PART = Path("results/guardrails_partial.json")
 saved = json.loads(PART.read_text()) if PART.exists() else {}
 for m, _ in CASES:
     if m not in saved or saved[m][1].startswith("classifier failed"):  # a failed call is tried again
         saved[m] = list(classify(m))
         PART.write_text(json.dumps(saved, ensure_ascii=False))
+
 verdicts = [(m, want, *saved[m]) for m, want in CASES]
 PART.unlink()
 down = [m for m, _, _, reason in verdicts if reason.startswith("classifier failed")]  # outage, not a misjudgement
 wrong = [(m, want, got) for m, want, got, reason in verdicts if got != want and m not in down]
 for m, want, got in wrong:
     print(f"MISS  want={want} got={got}  {m}")
+
 LABELS = ["ANSWER", "HELP", "HANDOFF", "OFF_TOPIC", "ABUSIVE", "ESCALATE", "INJECTION"]
 print(
     "\nrows = wanted, columns = got (classifier failures excluded)\n"
@@ -112,10 +111,12 @@ for want in LABELS:
         f"{want:<10}"
         + "".join(f"{sum(w == want and g == got and m not in down for m, w, g, _ in verdicts):>8}" for got in LABELS)
     )
+
 for name, part in (("hand-written", verdicts[:HAND]), ("LLM-drafted, reviewed", verdicts[HAND:])):
     ok = [m for m, want, got, reason in part if got == want]
     skipped = [m for m, _, _, reason in part if reason.startswith("classifier failed")]
     print(f"{name}: {len(ok)}/{len(part) - len(skipped)} correct")
+
 n, k = len(CASES) - len(down), len(CASES) - len(down) - len(wrong)
 lo, hi = wilson(k, n)
 print(f"{k}/{n} correct, 95% interval {lo:.0%}-{hi:.0%} ({len(down)} skipped: classifier failed)")

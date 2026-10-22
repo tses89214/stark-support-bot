@@ -17,10 +17,8 @@ from evals.gen_scaled_corpus import facts
 
 doc_tools.encoder = app.encoder
 
-RPM, TPM = (
-    int(os.environ.get("LLM_RPM", "0")),
-    int(os.environ.get("LLM_TPM", "0")),
-)  # provider limits, 0 = unlimited; e.g. Groq free: 25 / 7000
+# provider limits, 0 = unlimited; e.g. Groq free: 25 / 7000
+RPM, TPM = int(os.environ.get("LLM_RPM", "0")), int(os.environ.get("LLM_TPM", "0"))
 _sent = []  # (time, estimated tokens) of calls in the last 60s
 
 
@@ -28,26 +26,28 @@ def throttled(llm):
     """Wait until the next call fits the per-minute request and token budget. A call too big to ever fit raises (counted as a failure)."""
 
     def call(messages, **kw):
-        est = (
-            sum(len(m["content"]) for m in messages) // 3 + kw.get("max_tokens", 0) // 4
-        )  # chars/3 overestimates tokens on purpose
+        # chars/3 overestimates tokens on purpose
+        est = sum(len(m["content"]) for m in messages) // 3 + kw.get("max_tokens", 0) // 4
         if TPM and est > TPM:
             raise RuntimeError(f"request ~{est} tokens exceeds the {TPM} tokens/minute budget")
+
         while True:
             now = time.time()
             _sent[:] = [(t, n) for t, n in _sent if now - t < 60]
             if not (RPM and len(_sent) >= RPM) and not (TPM and sum(n for _, n in _sent) + est > TPM):
                 break
+
             time.sleep(max(1.0, 61 - (now - _sent[0][0])))
+
         _sent.append((time.time(), est))
-        for attempt in range(
-            1, 6
-        ):  # llm() retries once; a rate-limited free tier needs longer waits, or the limit would leak into the scores
+        # llm() retries once; a rate-limited free tier needs longer waits, or the limit would leak into the scores
+        for attempt in range(1, 6):
             try:
                 return llm(messages, **kw)
             except Exception:
                 if attempt == 5:
                     raise
+
                 time.sleep(20 * attempt)
 
     return call
@@ -72,6 +72,7 @@ def questions(n):
     for i in (3, 5, 9):
         price = re.search(r"\$([\d,]+)", Path(f"data/stark_scaled/models/model_{i}.txt").read_text()).group(1)
         q.append((f"How much is the Stark {i}?", {f"models/model_{i}.txt"}, lambda r, p=price: p in r))
+
     for i in (2, 7, 10):
         q.append(
             (
@@ -80,6 +81,7 @@ def questions(n):
                 lambda r, w=NEEDLES[f[i]["steering"]][0]: w in r.lower(),
             )
         )
+
     q.append(
         ("How often must the Stark 6 be serviced?", {"manuals/manual_6.txt"}, lambda r: str(100 + 25 * (6 % 4)) in r)
     )
@@ -99,6 +101,7 @@ def questions(n):
                 lambda r, g=gold: set(map(int, re.findall(r"Stark\s*(\d+)", unicodedata.normalize("NFKC", r)))) == g,
             )
         )
+
     q.append(("How many Stark models do you sell?", {f"models/model_{i}.txt" for i in f}, lambda r: str(n) in r))
     q.append(("Do the Stark 4 and Stark 9 steer the same way?", {"manuals/manual_4.txt", "manuals/manual_9.txt"}, None))
     q.append(
@@ -135,9 +138,8 @@ def questions(n):
         ("What flight licence does a pilot need?", {"general/safety_regulations.txt"}, lambda r: "class c" in r.lower())
     )
     q.append(("How much is my old ship worth in a trade-in?", {"general/trade_in_program.txt"}, lambda r: "40" in r))
-    q.append(
-        ("Does the Stark 3 have a swimming pool?", set(), lambda r: app.SUPPORT in r)
-    )  # not in any document: must point to support
+    # not in any document: must point to support
+    q.append(("Does the Stark 3 have a swimming pool?", set(), lambda r: app.SUPPORT in r))
     return q
 
 
@@ -150,10 +152,13 @@ def pick(level, question, history=()):
     """Paths of the documents to put in the prompt."""
     if level == "R0":
         return doc_tools.list_docs()
+
     if level == "R1":
         return doc_tools.search_docs(question, 3)
+
     if level == "R2":
         return doc_tools.search_docs(question, WIDE_K if app.needs_all_docs(question, history) else 3)
+
     raw = app.llm(
         [
             {"role": "system", "content": INDEX_PROMPT + doc_tools.read_index()},
@@ -163,9 +168,8 @@ def pick(level, question, history=()):
         max_tokens=1000,
     )
     named = json.loads(raw[raw.index("{") : raw.rindex("}") + 1])["read"]
-    return [
-        p for p in named if p in set(doc_tools.list_docs())
-    ]  # a path the model invented is dropped, and shows up as a recall miss
+    # a path the model invented is dropped, and shows up as a recall miss
+    return [p for p in named if p in set(doc_tools.list_docs())]
 
 
 @doc_tools.trace("CHAIN")  # one root trace per question; the tool reads hang off it
@@ -183,6 +187,7 @@ def run_one(level, question):
         paths, docs, reply, error = [], "", "", repr(e)
     finally:
         app.llm = real
+
     return {
         "paths": paths,
         "prompt_chars": len(docs),
@@ -197,9 +202,11 @@ def main(n, levels, dry):
     qs = questions(n)
     for _, gold, _ in qs:
         assert all(p in doc_tools.list_docs() for p in gold), "gold names a document that does not exist"
+
     print(f"{n} models, {len(doc_tools.list_docs())} docs, {len(qs)} questions")
     if dry:
         return
+
     import mlflow
 
     mlflow.set_tracking_uri(os.environ["MLFLOW_TRACKING_URI"])
@@ -219,6 +226,7 @@ def main(n, levels, dry):
                 )
                 rows.append(r)
                 print(level, "ERR" if r["error"] else ("ok " if r["correct"] else "-- "), question, flush=True)
+
             graded = [r for r in rows if r["correct"] is not None]
             recalls = [r["recall"] for r in rows if r["recall"] is not None and not r["error"]]
             mlflow.log_metrics(
