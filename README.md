@@ -1,5 +1,7 @@
 # Stark Spaceships customer-service chatbot
 
+**📊 Reports and results: [results/README.md](results/README.md)**
+
 A RAG customer-service bot over fake product docs (`data/stark_spaceships/`), built as a testbed for **guardrails and
 evaluation**: start from a deliberately defenseless bot (L0), add one defense at a time, and re-run the same fixed
 attack and question set after each step.
