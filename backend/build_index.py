@@ -1,4 +1,5 @@
 """Offline step: embed every product doc into data/runtime/index.npz. Re-run when data/stark_spaceships changes."""
+
 from pathlib import Path
 
 import numpy as np

@@ -8,6 +8,7 @@ writes results/followups.md. `--dry` lists the cases, `--render` rebuilds the re
    sense with the earlier turns ("how much is it?"). Each case is a short history plus the last message and the documents it needs;
    the classifier first rewrites the message into a standalone question (as app.answer does), then each mode picks documents.
 Scores are pooled over the runs with Wilson intervals; a failed call is retried, then counted and left out."""
+
 import json
 import sys
 from datetime import date
@@ -20,7 +21,9 @@ from evals.eval_retrieval import MORE_OFF_TOPIC, OFF_TOPIC
 from evals.stats import wilson
 
 RAW, OUT = Path("results/followups_raw.json"), Path("results/followups.md")
-PART = Path("results/followups_partial.json")  # every finished case is written here at once, so a crash or reboot loses at most one case
+PART = Path(
+    "results/followups_partial.json"
+)  # every finished case is written here at once, so a crash or reboot loses at most one case
 OFF_TOPIC_ALL = OFF_TOPIC + MORE_OFF_TOPIC  # 15 messages
 
 
@@ -31,16 +34,51 @@ def chat(*turns):
 
 # (name, history, last message, documents the answer needs). Document names are the file stems app.names uses.
 FOLLOW_UPS = [
-    ("it: price", chat("Tell me about the Stark 3.", "The Stark 3 is our speed model."), "How much is it?", {"model_3"}),
-    ("it: colour", chat("How many people fit in the Stark 8?", "The Stark 8 carries 30 passengers."), "What color is it?", {"model_8"}),
-    ("another model", chat("How much is the Stark 3?", "The Stark 3 costs $5,200,000."), "And the Stark 5?", {"model_5"}),
-    ("topic switch to a guide", chat("How much is the Stark 3?", "The Stark 3 costs $5,200,000.", "What color is it?", "It is Crimson."),
-     "How do I place an order?", {"guide_ordering_delivery"}),
-    ("topic switch to the warranty", chat("Tell me about the Stark 8.", "The Stark 8 is a large passenger ship.", "How many people?", "30 passengers."),
-     "How long is the warranty?", {"warranty_policy"}),
-    ("model plus policy", chat("I like the Stark 8.", "Good choice, it carries 30 passengers."), "Does it come with a warranty?", {"model_8", "warranty_policy"}),
+    (
+        "it: price",
+        chat("Tell me about the Stark 3.", "The Stark 3 is our speed model."),
+        "How much is it?",
+        {"model_3"},
+    ),
+    (
+        "it: colour",
+        chat("How many people fit in the Stark 8?", "The Stark 8 carries 30 passengers."),
+        "What color is it?",
+        {"model_8"},
+    ),
+    (
+        "another model",
+        chat("How much is the Stark 3?", "The Stark 3 costs $5,200,000."),
+        "And the Stark 5?",
+        {"model_5"},
+    ),
+    (
+        "topic switch to a guide",
+        chat("How much is the Stark 3?", "The Stark 3 costs $5,200,000.", "What color is it?", "It is Crimson."),
+        "How do I place an order?",
+        {"guide_ordering_delivery"},
+    ),
+    (
+        "topic switch to the warranty",
+        chat(
+            "Tell me about the Stark 8.", "The Stark 8 is a large passenger ship.", "How many people?", "30 passengers."
+        ),
+        "How long is the warranty?",
+        {"warranty_policy"},
+    ),
+    (
+        "model plus policy",
+        chat("I like the Stark 8.", "Good choice, it carries 30 passengers."),
+        "Does it come with a warranty?",
+        {"model_8", "warranty_policy"},
+    ),
     ("Chinese follow-up", chat("Stark 4 適合家庭旅行嗎?", "適合，Stark 4 可以載一家人。"), "它多少錢?", {"model_4"}),
-    ("troubleshooting after a model", chat("Tell me about the Stark 5.", "The Stark 5 is a cargo ship."), "It will not start, what should I check?", {"guide_troubleshooting"}),
+    (
+        "troubleshooting after a model",
+        chat("Tell me about the Stark 5.", "The Stark 5 is a cargo ship."),
+        "It will not start, what should I check?",
+        {"guide_troubleshooting"},
+    ),
 ]
 MODES = ["R2", "R3"]
 
@@ -156,8 +194,12 @@ this says nothing about chats of twenty turns; the classifier only sees the last
 
 def check_quota(need):
     """The free tier counts requests per account and day; refuse to start when the counters are short (`--force` overrides)."""
-    left = sum(requests.get("https://openrouter.ai/api/v1/key", headers={"Authorization": f"Bearer {k}"}, timeout=30).json()["data"]
-               ["free_model_daily_requests"]["remaining"] for k in app.KEYS)
+    left = sum(
+        requests.get("https://openrouter.ai/api/v1/key", headers={"Authorization": f"Bearer {k}"}, timeout=30).json()[
+            "data"
+        ]["free_model_daily_requests"]["remaining"]
+        for k in app.KEYS
+    )
     print(f"free-model requests left today: {left}, this run needs up to {need}", flush=True)
     if left < need and "--force" not in sys.argv:
         sys.exit(f"not enough quota ({left} < {need}); wait for the UTC reset (08:00 Taipei)")
@@ -177,7 +219,15 @@ if __name__ == "__main__":
         sys.exit()
     # per pass: off-topic = classify + pick (2 calls each); follow-up = classify + R2 scope check + R3 pick (3 calls each); retries not counted
     check_quota(runs * (2 * len(OFF_TOPIC_ALL) + 3 * len(FOLLOW_UPS)))
-    passes = [one_pass(i) for i in range(runs)]  # rerun the same command after an interruption: finished cases are skipped
-    RAW.write_text(json.dumps({"date": str(date.today()), "runs": runs, "model": app.MODEL, "passes": passes}, ensure_ascii=False, indent=1))
+    passes = [
+        one_pass(i) for i in range(runs)
+    ]  # rerun the same command after an interruption: finished cases are skipped
+    RAW.write_text(
+        json.dumps(
+            {"date": str(date.today()), "runs": runs, "model": app.MODEL, "passes": passes},
+            ensure_ascii=False,
+            indent=1,
+        )
+    )
     PART.unlink(missing_ok=True)
     write_results(passes, runs)

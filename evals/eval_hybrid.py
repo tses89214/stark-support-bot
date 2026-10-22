@@ -8,6 +8,7 @@ Five ways to rank the documents for a question, same 90 cases as eval_retrieval.
 Why: the vector misses questions worded unlike the document; BM25 misses synonyms; merging asks both; the cross-encoder then
 judges each remaining candidate more carefully than a vector can (slower, so only for a short list).
 This shows the technique and what it buys at this size; the bot itself still picks documents with R3 (see results/retrieval-ladder.md)."""
+
 import math
 import re
 from collections import Counter
@@ -35,8 +36,16 @@ def bm25_scores(query, docs, k1=1.5, b=0.75):
     scores = []
     for d in docs:
         tf = Counter(d)
-        scores.append(sum(math.log(1 + (n - df[t] + 0.5) / (df[t] + 0.5)) * tf[t] * (k1 + 1) / (tf[t] + k1 * (1 - b + b * len(d) / avg))
-                          for t in set(tokens(query)) if t in tf))
+        scores.append(
+            sum(
+                math.log(1 + (n - df[t] + 0.5) / (df[t] + 0.5))
+                * tf[t]
+                * (k1 + 1)
+                / (tf[t] + k1 * (1 - b + b * len(d) / avg))
+                for t in set(tokens(query))
+                if t in tf
+            )
+        )
     return scores
 
 
@@ -63,11 +72,19 @@ def chunks(text):
 
 def selftest():
     """The two keyword rankings must agree on an obvious case, and fusion must lift a document both lists like."""
-    docs = [tokens("The Stark 3 costs 5200000"), tokens("The Stark 8 carries 30 passengers"), tokens("warranty 3-year engine")]
+    docs = [
+        tokens("The Stark 3 costs 5200000"),
+        tokens("The Stark 8 carries 30 passengers"),
+        tokens("warranty 3-year engine"),
+    ]
     assert ranking(bm25_scores("how many passengers", docs))[0] == 1
     assert ranking(bm25_scores("你們的保固", [tokens("保固政策 三年"), tokens("訂單 運送")]))[0] == 0
     assert set(fuse([2, 0, 1], [0, 2, 1])[:2]) == {0, 2}  # both lists put these two first
-    assert chunks("## Warranty\nThree years. Covers the hull.") == ["## Warranty", "## Warranty Three years.", "## Warranty Covers the hull."]
+    assert chunks("## Warranty\nThree years. Covers the hull.") == [
+        "## Warranty",
+        "## Warranty Three years.",
+        "## Warranty Covers the hull.",
+    ]
     assert fuse([0, 1, 2], [1, 0, 2])[:2] in ([0, 1], [1, 0]) and fuse([0, 1, 2], [0, 1, 2]) == [0, 1, 2]
 
 
@@ -95,14 +112,18 @@ if __name__ == "__main__":
         rr = [top[j] for j in order] + h[RERANK_TOP:]
         for label, rank in (("vector", v), ("chunked", ranking(best)), ("bm25", k), ("hybrid", h), ("rerank", rr)):
             results[label].append((q, gold, [names[i] for i in rank]))
-    print(f"{len(CASES)} questions, {len(names)} documents ({sum(q.isascii() for q, _ in CASES)} English, {sum(not q.isascii() for q, _ in CASES)} Chinese)\n")
+    print(
+        f"{len(CASES)} questions, {len(names)} documents ({sum(q.isascii() for q, _ in CASES)} English, {sum(not q.isascii() for q, _ in CASES)} Chinese)\n"
+    )
     print(f"{'':8}{'hit@1':>8}{'hit@3':>8}{'hit@5':>8}{'  hit@3 en':>11}{'  hit@3 zh':>11}{'  MRR':>7}")
     for label, rows in results.items():
         at = lambda n, sel=lambda q: True: [g in r[:n] for q, g, r in rows if sel(q)]  # noqa: E731
         lo, hi = wilson(sum(at(3)), len(rows))
         mrr = sum(next((1 / p for p, d in enumerate(r, 1) if d == g), 0) for _, g, r in rows) / len(rows)
         en, zh = at(3, lambda q: q.isascii()), at(3, lambda q: not q.isascii())
-        print(f"{label:8}{sum(at(1)):>5}/{len(rows)}{sum(at(3)):>5}/{len(rows)}{sum(at(5)):>5}/{len(rows)}{sum(en):>7}/{len(en)}{sum(zh):>7}/{len(zh)}{mrr:>7.2f}   hit@3 95% {lo:.0%}-{hi:.0%}")
+        print(
+            f"{label:8}{sum(at(1)):>5}/{len(rows)}{sum(at(3)):>5}/{len(rows)}{sum(at(5)):>5}/{len(rows)}{sum(en):>7}/{len(en)}{sum(zh):>7}/{len(zh)}{mrr:>7.2f}   hit@3 95% {lo:.0%}-{hi:.0%}"
+        )
     print()
     for label in ("vector", "chunked", "bm25", "hybrid", "rerank"):
         print(f"{label} misses at top-3:")
