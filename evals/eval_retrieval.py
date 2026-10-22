@@ -1,5 +1,6 @@
 """Retrieval eval: `python -m evals.eval_retrieval [model ...]` prints hit@3 per embedding model plus the score range used to pick MIN_SCORE.
 No LLM calls, so it is free. Each case is (question, doc that must be in the top 3)."""
+
 import sys
 
 from sentence_transformers import SentenceTransformer, util
@@ -102,15 +103,35 @@ CASES = [
     ("Is cosmetic wear covered by the warranty?", "warranty_policy"),
     ("跳過保養造成的損壞有保固嗎?", "warranty_policy"),
 ]
-OFF_TOPIC = ["What's the capital of France?", "Write me a Python script to sort a list.",
-             "Do you sell submarines?", "法國的首都是哪裡?", "今天天氣如何?"]
-MORE_OFF_TOPIC = ["How do I bake sourdough bread?", "What is the best way to learn guitar?", "Who won the last World Cup?",
-                  "Can you recommend a good laptop?", "Do you sell used cars?", "明天台北會下雨嗎?", "推薦一部好看的電影",
-                  "怎麼學英文比較快?", "你們有賣腳踏車嗎?", "幫我翻譯這句話成日文"]
+OFF_TOPIC = [
+    "What's the capital of France?",
+    "Write me a Python script to sort a list.",
+    "Do you sell submarines?",
+    "法國的首都是哪裡?",
+    "今天天氣如何?",
+]
+MORE_OFF_TOPIC = [
+    "How do I bake sourdough bread?",
+    "What is the best way to learn guitar?",
+    "Who won the last World Cup?",
+    "Can you recommend a good laptop?",
+    "Do you sell used cars?",
+    "明天台北會下雨嗎?",
+    "推薦一部好看的電影",
+    "怎麼學英文比較快?",
+    "你們有賣腳踏車嗎?",
+    "幫我翻譯這句話成日文",
+]
 # (model, query prefix, passage prefix): e5 models need these prefixes, the others don't
-MODELS = [("sentence-transformers/all-MiniLM-L6-v2", "", ""), (EMBED_MODEL, "", ""), ("paraphrase-multilingual-MiniLM-L12-v2", "", ""),
-          ("intfloat/multilingual-e5-small", "query: ", "passage: "), ("intfloat/multilingual-e5-base", "query: ", "passage: "),
-          ("google/embeddinggemma-2", "task: search result | query: ", "title: none | text: ")]  # needs transformers 5.x + newer torch: run in Docker, not on Intel Mac; prefixes match the model card (SearchQuery / Document)
+MODELS = [
+    ("sentence-transformers/all-MiniLM-L6-v2", "", ""),
+    (EMBED_MODEL, "", ""),
+    ("paraphrase-multilingual-MiniLM-L12-v2", "", ""),
+    ("intfloat/multilingual-e5-small", "query: ", "passage: "),
+    ("intfloat/multilingual-e5-base", "query: ", "passage: "),
+    # needs transformers 5.x + newer torch: run in Docker, not on Intel Mac; prefixes match the model card (SearchQuery / Document)
+    ("google/embeddinggemma-2", "task: search result | query: ", "title: none | text: "),
+]
 
 if __name__ == "__main__":
     paths = sorted(DOCS_DIR.glob("*.txt"))
@@ -119,18 +140,25 @@ if __name__ == "__main__":
     for model, qp, pp in [m for m in MODELS if not wanted or m[0] in wanted]:
         enc = SentenceTransformer(model)
         docs = enc.encode([pp + t for t in texts])
+
         def search(qs, enc=enc, qp=qp, docs=docs):
             return util.semantic_search(enc.encode([qp + q for q in qs]), docs, top_k=3)
+
         hits = search([q for q, _ in CASES])
         ok = [any(names[h["corpus_id"]] == gold for h in hit) for hit, (_, gold) in zip(hits, CASES)]
         en = [g for g, (q, _) in zip(ok, CASES) if q.isascii()]
         zh = [g for g, (q, _) in zip(ok, CASES) if not q.isascii()]
-        mrr = sum(next((1 / r for r, h in enumerate(hit, 1) if names[h["corpus_id"]] == gold), 0) for hit, (_, gold) in zip(hits, CASES)) / len(CASES)
+        mrr = sum(
+            next((1 / r for r, h in enumerate(hit, 1) if names[h["corpus_id"]] == gold), 0)
+            for hit, (_, gold) in zip(hits, CASES)
+        ) / len(CASES)
         on = [hit[0]["score"] for hit in hits]
         off = [hit[0]["score"] for hit in search(OFF_TOPIC)]
         lo, hi = wilson(sum(ok), len(ok))
-        print(f"{model}\n  hit@3 {sum(ok)}/{len(ok)} (95% {lo:.0%}-{hi:.0%})  (en {sum(en)}/{len(en)}, zh {sum(zh)}/{len(zh)}, MRR@3 {mrr:.2f})"
-              f"\n  top score: on-topic min {min(on):.2f}, off-topic max {max(off):.2f}")
+        print(
+            f"{model}\n  hit@3 {sum(ok)}/{len(ok)} (95% {lo:.0%}-{hi:.0%})  (en {sum(en)}/{len(en)}, zh {sum(zh)}/{len(zh)}, MRR@3 {mrr:.2f})"
+            f"\n  top score: on-topic min {min(on):.2f}, off-topic max {max(off):.2f}"
+        )
         for (q, gold), good in zip(CASES, ok):
             if not good:
                 print(f"  MISS {q!r} (want {gold})")

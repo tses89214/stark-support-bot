@@ -8,6 +8,7 @@ writes results/followups.md. `--dry` lists the cases, `--render` rebuilds the re
    sense with the earlier turns ("how much is it?"). Each case is a short history plus the last message and the documents it needs;
    the classifier first rewrites the message into a standalone question (as app.answer does), then each mode picks documents.
 Scores are pooled over the runs with Wilson intervals; a failed call is retried, then counted and left out."""
+
 import json
 import sys
 from datetime import date
@@ -20,7 +21,8 @@ from evals.eval_retrieval import MORE_OFF_TOPIC, OFF_TOPIC
 from evals.stats import wilson
 
 RAW, OUT = Path("results/followups_raw.json"), Path("results/followups.md")
-PART = Path("results/followups_partial.json")  # every finished case is written here at once, so a crash or reboot loses at most one case
+# every finished case is written here at once, so a crash or reboot loses at most one case
+PART = Path("results/followups_partial.json")
 OFF_TOPIC_ALL = OFF_TOPIC + MORE_OFF_TOPIC  # 15 messages
 
 
@@ -31,16 +33,51 @@ def chat(*turns):
 
 # (name, history, last message, documents the answer needs). Document names are the file stems app.names uses.
 FOLLOW_UPS = [
-    ("it: price", chat("Tell me about the Stark 3.", "The Stark 3 is our speed model."), "How much is it?", {"model_3"}),
-    ("it: colour", chat("How many people fit in the Stark 8?", "The Stark 8 carries 30 passengers."), "What color is it?", {"model_8"}),
-    ("another model", chat("How much is the Stark 3?", "The Stark 3 costs $5,200,000."), "And the Stark 5?", {"model_5"}),
-    ("topic switch to a guide", chat("How much is the Stark 3?", "The Stark 3 costs $5,200,000.", "What color is it?", "It is Crimson."),
-     "How do I place an order?", {"guide_ordering_delivery"}),
-    ("topic switch to the warranty", chat("Tell me about the Stark 8.", "The Stark 8 is a large passenger ship.", "How many people?", "30 passengers."),
-     "How long is the warranty?", {"warranty_policy"}),
-    ("model plus policy", chat("I like the Stark 8.", "Good choice, it carries 30 passengers."), "Does it come with a warranty?", {"model_8", "warranty_policy"}),
+    (
+        "it: price",
+        chat("Tell me about the Stark 3.", "The Stark 3 is our speed model."),
+        "How much is it?",
+        {"model_3"},
+    ),
+    (
+        "it: colour",
+        chat("How many people fit in the Stark 8?", "The Stark 8 carries 30 passengers."),
+        "What color is it?",
+        {"model_8"},
+    ),
+    (
+        "another model",
+        chat("How much is the Stark 3?", "The Stark 3 costs $5,200,000."),
+        "And the Stark 5?",
+        {"model_5"},
+    ),
+    (
+        "topic switch to a guide",
+        chat("How much is the Stark 3?", "The Stark 3 costs $5,200,000.", "What color is it?", "It is Crimson."),
+        "How do I place an order?",
+        {"guide_ordering_delivery"},
+    ),
+    (
+        "topic switch to the warranty",
+        chat(
+            "Tell me about the Stark 8.", "The Stark 8 is a large passenger ship.", "How many people?", "30 passengers."
+        ),
+        "How long is the warranty?",
+        {"warranty_policy"},
+    ),
+    (
+        "model plus policy",
+        chat("I like the Stark 8.", "Good choice, it carries 30 passengers."),
+        "Does it come with a warranty?",
+        {"model_8", "warranty_policy"},
+    ),
     ("Chinese follow-up", chat("Stark 4 適合家庭旅行嗎?", "適合，Stark 4 可以載一家人。"), "它多少錢?", {"model_4"}),
-    ("troubleshooting after a model", chat("Tell me about the Stark 5.", "The Stark 5 is a cargo ship."), "It will not start, what should I check?", {"guide_troubleshooting"}),
+    (
+        "troubleshooting after a model",
+        chat("Tell me about the Stark 5.", "The Stark 5 is a cargo ship."),
+        "It will not start, what should I check?",
+        {"guide_troubleshooting"},
+    ),
 ]
 MODES = ["R2", "R3"]
 
@@ -54,11 +91,13 @@ def off_topic_case(message):
     category, reason = app.classify(message)
     if failed(reason):
         return None
+
     try:
         picked = app.pick_by_index(message)
     except Exception as e:  # noqa: BLE001 - a failed call is counted, never scored
         print(f"pick failed: {e!r}", file=sys.stderr)
         return None
+
     return {"category": category, "picked": picked}
 
 
@@ -67,6 +106,7 @@ def follow_up_case(history, message, gold):
     category, reason, question, _ = app.classify(message, history, full=True)
     if failed(reason) or category != "ANSWER":
         return None
+
     out = {"question": question}
     for mode in MODES:
         try:
@@ -74,7 +114,9 @@ def follow_up_case(history, message, gold):
         except Exception as e:  # noqa: BLE001
             print(f"{mode} failed: {e!r}", file=sys.stderr)
             return None
+
         out[mode] = {"sources": sources, "hit": gold <= set(sources)}
+
     return out
 
 
@@ -83,15 +125,20 @@ def retry(fn, *args):
         result = fn(*args)
         if result is not None:
             return result
+
     return None
 
 
 def done(key, fn, *args):
     """fn(*args) once per key: a result already in PART (from an interrupted run) is reused, a new one is saved before moving on."""
-    saved = json.loads(PART.read_text()) if PART.exists() else {}
+    if PART.exists():
+        saved = json.loads(PART.read_text())
+    else:
+        saved = {}
     if key not in saved:
         saved[key] = retry(fn, *args)
         PART.write_text(json.dumps(saved, ensure_ascii=False))
+
     return saved[key]
 
 
@@ -120,6 +167,7 @@ def write_results(passes, runs):
         for name, r in res:
             if not r["hit"]:
                 detail.append(f"- {mode} missed `{name}`: picked {r['sources']}")
+
     lost_fol = len([1 for p in passes for r in p["follow_ups"].values() if not r])
     text = f"""# Off-topic messages and follow-ups
 
@@ -156,8 +204,12 @@ this says nothing about chats of twenty turns; the classifier only sees the last
 
 def check_quota(need):
     """The free tier counts requests per account and day; refuse to start when the counters are short (`--force` overrides)."""
-    left = sum(requests.get("https://openrouter.ai/api/v1/key", headers={"Authorization": f"Bearer {k}"}, timeout=30).json()["data"]
-               ["free_model_daily_requests"]["remaining"] for k in app.KEYS)
+    left = sum(
+        requests.get("https://openrouter.ai/api/v1/key", headers={"Authorization": f"Bearer {k}"}, timeout=30).json()[
+            "data"
+        ]["free_model_daily_requests"]["remaining"]
+        for k in app.KEYS
+    )
     print(f"free-model requests left today: {left}, this run needs up to {need}", flush=True)
     if left < need and "--force" not in sys.argv:
         sys.exit(f"not enough quota ({left} < {need}); wait for the UTC reset (08:00 Taipei)")
@@ -169,15 +221,25 @@ if __name__ == "__main__":
         raw = json.loads(RAW.read_text())
         write_results(raw["passes"], raw["runs"])
         sys.exit()
+
     if "--dry" in sys.argv:  # show the cases without calling the LLM
         print(len(OFF_TOPIC_ALL), "off-topic messages,", len(FOLLOW_UPS), "follow-up cases")
         for name, history, message, gold in FOLLOW_UPS:
             print(f"  {name}: {len(history)} history lines, {message!r} -> {sorted(gold)}")
             assert all(g in app.names for g in gold), f"{name}: gold names a document that does not exist"
+
         sys.exit()
+
     # per pass: off-topic = classify + pick (2 calls each); follow-up = classify + R2 scope check + R3 pick (3 calls each); retries not counted
     check_quota(runs * (2 * len(OFF_TOPIC_ALL) + 3 * len(FOLLOW_UPS)))
-    passes = [one_pass(i) for i in range(runs)]  # rerun the same command after an interruption: finished cases are skipped
-    RAW.write_text(json.dumps({"date": str(date.today()), "runs": runs, "model": app.MODEL, "passes": passes}, ensure_ascii=False, indent=1))
+    # rerun the same command after an interruption: finished cases are skipped
+    passes = [one_pass(i) for i in range(runs)]
+    RAW.write_text(
+        json.dumps(
+            {"date": str(date.today()), "runs": runs, "model": app.MODEL, "passes": passes},
+            ensure_ascii=False,
+            indent=1,
+        )
+    )
     PART.unlink(missing_ok=True)
     write_results(passes, runs)

@@ -1,5 +1,6 @@
 """Read-only document tools. Every access to the corpus goes through these, so each read shows up as a TOOL span in MLflow.
 Tracing is on only when MLFLOW_TRACKING_URI is set (e.g. sqlite:///data/runtime/mlflow.db); without it `trace` does nothing and mlflow is not imported."""
+
 import os
 from pathlib import Path
 
@@ -17,16 +18,26 @@ if os.environ.get("MLFLOW_TRACKING_URI"):
         """Put the provider's token counts on the current span; MLflow sums them per trace (Traces tab, token usage)."""
         span = mlflow.get_current_active_span()
         if span and usage:
-            span.set_attribute("mlflow.chat.tokenUsage", {"input_tokens": usage.get("prompt_tokens", 0),
-                               "output_tokens": usage.get("completion_tokens", 0), "total_tokens": usage.get("total_tokens", 0)})
+            span.set_attribute(
+                "mlflow.chat.tokenUsage",
+                {
+                    "input_tokens": usage.get("prompt_tokens", 0),
+                    "output_tokens": usage.get("completion_tokens", 0),
+                    "total_tokens": usage.get("total_tokens", 0),
+                },
+            )
 
     def update_trace_session(session):
         mlflow.update_current_trace(metadata={"mlflow.trace.session": session})
 
     def current_trace_id():
         span = mlflow.get_current_active_span()
-        return span.trace_id if span else ""
+        if span:
+            return span.trace_id
+        else:
+            return ""
 else:
+
     def trace(span_type="TOOL"):
         return lambda fn: fn
 
@@ -38,6 +49,7 @@ else:
 
     def record_usage(usage):
         pass
+
 
 ROOT = Path("data/stark_scaled")
 encoder = None  # set by the caller to share one bge-m3 copy (2GB); built lazily otherwise
@@ -59,6 +71,7 @@ def read_doc(path):
     full = (ROOT / path).resolve()
     if not full.is_relative_to(ROOT.resolve()) or full.suffix != ".txt":
         raise ValueError(f"not a corpus document: {path!r}")
+
     return full.read_text()
 
 
@@ -79,6 +92,7 @@ def search_docs(query, k=3):
             vectors = encoder.encode([read_doc(p) for p in paths])
             np.savez(cache, paths=paths, vectors=vectors)
             _vectors[ROOT] = (paths, vectors)
+
     paths, vectors = _vectors[ROOT]
     hits = util.semantic_search(encoder.encode(query), vectors, top_k=k)[0]
     return [paths[h["corpus_id"]] for h in hits]

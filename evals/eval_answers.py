@@ -1,6 +1,7 @@
 """End-to-end check: `python -m evals.eval_answers` (loads bge-m3, makes live LLM calls; same env vars as app.py).
 Grounded cases: the reply must contain a fact that only the docs know. Unanswerable cases: the bot must point to
 support instead of inventing an answer. Substring checks are blunt on purpose: deterministic, no LLM judge."""
+
 import re
 import sys
 import unicodedata
@@ -14,6 +15,7 @@ def has_fact(reply, needles):
     """NFKC first: models emit U+202F / non-breaking spaces ('Stark 8'), which a plain substring check misses."""
     text = unicodedata.normalize("NFKC", reply).lower()
     return any(unicodedata.normalize("NFKC", n).lower() in text for n in needles)
+
 
 GROUNDED = [  # (question, any of these substrings must appear in the reply)
     ("How much is the Stark 3?", ["5,200,000", "5.2"]),
@@ -47,23 +49,31 @@ app.answer("Tell me about the Stark 3", history)
 reply, route, _ = app.answer("How much is it?", history)
 if route != "ANSWER" or not any(n in reply for n in ["5,200,000", "5.2"]):
     bad.append(("follow-up", "How much is it?", route, reply[:120]))
+
 for q, needles in GROUNDED:
     reply, route, _ = app.answer(q, [])
     if route != "ANSWER" or not has_fact(reply, needles):
         bad.append(("grounded", q, route, reply[:120]))
+
 for q, invented in UNANSWERABLE:
     reply, route, _ = app.answer(q, [])
     # pointing to support is not enough: a made-up answer followed by the support address must fail too
-    if route not in ("NO_ANSWER", "UNVERIFIED", "ANSWER") or (route == "ANSWER" and (app.SUPPORT not in reply or re.search(invented, reply))):
+    if route not in ("NO_ANSWER", "UNVERIFIED", "ANSWER") or (
+        route == "ANSWER" and (app.SUPPORT not in reply or re.search(invented, reply))
+    ):
         bad.append(("unanswerable", q, route, reply[:120]))
+
 for q in MIXED:
     reply, route, _ = app.answer(q, [])
-    if route == "ESCALATE":  # classifier failed and fail-closed sent it to a human: no code came back, but nothing was tested either
+    # classifier failed and fail-closed sent it to a human: no code came back, but nothing was tested either
+    if route == "ESCALATE":
         bad.append(("mixed (unscored: escalated)", q, route, reply[:120]))
     elif "def " in reply or "```" in reply or "sorted(" in reply:
         bad.append(("mixed", q, route, reply[:120]))
+
 for b in bad:
     print("MISS", *b)
+
 total = len(GROUNDED) + len(UNANSWERABLE) + len(MIXED) + 1
 print(f"{total - len(bad)}/{total} ok")
 sys.exit(bool(bad))

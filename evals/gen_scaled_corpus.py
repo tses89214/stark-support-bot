@@ -2,6 +2,7 @@
 Writes data/stark_scaled/{brand,general,models,manuals}/ + INDEX.md + gold.json. Deterministic (no LLM, no randomness): the
 fictional manuals are templates, shared between models on purpose, so the same facts repeat across documents and
 questions like "which models use a joystick?" have a gold answer computed from the same table that wrote the text."""
+
 import json
 import re
 import shutil
@@ -41,43 +42,65 @@ WARNING = [
 ]
 
 BRAND = {
-    "about_stark.txt": ("Company background: who Stark Spaceships is, its mission and history.",
-        "## About Stark Spaceships\nStark Spaceships builds consumer spaceships for families, haulers and adventurers. Founded in 2031, the company ships from three orbital yards and focuses on easy-to-fly, easy-to-repair ships. Every model is covered by the same service network."),
-    "warranty_policy.txt": ("Warranty coverage, duration and exclusions.",
-        "## Warranty Policy\nAll new ships carry a 3-year or 20,000-flight-hour warranty, whichever comes first. The warranty covers the hull, thrusters and power cell. It does not cover cosmetic wear, interior upholstery, or damage from skipped maintenance."),
-    "contact_and_hours.txt": ("Customer service contact details and opening hours.",
-        "## Contact and Hours\nEmail customer_service@stark_spaceship.com. Support is open Monday to Friday, 09:00 to 18:00 station time. Emergencies in flight should use the distress beacon, not email."),
+    "about_stark.txt": (
+        "Company background: who Stark Spaceships is, its mission and history.",
+        "## About Stark Spaceships\nStark Spaceships builds consumer spaceships for families, haulers and adventurers. Founded in 2031, the company ships from three orbital yards and focuses on easy-to-fly, easy-to-repair ships. Every model is covered by the same service network.",
+    ),
+    "warranty_policy.txt": (
+        "Warranty coverage, duration and exclusions.",
+        "## Warranty Policy\nAll new ships carry a 3-year or 20,000-flight-hour warranty, whichever comes first. The warranty covers the hull, thrusters and power cell. It does not cover cosmetic wear, interior upholstery, or damage from skipped maintenance.",
+    ),
+    "contact_and_hours.txt": (
+        "Customer service contact details and opening hours.",
+        "## Contact and Hours\nEmail customer_service@stark_spaceship.com. Support is open Monday to Friday, 09:00 to 18:00 station time. Emergencies in flight should use the distress beacon, not email.",
+    ),
 }
 GENERAL = {
-    "safety_regulations.txt": ("Flight licence, no-fly zones and registration rules that apply to every model.",
-        "## Safety Regulations\nEvery pilot needs a Class C personal flight licence. Ships over 20 metric tons must be registered with the orbital traffic office. Flying within 5 km of a station without clearance is prohibited."),
-    "trade_in_program.txt": ("Trade-in programme: how to exchange an old ship for a new one.",
-        "## Trade-in Program\nOwners can trade in any Stark ship younger than 10 years. The trade-in value is 40 percent of the original price, reduced by 5 percent for each unrepaired hull defect found at inspection."),
+    "safety_regulations.txt": (
+        "Flight licence, no-fly zones and registration rules that apply to every model.",
+        "## Safety Regulations\nEvery pilot needs a Class C personal flight licence. Ships over 20 metric tons must be registered with the orbital traffic office. Flying within 5 km of a station without clearance is prohibited.",
+    ),
+    "trade_in_program.txt": (
+        "Trade-in programme: how to exchange an old ship for a new one.",
+        "## Trade-in Program\nOwners can trade in any Stark ship younger than 10 years. The trade-in value is 40 percent of the original price, reduced by 5 percent for each unrepaired hull defect found at inspection.",
+    ),
 }
 
 
 def facts(i):
     """Which variant of each component model i uses. Overlapping groups on purpose: some models share a text, some do not."""
-    return {"steering": i % 3, "brake": (i // 3) % 2, "throttle": int(i % 5 == 0), "climate": (i // 2) % 3, "interior": ((i - 1) // 5) % 3}
+    return {
+        "steering": i % 3,
+        "brake": (i // 3) % 2,
+        "throttle": int(i % 5 == 0),
+        "climate": (i // 2) % 3,
+        "interior": ((i - 1) // 5) % 3,
+    }
 
 
 def manual(i, seats):
     f = facts(i)
-    return (f"## Stark {i} Owner's Manual\n"
-            f"- **Steering**: Stark {i} uses {STEERING[f['steering']]}\n"
-            f"- **Brakes**: Stark {i} stops with {BRAKE[f['brake']]}\n"
-            f"- **Throttle**: Stark {i} has {THROTTLE[f['throttle']]}\n"
-            f"- **Climate**: Stark {i} has {CLIMATE[f['climate']]}\n"
-            f"- **Interior**: {f'Stark {i} has seating for {seats} passengers' if seats else f'Stark {i} carries crew only, no passenger seating'}; it has {INTERIOR[f['interior']]}\n"
-            f"- **Service interval**: Service Stark {i} every {100 + 25 * (i % 4)} flight hours. Serial numbers start with SK{i:02d}.\n"
-            f"- **Warning**: {WARNING[i % 3]}\n")
+    return (
+        f"## Stark {i} Owner's Manual\n"
+        f"- **Steering**: Stark {i} uses {STEERING[f['steering']]}\n"
+        f"- **Brakes**: Stark {i} stops with {BRAKE[f['brake']]}\n"
+        f"- **Throttle**: Stark {i} has {THROTTLE[f['throttle']]}\n"
+        f"- **Climate**: Stark {i} has {CLIMATE[f['climate']]}\n"
+        f"- **Interior**: {f'Stark {i} has seating for {seats} passengers' if seats else f'Stark {i} carries crew only, no passenger seating'}; it has {INTERIOR[f['interior']]}\n"
+        f"- **Service interval**: Service Stark {i} every {100 + 25 * (i % 4)} flight hours. Serial numbers start with SK{i:02d}.\n"
+        f"- **Warning**: {WARNING[i % 3]}\n"
+    )
 
 
 if __name__ == "__main__":
-    total = int(sys.argv[1]) if len(sys.argv) > 1 else 15
+    if len(sys.argv) > 1:
+        total = int(sys.argv[1])
+    else:
+        total = 15
     shutil.rmtree(OUT, ignore_errors=True)
     for d in ("brand", "general", "models", "manuals"):
         (OUT / d).mkdir(parents=True)
+
     index = ["# Stark Spaceships document index", "Read this first; open only the documents the question needs.", ""]
     gold = {"facts": {}, "models": total}
 
@@ -87,18 +110,37 @@ if __name__ == "__main__":
 
     for name, (desc, text) in BRAND.items():
         write("brand", name, desc, text)
+
     for name, (desc, text) in GENERAL.items():
         write("general", name, desc, text)
-    for name, desc in (("guide_ordering_delivery.txt", "How to place an order, deposit, delivery and damage reports."),
-                       ("guide_troubleshooting.txt", "Step-by-step fixes: ship will not start, vibration, wrong heading, cabin pressure, routine maintenance.")):
+
+    for name, desc in (
+        ("guide_ordering_delivery.txt", "How to place an order, deposit, delivery and damage reports."),
+        (
+            "guide_troubleshooting.txt",
+            "Step-by-step fixes: ship will not start, vibration, wrong heading, cabin pressure, routine maintenance.",
+        ),
+    ):
         write("general", name, desc, (SRC / name).read_text())
+
     for i in range(1, total + 1):
         text = (SRC / f"model_{i}.txt").read_text()
         m = re.search(r"\*\*Capacity\*\*: (\d+) passengers", text)
         seats = int(m.group(1)) if m else 0  # some specs list crew or cargo, not passengers
-        write("models", f"model_{i}.txt", f"Stark {i} specification sheet: size, weight, capacity, colour, price, accessories.", text)
-        write("manuals", f"manual_{i}.txt", f"Stark {i} owner's manual: steering, brakes, throttle, climate, interior, service interval, warning.", manual(i, seats))
+        write(
+            "models",
+            f"model_{i}.txt",
+            f"Stark {i} specification sheet: size, weight, capacity, colour, price, accessories.",
+            text,
+        )
+        write(
+            "manuals",
+            f"manual_{i}.txt",
+            f"Stark {i} owner's manual: steering, brakes, throttle, climate, interior, service interval, warning.",
+            manual(i, seats),
+        )
         gold["facts"][i] = facts(i)
+
     (OUT / "INDEX.md").write_text("\n".join(index) + "\n")
     (OUT / "gold.json").write_text(json.dumps(gold, indent=1))
     n = sum(1 for _ in OUT.rglob("*.txt"))
