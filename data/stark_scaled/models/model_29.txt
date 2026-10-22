@@ -1,0 +1,9 @@
+## Stark 29
+- **Description**: A mobile film studio with soundproof stages and a large rear loading door.  
+- **Size**: 44 meters in length.  
+- **Weight**: 70 metric tons.  
+- **Capacity**: 25 passengers.  
+- **Color**: Charcoal Silver.  
+- **Price**: $11,300,000.  
+- **Compatible Accessories**: Boom Microphone Mast, Green Screen Wall.  
+- **Notes**: Disable engine vibration dampers only while the cameras are rolling.  

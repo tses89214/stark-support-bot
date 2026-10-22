@@ -1,0 +1,8 @@
+## Stark 20 Owner's Manual
+- **Steering**: Stark 20 uses a fly-by-wire steering wheel. Turning the wheel yaws the ship; the wheel has a 540-degree lock-to-lock range and self-centres within 3 seconds of release.
+- **Brakes**: Stark 20 stops with a 3-stage magnetic retarder. Stage 1 is gentle, stage 3 is for emergencies. Do not use stage 3 below 200 metres of altitude because it overheats the coils.
+- **Throttle**: Stark 20 has a foot-pedal throttle with cruise hold. Press the cruise button at the speed you want and release the pedal; any brake input cancels cruise hold.
+- **Climate**: Stark 20 has dual-zone climate control from 16 to 28 degrees Celsius with a separate cockpit and cabin setting. The filter must be replaced every 4 months.
+- **Interior**: Stark 20 has seating for 10 passengers; it has fabric seats with an LED cabin strip. Clean with a damp cloth only; solvents fade the fabric.
+- **Service interval**: Service Stark 20 every 100 flight hours. Serial numbers start with SK20.
+- **Warning**: Never charge the power cell unattended overnight.

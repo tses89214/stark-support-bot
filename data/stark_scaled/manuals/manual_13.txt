@@ -1,0 +1,8 @@
+## Stark 13 Owner's Manual
+- **Steering**: Stark 13 uses a dual-joystick station. The left stick controls translation and the right stick controls rotation. Press both stick buttons for 2 seconds to centre the ship.
+- **Brakes**: Stark 13 stops with a 3-stage magnetic retarder. Stage 1 is gentle, stage 3 is for emergencies. Do not use stage 3 below 200 metres of altitude because it overheats the coils.
+- **Throttle**: Stark 13 has a slider throttle with 5 detents. Detent 3 is cruise. Moving the slider past detent 4 needs the safety latch to be released.
+- **Climate**: Stark 13 has single-zone climate control from 18 to 26 degrees Celsius. The filter must be replaced every 6 months.
+- **Interior**: Stark 13 carries crew only, no passenger seating; it has bench seating covered in washable vinyl. The covers can be hosed down with fresh water.
+- **Service interval**: Service Stark 13 every 125 flight hours. Serial numbers start with SK13.
+- **Warning**: Never leave the throttle unattended during docking.
