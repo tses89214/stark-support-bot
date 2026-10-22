@@ -1,0 +1,8 @@
+## Stark 8 Owner's Manual
+- **Steering**: Stark 8 uses a fly-by-wire steering wheel. Turning the wheel yaws the ship; the wheel has a 540-degree lock-to-lock range and self-centres within 3 seconds of release.
+- **Brakes**: Stark 8 stops with a 3-stage magnetic retarder. Stage 1 is gentle, stage 3 is for emergencies. Do not use stage 3 below 200 metres of altitude because it overheats the coils.
+- **Throttle**: Stark 8 has a slider throttle with 5 detents. Detent 3 is cruise. Moving the slider past detent 4 needs the safety latch to be released.
+- **Climate**: Stark 8 has dual-zone climate control from 16 to 28 degrees Celsius with a separate cockpit and cabin setting. The filter must be replaced every 4 months.
+- **Interior**: Stark 8 has seating for 30 passengers; it has leather seats with wood-grain trim. Condition the leather every 3 months and keep it out of direct sunlight at the dock.
+- **Service interval**: Service Stark 8 every 100 flight hours. Serial numbers start with SK08.
+- **Warning**: Never charge the power cell unattended overnight.

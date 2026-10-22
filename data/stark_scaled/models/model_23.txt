@@ -1,0 +1,9 @@
+## Stark 23
+- **Description**: A school transport carrying students between habitat rings, built with extra restraints.  
+- **Size**: 28 meters in length.  
+- **Weight**: 40 metric tons.  
+- **Capacity**: 40 passengers.  
+- **Color**: School Bus Yellow.  
+- **Price**: $5,900,000.  
+- **Compatible Accessories**: Child Harness Seats, Roll Call Display.  
+- **Notes**: Run the restraint check before every boarding.  

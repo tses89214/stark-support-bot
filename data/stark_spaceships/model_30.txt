@@ -1,0 +1,9 @@
+## Stark 30
+- **Description**: A diplomatic ship with sealed meeting rooms and encrypted communications.  
+- **Size**: 40 meters in length.  
+- **Weight**: 58 metric tons.  
+- **Capacity**: 14 passengers.  
+- **Color**: Ambassador Burgundy.  
+- **Price**: $16,500,000.  
+- **Compatible Accessories**: Encrypted Comms Suite, Translation Booth.  
+- **Notes**: Change the comms encryption keys every 30 days.  

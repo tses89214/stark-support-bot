@@ -1,0 +1,9 @@
+## Stark 17
+- **Description**: A deep-space survey vessel built to map asteroid fields and gather mineral samples.  
+- **Size**: 42 meters in length.  
+- **Weight**: 64 metric tons.  
+- **Capacity**: 5 passengers.  
+- **Color**: Slate Teal.  
+- **Price**: $8,600,000.  
+- **Compatible Accessories**: Sample Core Drill, Lidar Mapping Mast.  
+- **Notes**: Calibrate the lidar mast every 200 flight hours.  

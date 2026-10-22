@@ -1,0 +1,9 @@
+## Stark 2
+- **Description**: A versatile spacecraft for adventurers seeking rugged reliability across the galaxy.  
+- **Size**: 22 meters in length.  
+- **Weight**: 28 metric tons.  
+- **Capacity**: 5 passengers.  
+- **Color**: Midnight Black.  
+- **Price**: $4,500,000.  
+- **Compatible Accessories**: Terrain Scanning System, Extra Fuel Tanks.  
+- **Notes**: Replace the plasma shields every two years for optimal safety.  

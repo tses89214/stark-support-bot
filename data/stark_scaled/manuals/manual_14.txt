@@ -1,0 +1,8 @@
+## Stark 14 Owner's Manual
+- **Steering**: Stark 14 uses a fly-by-wire steering wheel. Turning the wheel yaws the ship; the wheel has a 540-degree lock-to-lock range and self-centres within 3 seconds of release.
+- **Brakes**: Stark 14 stops with a 3-stage magnetic retarder. Stage 1 is gentle, stage 3 is for emergencies. Do not use stage 3 below 200 metres of altitude because it overheats the coils.
+- **Throttle**: Stark 14 has a slider throttle with 5 detents. Detent 3 is cruise. Moving the slider past detent 4 needs the safety latch to be released.
+- **Climate**: Stark 14 has dual-zone climate control from 16 to 28 degrees Celsius with a separate cockpit and cabin setting. The filter must be replaced every 4 months.
+- **Interior**: Stark 14 carries crew only, no passenger seating; it has bench seating covered in washable vinyl. The covers can be hosed down with fresh water.
+- **Service interval**: Service Stark 14 every 150 flight hours. Serial numbers start with SK14.
+- **Warning**: Never charge the power cell unattended overnight.

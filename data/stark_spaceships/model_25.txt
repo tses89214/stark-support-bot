@@ -1,0 +1,9 @@
+## Stark 25
+- **Description**: A bulk tanker for moving water ice and fuel between depots.  
+- **Size**: 80 meters in length.  
+- **Weight**: 210 metric tons.  
+- **Capacity**: 3 passengers and up to 180 metric tons of liquid.  
+- **Color**: Tank Green.  
+- **Price**: $15,800,000.  
+- **Compatible Accessories**: Pump Manifold, Leak Detection Sensors.  
+- **Notes**: Inspect the pump manifold gaskets every 90 flight hours.  

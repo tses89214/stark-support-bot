@@ -1,0 +1,9 @@
+## Stark 6
+- **Description**: A luxury model for travelers seeking comfort and elegance in the stars.  
+- **Size**: 30 meters in length.  
+- **Weight**: 40 metric tons.  
+- **Capacity**: 6 passengers.  
+- **Color**: Royal Gold with Pearl White accents.  
+- **Price**: $12,000,000.  
+- **Compatible Accessories**: Galaxy View Windows, Premium Cabin Interiors.  
+- **Notes**: Ensure gold-plated parts are cleaned with non-corrosive solutions.  

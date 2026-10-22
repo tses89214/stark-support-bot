@@ -1,0 +1,9 @@
+## Stark 16
+- **Description**: A rapid-response medical ship with an onboard surgical bay for emergencies between stations.  
+- **Size**: 38 meters in length.  
+- **Weight**: 55 metric tons.  
+- **Capacity**: 6 passengers and 2 stretchers.  
+- **Color**: Rescue Orange.  
+- **Price**: $7,800,000.  
+- **Compatible Accessories**: Surgical Bay Module, Emergency Beacon Array.  
+- **Notes**: Sterilise the surgical bay with the UV cycle after every flight.  

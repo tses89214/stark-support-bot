@@ -1,0 +1,9 @@
+## Stark 4
+- **Description**: A family-friendly spaceship with ample space and comfort for long voyages.  
+- **Size**: 35 meters in length.  
+- **Weight**: 50 metric tons.  
+- **Capacity**: 12 passengers.  
+- **Color**: Ocean Blue.  
+- **Price**: $8,000,000.  
+- **Compatible Accessories**: Entertainment System, Extra Sleeping Pods.  
+- **Notes**: Check for oxygen recycling system functionality before any journey exceeding 10 days.  

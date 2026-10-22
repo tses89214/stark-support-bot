@@ -1,0 +1,8 @@
+## Stark 25 Owner's Manual
+- **Steering**: Stark 25 uses a dual-joystick station. The left stick controls translation and the right stick controls rotation. Press both stick buttons for 2 seconds to centre the ship.
+- **Brakes**: Stark 25 stops with a 3-stage magnetic retarder. Stage 1 is gentle, stage 3 is for emergencies. Do not use stage 3 below 200 metres of altitude because it overheats the coils.
+- **Throttle**: Stark 25 has a foot-pedal throttle with cruise hold. Press the cruise button at the speed you want and release the pedal; any brake input cancels cruise hold.
+- **Climate**: Stark 25 has single-zone climate control from 18 to 26 degrees Celsius. The filter must be replaced every 6 months.
+- **Interior**: Stark 25 has seating for 3 passengers; it has leather seats with wood-grain trim. Condition the leather every 3 months and keep it out of direct sunlight at the dock.
+- **Service interval**: Service Stark 25 every 125 flight hours. Serial numbers start with SK25.
+- **Warning**: Never leave the throttle unattended during docking.

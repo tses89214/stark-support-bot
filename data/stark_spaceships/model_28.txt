@@ -1,0 +1,9 @@
+## Stark 28
+- **Description**: A salvage tug that recovers drifting wrecks and returns them to the yards.  
+- **Size**: 48 meters in length.  
+- **Weight**: 95 metric tons.  
+- **Capacity**: 6 passengers.  
+- **Color**: Hazard Gray.  
+- **Price**: $9,800,000.  
+- **Compatible Accessories**: Magnetic Tow Harness, Cutting Torch Arm.  
+- **Notes**: Inspect the tow harness cables after every recovery.  

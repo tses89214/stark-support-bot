@@ -1,0 +1,70 @@
+# Stark Spaceships document index
+Read this first; open only the documents the question needs.
+
+- brand/about_stark.txt: Company background: who Stark Spaceships is, its mission and history.
+- brand/warranty_policy.txt: Warranty coverage, duration and exclusions.
+- brand/contact_and_hours.txt: Customer service contact details and opening hours.
+- general/safety_regulations.txt: Flight licence, no-fly zones and registration rules that apply to every model.
+- general/trade_in_program.txt: Trade-in programme: how to exchange an old ship for a new one.
+- general/guide_ordering_delivery.txt: How to place an order, deposit, delivery and damage reports.
+- general/guide_troubleshooting.txt: Step-by-step fixes: ship will not start, vibration, wrong heading, cabin pressure, routine maintenance.
+- models/model_1.txt: Stark 1 specification sheet: size, weight, capacity, colour, price, accessories.
+- manuals/manual_1.txt: Stark 1 owner's manual: steering, brakes, throttle, climate, interior, service interval, warning.
+- models/model_2.txt: Stark 2 specification sheet: size, weight, capacity, colour, price, accessories.
+- manuals/manual_2.txt: Stark 2 owner's manual: steering, brakes, throttle, climate, interior, service interval, warning.
+- models/model_3.txt: Stark 3 specification sheet: size, weight, capacity, colour, price, accessories.
+- manuals/manual_3.txt: Stark 3 owner's manual: steering, brakes, throttle, climate, interior, service interval, warning.
+- models/model_4.txt: Stark 4 specification sheet: size, weight, capacity, colour, price, accessories.
+- manuals/manual_4.txt: Stark 4 owner's manual: steering, brakes, throttle, climate, interior, service interval, warning.
+- models/model_5.txt: Stark 5 specification sheet: size, weight, capacity, colour, price, accessories.
+- manuals/manual_5.txt: Stark 5 owner's manual: steering, brakes, throttle, climate, interior, service interval, warning.
+- models/model_6.txt: Stark 6 specification sheet: size, weight, capacity, colour, price, accessories.
+- manuals/manual_6.txt: Stark 6 owner's manual: steering, brakes, throttle, climate, interior, service interval, warning.
+- models/model_7.txt: Stark 7 specification sheet: size, weight, capacity, colour, price, accessories.
+- manuals/manual_7.txt: Stark 7 owner's manual: steering, brakes, throttle, climate, interior, service interval, warning.
+- models/model_8.txt: Stark 8 specification sheet: size, weight, capacity, colour, price, accessories.
+- manuals/manual_8.txt: Stark 8 owner's manual: steering, brakes, throttle, climate, interior, service interval, warning.
+- models/model_9.txt: Stark 9 specification sheet: size, weight, capacity, colour, price, accessories.
+- manuals/manual_9.txt: Stark 9 owner's manual: steering, brakes, throttle, climate, interior, service interval, warning.
+- models/model_10.txt: Stark 10 specification sheet: size, weight, capacity, colour, price, accessories.
+- manuals/manual_10.txt: Stark 10 owner's manual: steering, brakes, throttle, climate, interior, service interval, warning.
+- models/model_11.txt: Stark 11 specification sheet: size, weight, capacity, colour, price, accessories.
+- manuals/manual_11.txt: Stark 11 owner's manual: steering, brakes, throttle, climate, interior, service interval, warning.
+- models/model_12.txt: Stark 12 specification sheet: size, weight, capacity, colour, price, accessories.
+- manuals/manual_12.txt: Stark 12 owner's manual: steering, brakes, throttle, climate, interior, service interval, warning.
+- models/model_13.txt: Stark 13 specification sheet: size, weight, capacity, colour, price, accessories.
+- manuals/manual_13.txt: Stark 13 owner's manual: steering, brakes, throttle, climate, interior, service interval, warning.
+- models/model_14.txt: Stark 14 specification sheet: size, weight, capacity, colour, price, accessories.
+- manuals/manual_14.txt: Stark 14 owner's manual: steering, brakes, throttle, climate, interior, service interval, warning.
+- models/model_15.txt: Stark 15 specification sheet: size, weight, capacity, colour, price, accessories.
+- manuals/manual_15.txt: Stark 15 owner's manual: steering, brakes, throttle, climate, interior, service interval, warning.
+- models/model_16.txt: Stark 16 specification sheet: size, weight, capacity, colour, price, accessories.
+- manuals/manual_16.txt: Stark 16 owner's manual: steering, brakes, throttle, climate, interior, service interval, warning.
+- models/model_17.txt: Stark 17 specification sheet: size, weight, capacity, colour, price, accessories.
+- manuals/manual_17.txt: Stark 17 owner's manual: steering, brakes, throttle, climate, interior, service interval, warning.
+- models/model_18.txt: Stark 18 specification sheet: size, weight, capacity, colour, price, accessories.
+- manuals/manual_18.txt: Stark 18 owner's manual: steering, brakes, throttle, climate, interior, service interval, warning.
+- models/model_19.txt: Stark 19 specification sheet: size, weight, capacity, colour, price, accessories.
+- manuals/manual_19.txt: Stark 19 owner's manual: steering, brakes, throttle, climate, interior, service interval, warning.
+- models/model_20.txt: Stark 20 specification sheet: size, weight, capacity, colour, price, accessories.
+- manuals/manual_20.txt: Stark 20 owner's manual: steering, brakes, throttle, climate, interior, service interval, warning.
+- models/model_21.txt: Stark 21 specification sheet: size, weight, capacity, colour, price, accessories.
+- manuals/manual_21.txt: Stark 21 owner's manual: steering, brakes, throttle, climate, interior, service interval, warning.
+- models/model_22.txt: Stark 22 specification sheet: size, weight, capacity, colour, price, accessories.
+- manuals/manual_22.txt: Stark 22 owner's manual: steering, brakes, throttle, climate, interior, service interval, warning.
+- models/model_23.txt: Stark 23 specification sheet: size, weight, capacity, colour, price, accessories.
+- manuals/manual_23.txt: Stark 23 owner's manual: steering, brakes, throttle, climate, interior, service interval, warning.
+- models/model_24.txt: Stark 24 specification sheet: size, weight, capacity, colour, price, accessories.
+- manuals/manual_24.txt: Stark 24 owner's manual: steering, brakes, throttle, climate, interior, service interval, warning.
+- models/model_25.txt: Stark 25 specification sheet: size, weight, capacity, colour, price, accessories.
+- manuals/manual_25.txt: Stark 25 owner's manual: steering, brakes, throttle, climate, interior, service interval, warning.
+- models/model_26.txt: Stark 26 specification sheet: size, weight, capacity, colour, price, accessories.
+- manuals/manual_26.txt: Stark 26 owner's manual: steering, brakes, throttle, climate, interior, service interval, warning.
+- models/model_27.txt: Stark 27 specification sheet: size, weight, capacity, colour, price, accessories.
+- manuals/manual_27.txt: Stark 27 owner's manual: steering, brakes, throttle, climate, interior, service interval, warning.
+- models/model_28.txt: Stark 28 specification sheet: size, weight, capacity, colour, price, accessories.
+- manuals/manual_28.txt: Stark 28 owner's manual: steering, brakes, throttle, climate, interior, service interval, warning.
+- models/model_29.txt: Stark 29 specification sheet: size, weight, capacity, colour, price, accessories.
+- manuals/manual_29.txt: Stark 29 owner's manual: steering, brakes, throttle, climate, interior, service interval, warning.
+- models/model_30.txt: Stark 30 specification sheet: size, weight, capacity, colour, price, accessories.
+- manuals/manual_30.txt: Stark 30 owner's manual: steering, brakes, throttle, climate, interior, service interval, warning.
