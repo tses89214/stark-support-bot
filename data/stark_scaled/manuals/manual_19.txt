@@ -1,8 +1,0 @@
-## Stark 19 Owner's Manual
-- **Steering**: Stark 19 uses a dual-joystick station. The left stick controls translation and the right stick controls rotation. Press both stick buttons for 2 seconds to centre the ship.
-- **Brakes**: Stark 19 stops with a 3-stage magnetic retarder. Stage 1 is gentle, stage 3 is for emergencies. Do not use stage 3 below 200 metres of altitude because it overheats the coils.
-- **Throttle**: Stark 19 has a slider throttle with 5 detents. Detent 3 is cruise. Moving the slider past detent 4 needs the safety latch to be released.
-- **Climate**: Stark 19 has single-zone climate control from 18 to 26 degrees Celsius. The filter must be replaced every 6 months.
-- **Interior**: Stark 19 carries crew only, no passenger seating; it has fabric seats with an LED cabin strip. Clean with a damp cloth only; solvents fade the fabric.
-- **Service interval**: Service Stark 19 every 175 flight hours. Serial numbers start with SK19.
-- **Warning**: Never leave the throttle unattended during docking.

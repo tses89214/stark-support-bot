@@ -1,8 +1,0 @@
-## Stark 23 Owner's Manual
-- **Steering**: Stark 23 uses a fly-by-wire steering wheel. Turning the wheel yaws the ship; the wheel has a 540-degree lock-to-lock range and self-centres within 3 seconds of release.
-- **Brakes**: Stark 23 stops with retro-thruster braking. A full stop from cruise speed takes up to 40 seconds. The brake pedal blends thrusters and drag fins automatically.
-- **Throttle**: Stark 23 has a slider throttle with 5 detents. Detent 3 is cruise. Moving the slider past detent 4 needs the safety latch to be released.
-- **Climate**: Stark 23 has a fan-only cabin system with no active cooling. In hot docks, open the vent shutters before boarding. The filter must be replaced every 3 months.
-- **Interior**: Stark 23 has seating for 40 passengers; it has leather seats with wood-grain trim. Condition the leather every 3 months and keep it out of direct sunlight at the dock.
-- **Service interval**: Service Stark 23 every 175 flight hours. Serial numbers start with SK23.
-- **Warning**: Never charge the power cell unattended overnight.

@@ -1,9 +1,0 @@
-## Stark 18
-- **Description**: A heavy mining barge for hauling ore from belt claims to the orbital yards.  
-- **Size**: 70 meters in length.  
-- **Weight**: 150 metric tons.  
-- **Capacity**: 4 passengers and up to 120 metric tons of ore.  
-- **Color**: Rust Brown.  
-- **Price**: $12,400,000.  
-- **Compatible Accessories**: Ore Crusher Hopper, Plasma Cutter Arm.  
-- **Notes**: Rinse ore dust from the intake grilles after every haul.  

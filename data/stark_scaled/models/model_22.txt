@@ -1,9 +1,0 @@
-## Stark 22
-- **Description**: A firefighting ship that douses station and depot fires with pressurised coolant.  
-- **Size**: 36 meters in length.  
-- **Weight**: 62 metric tons.  
-- **Capacity**: 6 passengers.  
-- **Color**: Fire Red.  
-- **Price**: $8,900,000.  
-- **Compatible Accessories**: Coolant Water Cannon, Smoke Filtration Mask Set.  
-- **Notes**: Refill the coolant tanks only with the approved blue fluid.  

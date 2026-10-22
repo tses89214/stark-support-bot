@@ -1,9 +1,0 @@
-## Stark 21
-- **Description**: An ice-breaker tug that clears frozen comet trails for traffic behind it.  
-- **Size**: 55 meters in length.  
-- **Weight**: 110 metric tons.  
-- **Capacity**: 7 passengers.  
-- **Color**: Glacier Blue.  
-- **Price**: $10,900,000.  
-- **Compatible Accessories**: Reinforced Ram Bow, Heat Lance.  
-- **Notes**: Check the ram bow welds after every ice-clearing run.  

@@ -494,7 +494,7 @@ Report ALL problems in one pass, not just the first one you find.
 Reply with JSON only: {"ok": true} or {"ok": false, "problems": ["&lt;short, quoting the bad claim&gt;", ...]}</pre></details>
 
   <h2>驗證結果</h2>
-  <p>目前<b>沒有系統性的審查評測</b>。評測腳本已備好，尚未跑完，所以不列數字。</p>
+  <p>用 55 份已知對錯的稿件測審查（每條規則 4 份壞稿，加 27 份好稿，各跑 2 次）：壞稿 <b>56/56 被擋下</b>，好稿 <b>0/54 被誤擋</b>。稿件是腳本把正確答案改壞一處做出來的，比真實模型的錯誤乾淨，所以抓出率偏樂觀；它只證明七條規則各自有效，不代表真實對話裡不會漏。</p>
 </div>
 
 <div class="panel" id="p-conversation" role="tabpanel" aria-labelledby="t-conversation">

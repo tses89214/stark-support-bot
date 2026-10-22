@@ -1,9 +1,0 @@
-## Stark 20
-- **Description**: A luxury yacht for island-hopping among the outer moons.  
-- **Size**: 33 meters in length.  
-- **Weight**: 48 metric tons.  
-- **Capacity**: 10 passengers.  
-- **Color**: Pearl Ivory.  
-- **Price**: $14,200,000.  
-- **Compatible Accessories**: Sun Deck Canopy, Wine Cellar Module.  
-- **Notes**: Polish the hull coating monthly to protect it from micrometeorite pitting.  

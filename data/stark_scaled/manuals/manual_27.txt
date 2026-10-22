@@ -1,8 +1,0 @@
-## Stark 27 Owner's Manual
-- **Steering**: Stark 27 uses a force-feedback yoke. Pull to climb, push to dive. Feedback strength is set from 1 to 5 in the Controls menu; use 2 or lower with gloves.
-- **Brakes**: Stark 27 stops with retro-thruster braking. A full stop from cruise speed takes up to 40 seconds. The brake pedal blends thrusters and drag fins automatically.
-- **Throttle**: Stark 27 has a slider throttle with 5 detents. Detent 3 is cruise. Moving the slider past detent 4 needs the safety latch to be released.
-- **Climate**: Stark 27 has dual-zone climate control from 16 to 28 degrees Celsius with a separate cockpit and cabin setting. The filter must be replaced every 4 months.
-- **Interior**: Stark 27 has seating for 12 passengers; it has bench seating covered in washable vinyl. The covers can be hosed down with fresh water.
-- **Service interval**: Service Stark 27 every 175 flight hours. Serial numbers start with SK27.
-- **Warning**: Never fly with the cabin hatch seal warning lit.

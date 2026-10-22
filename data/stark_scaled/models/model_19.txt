@@ -1,9 +1,0 @@
-## Stark 19
-- **Description**: A courier craft optimised for same-day parcel runs between neighbouring stations.  
-- **Size**: 12 meters in length.  
-- **Weight**: 14 metric tons.  
-- **Capacity**: 1 passenger and up to 2 metric tons of parcels.  
-- **Color**: Signal Yellow.  
-- **Price**: $1,650,000.  
-- **Compatible Accessories**: Parcel Locker Rack, Express Docking Clamp.  
-- **Notes**: Keep the parcel locker rack latched during acceleration.  
