@@ -234,6 +234,7 @@
 - 已修（UNVERIFIED 推薦失敗）：原因不是審查者亂挑，是回答模型的草稿真的有問題——把「3 人」讀成剛好 3 人、說「只有 Stark 3 適合」、對文件沒提的需求（露營）編理由、泛稱「沒有型號有 X」。修法：(1) L4 回答提示加 `FIT_RULE`（只說文件支持的適配；N 人＝至少 N；不說「只有」；文件沒提的需求直說，退而求其次給可查證的事實）(2) 審查「不算違規」加：短名單說「還有其他型號符合」不必解釋為何排除其他（除非聲稱完整）。重放該對話：修前 3 次都 UNVERIFIED，修後 1 次 ANSWER，誠實說「沒有型號標示露營專用」並列 Stark 4（family-friendly）、20、15。**只驗證一次**（額度用光）。`eval_review` 加 1 題好稿（短名單＋誠實說明）共 62 題；加單元測試確認只有 L4 帶 FIT_RULE。重置後：eval_review 2、eval_answers、eval_guardrails、R3 階梯，並把該題多跑幾次看穩不穩；L4 完整機器人列未重量（提示變了）
 
 ## TODO（2026-10-23 08:00 台北額度重置後；使用者說「算了你先寫 TODO」，部署方案先不做）
+**觸發方式**：使用者明天開機後手動說一聲（例如「跑 TODO」），不排程；沒有自動排程在等。
 **開跑前**：用 `GET /api/v1/key` 讀兩把 key 的 `free_model_daily_requests.remaining`（各 1000，帳號各自計）；環境：`set -a; . ./.env; set +a; export HF_HUB_OFFLINE=1 CHAT_MODEL=nvidia/nemotron-3-ultra-550b-a55b:free LLM_NO_THINK=1`（階梯另加 `MLFLOW_TRACKING_URI=sqlite:///data/runtime/mlflow.db`）。一次只跑一個（兩份 bge-m3 並行會吃光記憶體）。中斷就重跑同一指令：`eval_followups`/`eval_guardrails` 逐筆存檔、`eval_ladder` 以「層×輪」存檔、檢索階梯以 level-run 為單位。跑階梯時只 `git add` 指定檔，**不要 `commit -a`**（它會把縮放語料一起 commit）；跑完用 `python -m evals.gen_scaled_corpus 30` 還原。
 **要跑（約 570 次，優先順序）**：
 1. `python -m evals.eval_review 2`（62 題 ×2 ≈ 125）→ 看第 8 條與新增的好稿；更新 `results/review.md`、報告審查頁「驗證結果」那句、`results/README.md`、README 指令表的題數
