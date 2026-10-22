@@ -10,7 +10,6 @@ judges each remaining candidate more carefully than a vector can (slower, so onl
 This shows the technique and what it buys at this size; the bot itself still picks documents with R3 (see results/retrieval-ladder.md)."""
 import math
 import re
-import sys
 from collections import Counter
 
 from sentence_transformers import CrossEncoder, SentenceTransformer, util
