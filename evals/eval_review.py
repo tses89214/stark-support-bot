@@ -26,7 +26,10 @@ MODELS = [1, 3, 5, 8, 12, 13, 19, 23]  # fixed picks: different colours, prices 
 def spec(n):
     """The facts of Stark `n` as written in its document."""
     text = (DOCS / f"model_{n}.txt").read_text()
-    field = lambda name: re.search(rf"\*\*{name}\*\*: (.*?)\.?\s*$", text, re.MULTILINE).group(1)
+
+    def field(name):
+        return re.search(rf"\*\*{name}\*\*: (.*?)\.?\s*$", text, re.MULTILINE).group(1)
+
     capacity = field("Capacity")
     return {"n": n, "text": text, "price": field("Price"), "color": field("Color"), "capacity": capacity,
             "seats": int(re.search(r"\d+", capacity).group()), "accessories": field("Compatible Accessories")}

@@ -107,7 +107,11 @@ def write_results(passes, runs):
     caught = sum(r["category"] != "ANSWER" for r in off)  # any route but ANSWER stops the message before retrieval
     quiet = sum(not r["picked"] for r in off)
     both = sum(r["category"] != "ANSWER" or not r["picked"] for r in off)  # stopped by at least one of the two
-    fmt = lambda k, n: f"{k}/{n} ({wilson(k, n)[0]:.0%} to {wilson(k, n)[1]:.0%})"
+
+    def fmt(k, n):
+        lo, hi = wilson(k, n)
+        return f"{k}/{n} ({lo:.0%} to {hi:.0%})"
+
     rows = ["| Mode | Follow-ups where every needed document was picked |", "|---|---|"]
     detail = []
     for mode in MODES:
