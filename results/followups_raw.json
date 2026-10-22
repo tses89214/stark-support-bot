@@ -1,0 +1,418 @@
+{
+ "date": "2026-10-22",
+ "runs": 2,
+ "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+ "passes": [
+  {
+   "off_topic": {
+    "What's the capital of France?": {
+     "category": "OFF_TOPIC",
+     "picked": []
+    },
+    "Write me a Python script to sort a list.": {
+     "category": "OFF_TOPIC",
+     "picked": []
+    },
+    "Do you sell submarines?": {
+     "category": "OFF_TOPIC",
+     "picked": []
+    },
+    "法國的首都是哪裡?": {
+     "category": "OFF_TOPIC",
+     "picked": []
+    },
+    "今天天氣如何?": {
+     "category": "OFF_TOPIC",
+     "picked": []
+    },
+    "How do I bake sourdough bread?": {
+     "category": "OFF_TOPIC",
+     "picked": []
+    },
+    "What is the best way to learn guitar?": {
+     "category": "OFF_TOPIC",
+     "picked": []
+    },
+    "Who won the last World Cup?": {
+     "category": "OFF_TOPIC",
+     "picked": []
+    },
+    "Can you recommend a good laptop?": {
+     "category": "OFF_TOPIC",
+     "picked": []
+    },
+    "Do you sell used cars?": {
+     "category": "OFF_TOPIC",
+     "picked": []
+    },
+    "明天台北會下雨嗎?": {
+     "category": "OFF_TOPIC",
+     "picked": []
+    },
+    "推薦一部好看的電影": {
+     "category": "OFF_TOPIC",
+     "picked": []
+    },
+    "怎麼學英文比較快?": {
+     "category": "OFF_TOPIC",
+     "picked": []
+    },
+    "你們有賣腳踏車嗎?": {
+     "category": "OFF_TOPIC",
+     "picked": []
+    },
+    "幫我翻譯這句話成日文": {
+     "category": "OFF_TOPIC",
+     "picked": []
+    }
+   },
+   "follow_ups": {
+    "it: price": {
+     "question": "How much is the Stark 3?",
+     "R2": {
+      "sources": [
+       "model_3",
+       "model_30",
+       "model_10"
+      ],
+      "hit": true
+     },
+     "R3": {
+      "sources": [
+       "model_3"
+      ],
+      "hit": true
+     }
+    },
+    "it: colour": {
+     "question": "What color is the Stark 8?",
+     "R2": {
+      "sources": [
+       "model_8",
+       "model_3",
+       "model_30"
+      ],
+      "hit": true
+     },
+     "R3": {
+      "sources": [
+       "model_8"
+      ],
+      "hit": true
+     }
+    },
+    "another model": {
+     "question": "How much is the Stark 5?",
+     "R2": {
+      "sources": [
+       "model_5",
+       "model_30",
+       "model_10"
+      ],
+      "hit": true
+     },
+     "R3": {
+      "sources": [
+       "model_5"
+      ],
+      "hit": true
+     }
+    },
+    "topic switch to a guide": {
+     "question": "How do I place an order?",
+     "R2": {
+      "sources": [
+       "guide_ordering_delivery",
+       "model_30",
+       "model_19"
+      ],
+      "hit": true
+     },
+     "R3": {
+      "sources": [
+       "guide_ordering_delivery"
+      ],
+      "hit": true
+     }
+    },
+    "topic switch to the warranty": {
+     "question": "How long is the warranty for the Stark 8?",
+     "R2": {
+      "sources": [
+       "model_8",
+       "warranty_policy",
+       "guide_ordering_delivery"
+      ],
+      "hit": true
+     },
+     "R3": {
+      "sources": [
+       "model_8",
+       "warranty_policy"
+      ],
+      "hit": true
+     }
+    },
+    "model plus policy": {
+     "question": "Does the Stark 8 come with a warranty?",
+     "R2": {
+      "sources": [
+       "model_8",
+       "warranty_policy",
+       "guide_ordering_delivery"
+      ],
+      "hit": true
+     },
+     "R3": {
+      "sources": [
+       "model_8",
+       "warranty_policy"
+      ],
+      "hit": true
+     }
+    },
+    "Chinese follow-up": {
+     "question": "Stark 4 多少錢?",
+     "R2": {
+      "sources": [
+       "model_4",
+       "model_30",
+       "model_13"
+      ],
+      "hit": true
+     },
+     "R3": {
+      "sources": [
+       "model_4",
+       "guide_ordering_delivery"
+      ],
+      "hit": true
+     }
+    },
+    "troubleshooting after a model": {
+     "question": "My Stark 5 will not start; what should I check?",
+     "R2": {
+      "sources": [
+       "model_5",
+       "guide_troubleshooting",
+       "warranty_policy"
+      ],
+      "hit": true
+     },
+     "R3": {
+      "sources": [
+       "model_5",
+       "guide_troubleshooting"
+      ],
+      "hit": true
+     }
+    }
+   }
+  },
+  {
+   "off_topic": {
+    "What's the capital of France?": {
+     "category": "OFF_TOPIC",
+     "picked": []
+    },
+    "Write me a Python script to sort a list.": {
+     "category": "OFF_TOPIC",
+     "picked": []
+    },
+    "Do you sell submarines?": {
+     "category": "OFF_TOPIC",
+     "picked": []
+    },
+    "法國的首都是哪裡?": {
+     "category": "OFF_TOPIC",
+     "picked": []
+    },
+    "今天天氣如何?": {
+     "category": "OFF_TOPIC",
+     "picked": []
+    },
+    "How do I bake sourdough bread?": {
+     "category": "OFF_TOPIC",
+     "picked": []
+    },
+    "What is the best way to learn guitar?": {
+     "category": "OFF_TOPIC",
+     "picked": []
+    },
+    "Who won the last World Cup?": {
+     "category": "OFF_TOPIC",
+     "picked": []
+    },
+    "Can you recommend a good laptop?": {
+     "category": "OFF_TOPIC",
+     "picked": []
+    },
+    "Do you sell used cars?": {
+     "category": "OFF_TOPIC",
+     "picked": []
+    },
+    "明天台北會下雨嗎?": {
+     "category": "OFF_TOPIC",
+     "picked": []
+    },
+    "推薦一部好看的電影": {
+     "category": "OFF_TOPIC",
+     "picked": []
+    },
+    "怎麼學英文比較快?": {
+     "category": "OFF_TOPIC",
+     "picked": []
+    },
+    "你們有賣腳踏車嗎?": {
+     "category": "OFF_TOPIC",
+     "picked": []
+    },
+    "幫我翻譯這句話成日文": {
+     "category": "OFF_TOPIC",
+     "picked": []
+    }
+   },
+   "follow_ups": {
+    "it: price": {
+     "question": "How much is the Stark 3?",
+     "R2": {
+      "sources": [
+       "model_3",
+       "model_30",
+       "model_10"
+      ],
+      "hit": true
+     },
+     "R3": {
+      "sources": [
+       "model_3"
+      ],
+      "hit": true
+     }
+    },
+    "it: colour": {
+     "question": "What color is the Stark 8?",
+     "R2": {
+      "sources": [
+       "model_8",
+       "model_3",
+       "model_30"
+      ],
+      "hit": true
+     },
+     "R3": {
+      "sources": [
+       "model_8"
+      ],
+      "hit": true
+     }
+    },
+    "another model": {
+     "question": "How much is the Stark 5?",
+     "R2": {
+      "sources": [
+       "model_5",
+       "model_30",
+       "model_10"
+      ],
+      "hit": true
+     },
+     "R3": {
+      "sources": [
+       "model_5"
+      ],
+      "hit": true
+     }
+    },
+    "topic switch to a guide": {
+     "question": "How do I place an order?",
+     "R2": {
+      "sources": [
+       "guide_ordering_delivery",
+       "model_30",
+       "model_19"
+      ],
+      "hit": true
+     },
+     "R3": {
+      "sources": [
+       "guide_ordering_delivery"
+      ],
+      "hit": true
+     }
+    },
+    "topic switch to the warranty": {
+     "question": "How long is the warranty for the Stark 8?",
+     "R2": {
+      "sources": [
+       "model_8",
+       "warranty_policy",
+       "guide_ordering_delivery"
+      ],
+      "hit": true
+     },
+     "R3": {
+      "sources": [
+       "model_8",
+       "warranty_policy"
+      ],
+      "hit": true
+     }
+    },
+    "model plus policy": {
+     "question": "Does the Stark 8 come with a warranty?",
+     "R2": {
+      "sources": [
+       "model_8",
+       "warranty_policy",
+       "guide_ordering_delivery"
+      ],
+      "hit": true
+     },
+     "R3": {
+      "sources": [
+       "model_8",
+       "warranty_policy"
+      ],
+      "hit": true
+     }
+    },
+    "Chinese follow-up": {
+     "question": "Stark 4 多少錢?",
+     "R2": {
+      "sources": [
+       "model_4",
+       "model_30",
+       "model_13"
+      ],
+      "hit": true
+     },
+     "R3": {
+      "sources": [
+       "model_4"
+      ],
+      "hit": true
+     }
+    },
+    "troubleshooting after a model": {
+     "question": "My Stark 5 will not start; what should I check?",
+     "R2": {
+      "sources": [
+       "model_5",
+       "guide_troubleshooting",
+       "warranty_policy"
+      ],
+      "hit": true
+     },
+     "R3": {
+      "sources": [
+       "model_5",
+       "guide_troubleshooting"
+      ],
+      "hit": true
+     }
+    }
+   }
+  }
+ ]
+}
