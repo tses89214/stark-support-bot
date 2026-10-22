@@ -242,6 +242,7 @@ def write_results(runs, results):
                                                     + mechanics() + examples())
 
 
+PART = Path("results/ladder_partial.json")  # written after every finished (level, run); an interrupted run resumes from it
 RAW_DATE = [str(date.today())]
 
 
@@ -279,11 +280,20 @@ if __name__ == "__main__":
     runs = int(next((a for a in sys.argv[1:] if a.isdigit()), 2))
     check_quota(runs)
     results = {}
+    if PART.exists():  # an interrupted run: keep every (level, run) that finished, redo the rest
+        part = json.loads(PART.read_text())
+        results, RAW_DATE[0] = part["results"], part["date"]
+        SAMPLES.update({(lv, q): (rep, flag) for lv, q, rep, flag in part["samples"]})
+        print("resuming:", {lv: len(rs) for lv, rs in results.items()}, flush=True)
     for level, _ in LEVELS:
-        results[level] = [evaluate(level) for _ in range(runs)]
+        rs = results.setdefault(level, [])
+        while len(rs) < runs:
+            rs.append(evaluate(level))
+            PART.write_text(json.dumps({"date": RAW_DATE[0], "results": results, "samples": [[lv, q, rep, flag] for (lv, q), (rep, flag) in SAMPLES.items()]}, ensure_ascii=False))
         print(level, "done", flush=True)
         for q in results[level][-1]["lost"]:
             print(f"   lost: {q[:70]!r}", flush=True)
     RAW.write_text(json.dumps({"date": RAW_DATE[0], "runs": runs, "model": app.MODEL, "results": results,
                                "samples": [[lv, q, rep, flag] for (lv, q), (rep, flag) in SAMPLES.items()]}, ensure_ascii=False, indent=1))
+    PART.unlink(missing_ok=True)
     write_results(runs, results)
