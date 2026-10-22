@@ -496,6 +496,30 @@ def test_a_catalogue_question_reads_one_line_per_model_so_no_model_is_skipped():
     assert mixed.endswith(app.docs["warranty_policy"])  # a policy or guide is never squeezed into a line
 
 
+def test_the_real_bot_is_told_to_recommend_only_what_the_documents_support():
+    # a recommendation used to praise ships for needs the documents never mention ("landing gear is useful for camping"); the reviewer rejected every
+    # such draft and the customer got UNVERIFIED. The L4 answer prompt must carry the fit rule, the lower ladder levels must not (their numbers stay comparable).
+    answer_prompts = {}
+
+    def fake_llm(messages, **kw):
+        system = messages[0]["content"]
+        if "input filter" in system:
+            return json.dumps({"category": "ANSWER", "question": "How much is the Stark 3?"})
+        if "final reviewer" in system:
+            return '{"ok": true}'
+        answer_prompts[level] = system
+        return "The Stark 3 costs $5,200,000."
+
+    real = app.llm
+    app.llm = fake_llm
+    try:
+        for level in ("L1", "L4"):
+            app.answer("How much is the Stark 3?", [], level, "R0", "", app.Focus(), {})
+    finally:
+        app.llm = real
+    assert app.FIT_RULE in answer_prompts["L4"] and app.FIT_RULE not in answer_prompts["L1"]
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):

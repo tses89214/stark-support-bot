@@ -85,7 +85,7 @@ def build_cases():
         m = s[n]
         cases.append(case(7, f"Can I order the Stark {n} by phone?", f"I don't know; please email {bad} for help.", m["text"], False))
     # rule 8: a claim of exclusivity or absence over several documents, broken by one document. GOOD twins: the same question answered completely.
-    t = {n: spec(n)["text"] for n in (1, 3, 8, 10, 13, 19, 23, 24)}
+    t = {n: spec(n)["text"] for n in (1, 3, 4, 8, 10, 13, 15, 19, 23, 24)}
 
     def docs(*ns):
         return "\n".join(t[n] for n in ns)
@@ -98,6 +98,10 @@ def build_cases():
               case(8, "Which ships carry more than 30 passengers?", "The Stark 24 is the only ship that carries more than 30 passengers.", big, False),
               case(8, "Which ship has the largest capacity?", "The Stark 23 has the largest capacity of all the models.", docs(8, 10, 23, 24), False),
               case(8, qcheap, "The Stark 1 is the cheapest model; no other ship costs less.", cheap, False)]
+    # GOOD: a short recommendation that says more ships fit and admits what the documents do not mention is what the bot should be allowed to send
+    cases += [case(0, "I need a ship for a family of three who go camping. What do you recommend?",
+                   "The documents do not describe any ship for camping. On facts I can check: the Stark 4 is described as family-friendly (12 passengers, Extra Sleeping Pods) "
+                   "and the Stark 15 as a rugged explorer with reinforced landing gear (5 passengers). More ships also have room for three.", docs(3, 4, 8, 13, 15, 19), True)]
     return cases
 
 
