@@ -136,7 +136,7 @@ ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:5px;font-s
   <div class="facts">
     <div class="fact"><b>17 → 28</b><span>防禦階梯：28 個攻擊問題，擋下的數量。L0 什麼都不防只擋 17，加完輸入分類器（L3）擋 28。</span></div>
     <div class="fact"><b>6 / 6</b><span>防禦階梯：6 個正常問題，每一層都全答對。表示加防禦沒有讓正常客人被拒絕。</span></div>
-    <div class="fact"><b>134 / 139</b><span>輸入分類器：139 則標好類別的訊息，判對 134 則（七類；這是舊提示的數字，新提示尚未重測）。</span></div>
+    <div class="fact"><b>132 / 139</b><span>輸入分類器：139 則標好類別的訊息，判對 132 則（七類，現行提示）。</span></div>
     <div class="fact"><b>47k → 2.0k</b><span>檢索：每次問答送給模型的文件字元數。30 個型號全部塞進去約 47k，檢索後約 2.0k。</span></div>
   </div>
 
@@ -165,7 +165,7 @@ flowchart TD
   <p>為了讓真的聊起來順暢，另外做了 <b>Focus</b>（伺服器每輪記下談到哪個型號、客人要什麼）與「先問再推薦」（缺人數或用途就先反問）等設計，見「對話順暢」分頁。這些沒有對應的評測。</p>
 
   <h2>還沒做完</h2>
-  <p>139 題分類器、防禦階梯、檢索階梯還沒用最新版重跑，這些分頁的數字是更早版本量的。樣本都很小（16 到 139 題），差一兩題不代表差異。</p>
+  <p>防禦階梯、檢索階梯還沒用最新版重跑，這些分頁的數字是更早版本量的。樣本都很小（16 到 139 題），差一兩題不代表差異。</p>
 </div>
 
 <div class="panel" id="p-tests" role="tabpanel" aria-labelledby="t-tests">
@@ -387,8 +387,8 @@ return [p for p in named if p in set(doc_tools.list_docs())]  # 編造的路徑�
 
 <div class="panel" id="p-classifier" role="tabpanel" aria-labelledby="t-classifier">
   <h2>輸入分類器</h2>
-  <p><b>134 / 139 正確</b>（95% 區間 92–98%）· 分類器失敗 0 次</p>
-  <p class="note">這是舊提示的結果，現行提示多了 about、needs 等欄位，尚未重跑。錯的 5 題見頁尾，其中 4 題仍被安全攔下。</p>
+  <p><b>132 / 139 正確</b>（95% 區間 90–98%）· 分類器失敗 0 次</p>
+  <p class="note">現行提示（多了 about、needs 等欄位）重跑的結果；舊提示是 134/139。錯的 7 題裡 6 題是攻擊被判成別類，但判成離題或升級客訴一樣會在回答前被擋下；只有 1 題是正常問題被誤擋（一段「Saturn 附近全息螢幕出現古代符號」的長故事，最後問的其實是韌體問題）。</p>
   <div class="tbl"><table>
     <thead><tr><th>實際 \ 判成</th><th>ANSWER</th><th>HELP</th><th>HANDOFF</th><th>OFF_TOPIC</th><th>ABUSIVE</th><th>ESCALATE</th><th>INJECTION</th></tr></thead>
     <tbody>
@@ -398,7 +398,7 @@ return [p for p in named if p in set(doc_tools.list_docs())]  # 編造的路徑�
       <tr><td>OFF_TOPIC</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">26</td><td class="num">0</td><td class="num">0</td><td class="num">0</td></tr>
       <tr><td>ABUSIVE</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">16</td><td class="num">0</td><td class="num">0</td></tr>
       <tr><td>ESCALATE</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">20</td><td class="num">0</td></tr>
-      <tr><td>INJECTION</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">3</td><td class="num">0</td><td class="num">1</td><td class="num">29</td></tr>
+      <tr><td>INJECTION</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">4</td><td class="num">0</td><td class="num">2</td><td class="num">27</td></tr>
     </tbody></table></div>
   <h2>分類器怎麼判：各類別範例</h2>
   <p class="sub">下面是題庫中的訊息與預期類別，這些題分類器都判對。分類器收到訊息（與最近 4 則對話）後，回一段 JSON：類別、reason、獨立問題，以及 Focus 要用的欄位（about、interested_in、needs、find_ship、just_list，見下方完整提示）；reason 會寫進工單，讓客服分得出是客人要人工，還是機器壞了。</p>
