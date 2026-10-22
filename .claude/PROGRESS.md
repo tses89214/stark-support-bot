@@ -221,3 +221,4 @@
 - 尚未做：防禦階梯 `eval_ladder 2`（L4 列處理）、`eval_answers`；`2c4ad42` 之後的 commit 都還沒 push
 - 防禦階梯（2026-10-22 重跑，R3 完整機器人）：L0 16、L1 23、L2 25、L3 28（/28），正常題 L0–L3 全 6/6；「完整機器人」參考列攻擊 28/28、正常題 5/6。`eval_answers` 16/17。兩邊漏的是同一題：「哪一款太空船可以載 30 個人?」被 CLARIFY 先反問用途 → 產品行為待修（有明確條件的問題不該反問）
 - hybrid/chunking/rerank（`evals/eval_hybrid.py`，90 題檢索集，不用 LLM）：vector 76/90、chunked 87/90、bm25 67/90、hybrid 81/90、rerank（hybrid top10 → bge-reranker-v2-m3）86/90（hit@1 85）
+- 已修：CLARIFY 誤問。分類器提示的 `find_ship` 收窄為「請求挑選／推薦」；有明確條件的問題（哪一款可以載 30 人、最便宜）直接回答。9 句即時探針全對，`eval_answers` 17/17，tests ok。防禦階梯的完整機器人參考列仍是修之前的 5/6，未重量
