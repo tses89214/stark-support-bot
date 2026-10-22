@@ -232,3 +232,15 @@
 - 示範對話第 9 輪：「你奇怪」被判 ABUSIVE（開工單、轉人工、停止對話）。判斷偏嚴（輕微不滿不是辱罵），分類器對這類邊界沒有題目；`eval_candidates` 目前 ABUSIVE 16 題都是明確辱罵／威脅。若要修：加輕微抱怨的對照題（應走 ESCALATE 或一般回覆）再調分類器提示，需重跑 eval_guardrails
 - 2026-10-22 14:45 真實失敗（trace tr-c1f5b881…，session ed54e804）：「我想找個飛船」→ 反問 → 客人答「三人小家庭、日常家庭旅行偶爾露營」→ UNVERIFIED。重放 2 次都是 UNVERIFIED。審查者退稿的理由：(1) 要求交代為什麼排除其他 25 款（不是任何一條規則）(2) 推薦理由是推論（「著陸架對露營有用」）違反第 1 條 (3) 抱怨清單不完整，但 BREVITY 要求只列 5 個。推測：推薦型回答讀 30 份（規格表）時審查者挑剔更多，可能與第 8 條「掃描所有文件」或表格式有關，但沒有對照實驗（當時額度只剩 28）。重置後先做：同一題在「舊審查提示（無第 8 條）」與「全文而非規格表」各跑幾次，找出是哪個改動造成；再決定怎麼修（推薦型回答該不該放寬第 1 條、BREVITY 與審查衝突）
 - 已修（UNVERIFIED 推薦失敗）：原因不是審查者亂挑，是回答模型的草稿真的有問題——把「3 人」讀成剛好 3 人、說「只有 Stark 3 適合」、對文件沒提的需求（露營）編理由、泛稱「沒有型號有 X」。修法：(1) L4 回答提示加 `FIT_RULE`（只說文件支持的適配；N 人＝至少 N；不說「只有」；文件沒提的需求直說，退而求其次給可查證的事實）(2) 審查「不算違規」加：短名單說「還有其他型號符合」不必解釋為何排除其他（除非聲稱完整）。重放該對話：修前 3 次都 UNVERIFIED，修後 1 次 ANSWER，誠實說「沒有型號標示露營專用」並列 Stark 4（family-friendly）、20、15。**只驗證一次**（額度用光）。`eval_review` 加 1 題好稿（短名單＋誠實說明）共 62 題；加單元測試確認只有 L4 帶 FIT_RULE。重置後：eval_review 2、eval_answers、eval_guardrails、R3 階梯，並把該題多跑幾次看穩不穩；L4 完整機器人列未重量（提示變了）
+
+## TODO（2026-10-23 08:00 台北額度重置後；使用者說「算了你先寫 TODO」，部署方案先不做）
+**開跑前**：用 `GET /api/v1/key` 讀兩把 key 的 `free_model_daily_requests.remaining`（各 1000，帳號各自計）；環境：`set -a; . ./.env; set +a; export HF_HUB_OFFLINE=1 CHAT_MODEL=nvidia/nemotron-3-ultra-550b-a55b:free LLM_NO_THINK=1`（階梯另加 `MLFLOW_TRACKING_URI=sqlite:///data/runtime/mlflow.db`）。一次只跑一個（兩份 bge-m3 並行會吃光記憶體）。中斷就重跑同一指令：`eval_followups`/`eval_guardrails` 逐筆存檔、`eval_ladder` 以「層×輪」存檔、檢索階梯以 level-run 為單位。跑階梯時只 `git add` 指定檔，**不要 `commit -a`**（它會把縮放語料一起 commit）；跑完用 `python -m evals.gen_scaled_corpus 30` 還原。
+**要跑（約 570 次，優先順序）**：
+1. `python -m evals.eval_review 2`（62 題 ×2 ≈ 125）→ 看第 8 條與新增的好稿；更新 `results/review.md`、報告審查頁「驗證結果」那句、`results/README.md`、README 指令表的題數
+2. `python -m evals.eval_answers`（≈ 40；上次 17/17）
+3. `python -m evals.eval_guardrails`（≈ 132；上次 132/132，提示動過兩處）→ 更新 `results/guardrails.md`、報告分類器頁
+4. R3 檢索階梯 n=30 ×2：`python -m evals.eval_retrieval_ladder 30 R3`（≈ 170；挑文件提示動過；上次 R3 0.97 / 召回 1.00）→ 更新 `results/retrieval-ladder.md` 該列與報告
+5. `python -m evals.eval_ladder 2`（≈ 340；L4 提示變了，要重量「完整機器人」列）
+6. 那題「三人家庭＋露營」多跑幾次看穩不穩（FIT_RULE 只驗過一次）
+**之後可做（未決）**：①「你奇怪」被判 ABUSIVE 偏嚴 → 加輕微抱怨對照題、調分類器提示、重跑 guardrails ②推薦型回答與審查的衝突（第 1 條 vs 推薦）③第一輪「可以載 30 個人」只列剛好 30 人的 Stark 8（讀成剛好 30）
+**部署（使用者問過，先不做）**：電腦常重開機，評測腳本已可續跑。選項：(a) GitHub Actions 排程（要把兩把 OpenRouter key 設成 repo secrets，由使用者自己設；bge-m3 2GB 要快取；requirements 有 torch==2.2.2 的 Intel Mac 限制，未在 Linux 上驗證）(b) 本機 launchd 在 08:10 啟動續跑腳本（電腦開著才會跑，重開機後登入會補跑）(c) 雲端排程代理（金鑰不宜放）。我傾向 (a) 跑評測、demo 另議。
