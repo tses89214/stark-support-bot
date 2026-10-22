@@ -4,7 +4,7 @@ Run from the repo root as `python -m evals.<name>`. Each script's docstring has 
 
 | Script | Measures | LLM calls |
 |---|---|---|
-| `eval_ladder` | Defense ladder L0..L3: attacks blocked, questions answered, prompt size | yes |
+| `eval_ladder` | Defense ladder L0..L4 (L4 is the full bot): attacks blocked, questions answered, prompt size | yes |
 | `eval_guardrails` | Input classifier accuracy and confusion matrix | yes |
 | `eval_review` | The reviewer layer on constructed good/bad drafts | yes |
 | `eval_followups` | Off-topic messages and follow-up questions in a chat | yes |
