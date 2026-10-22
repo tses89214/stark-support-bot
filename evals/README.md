@@ -18,4 +18,4 @@ Test-case data and helpers:
 
 - `eval_candidates.jsonl`, `eval_candidates_attacks.jsonl`: labelled classifier messages (hand-written, or LLM-drafted then hand-reviewed).
 - `gen_candidates.py` drafts new messages with an LLM; `review_candidates.py` is the hand-review loop.
-- `gen_scaled_corpus.py` builds `data/stark_scaled/`; `stats.py` is shared interval code.
+- `gen_scaled_corpus.py` builds `data/stark_scaled/`; `stats.py` computes the Wilson 95% intervals.
