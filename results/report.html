@@ -95,6 +95,7 @@ ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:5px;font-s
 
 <nav role="tablist" aria-label="報告分頁">
   <button role="tab" id="t-overview" aria-controls="p-overview" aria-selected="true">總覽</button>
+  <button role="tab" id="t-demo" aria-controls="p-demo" aria-selected="false">示範對話</button>
   <button role="tab" id="t-tests" aria-controls="p-tests" aria-selected="false">測試題目</button>
   <button role="tab" id="t-ladder" aria-controls="p-ladder" aria-selected="false">防禦階梯</button>
   <button role="tab" id="t-retrieval" aria-controls="p-retrieval" aria-selected="false">檢索階梯</button>
@@ -130,7 +131,7 @@ ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:5px;font-s
     <li><b>防禦階梯</b>（擋攻擊）：L0 全部文件塞進去、什麼都不防 → L1 加回答規則 → L2 加輸入圍欄 → L3 加輸入分類器與路由。</li>
     <li><b>檢索階梯</b>（找文件，型號 10→30）：R0 全部載入 → R1 向量檢索 → R2 先判斷範圍再檢索 → R3 讓 LLM 讀索引自己挑檔案（正式機器人預設）。</li>
   </ul>
-  <p class="sub">每一層做了什麼、實際的 prompt 與結果，見「防禦階梯」「檢索階梯」分頁；題目見「測試題目」。</p>
+  <p class="sub">每一層做了什麼、實際的 prompt 與結果，見「防禦階梯」「檢索階梯」分頁；題目見「測試題目」。一段真實的 7 輪對話（每一輪讀了哪些文件、Focus 怎麼變）見「示範對話」分頁。</p>
 
   <h2>結果摘要</h2>
   <div class="facts">
@@ -139,32 +140,6 @@ ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:5px;font-s
     <div class="fact"><b>132 / 132</b><span>輸入分類器：132 則標好類別的訊息全判對（七類，現行提示）；跑完後我們把判錯的 7 題從題庫移除，數字因此偏樂觀，見分類器頁。</span></div>
     <div class="fact"><b>76 → 87 / 90</b><span>檢索：把整份文件一個向量，改成每句一個向量（切句）後，前 3 名命中正確文件的題數；混合檢索 81、加重排 86。</span></div>
     <div class="fact"><b>47k → 5.7k</b><span>檢索：每次問答送給模型的文件字元數。30 個型號全部塞進去約 47k；向量檢索約 2.3k，讓 LLM 讀索引（R3）約 5.7k。</span></div>
-  </div>
-
-  <h2>一段完整的示範對話</h2>
-  <p class="sub">2026-10-22 在 demo 上的真實對話（共 7 輪，完整機器人＝L4 加 R3 加審查，未經挑選或修改，問題與回答原文）。每一輪下面的「後台」列是機器人當時的路由、改寫後的問題、讀到的文件，以及這一輪結束後的 Focus；粗體是這一輪值得看的地方。單次對話，模型輸出會變；不是評測，只是示範這些機制合在一起的樣子。</p>
-  <div class="ex">
-    <div class="lv"><span class="tag">客人</span><span></span><q>hi</q></div>
-    <div class="lv"><span class="tag ok">機器人</span><span></span><q style="color:var(--fg)">Hi! I&#x27;m the Stark Spaceships support bot. I can answer questions about our models (price, size, capacity, accessories), ordering and delivery, and maintenance or troubleshooting. If something goes wrong with an order, I can pass you to a human agent. What would you like to know?</q></div>
-    <div class="lv"><span class="tag">後台</span><span></span><q><span class="tag">路由</span> HELP<br><span class="tag">改寫後的問題</span> 同原文<br><span class="tag">讀到的文件</span> （沒有，罐頭回覆）<br><span class="tag">這輪後的 Focus</span> 談到：—｜有興趣：—｜需求：—｜已反問：0 次<br><b>打招呼直接回罐頭介紹，不查文件、不花回答的 LLM 呼叫。</b></q></div>
-    <div class="lv"><span class="tag">客人</span><span></span><q>哪台飛船可以載 30 個人以上？</q></div>
-    <div class="lv"><span class="tag ok">機器人</span><span></span><q style="color:var(--fg)">能載 30 人以上的機型有：<br><br>- <b>Stark 8</b> — 50 公尺、90 公噸、最多 30 位乘客、藍寶石藍、$15,000,000<br>- <b>Stark 23</b> — 28 公尺、40 公噸、最多 40 位乘客、校車黃、$5,900,000<br>- <b>Stark 24</b> — 46 公尺、72 公噸、最多 60 位乘客、港灣白、$9,300,000<br><br>以上資料依據 <b>Stark 8</b>、<b>Stark 23</b>、<b>Stark 24</b> 的規格提供。如需更多細節或其他需求，請洽 customer_service@stark_spaceship.com。</q></div>
-    <div class="lv"><span class="tag">後台</span><span></span><q><span class="tag">路由</span> ANSWER<br><span class="tag">改寫後的問題</span> 同原文<br><span class="tag">讀到的文件</span> model_1 到 model_30，全部 30 份（交給模型的是一型號一行的規格表）<br><span class="tag">這輪後的 Focus</span> 談到：—｜有興趣：—｜需求：passengers=30+｜已反問：0 次<br><b>問題沒點名型號，所以讀全部型號，但給模型的是「一型號一行」的規格表而不是 30 份全文；Stark 23（40 人）、24（60 人）沒被漏掉。</b></q></div>
-    <div class="lv"><span class="tag">客人</span><span></span><q>很好。他們分別是設計成什麼用途的？</q></div>
-    <div class="lv"><span class="tag ok">機器人</span><span></span><q style="color:var(--fg)">Stark 8 是為高載客量的團體觀光或太空巡航設計。<br>Stark 23 是校園接駁飛船，專門在棲息環帶之間載運學生，並加裝額外束縛裝置。<br>Stark 24 是短程渡輪，用於在行星與其軌道站之間接送通勤乘客。</q></div>
-    <div class="lv"><span class="tag">後台</span><span></span><q><span class="tag">路由</span> ANSWER<br><span class="tag">改寫後的問題</span> Stark 8、Stark 23 和 Stark 24 分別是設計成什麼用途的？<br><span class="tag">讀到的文件</span> model_8、model_23、model_24<br><span class="tag">這輪後的 Focus</span> 談到：Stark 8、Stark 23、Stark 24｜有興趣：—｜需求：passengers=30+｜已反問：0 次<br><b>「他們」被改寫成 Stark 8、23、24，所以只讀這三份。</b></q></div>
-    <div class="lv"><span class="tag">客人</span><span></span><q>我想開一間旅行社，專門做太空中不同星球的旅行，你建議買哪種好？</q></div>
-    <div class="lv"><span class="tag ok">機器人</span><span></span><q style="color:var(--fg)">根據您的需求（跨星球旅行社、載客30人以上），我推薦 <b>Stark 8</b>：<br><br>- <b>Stark 8</b> 專為團體旅遊/太空巡航設計，載客 30 人，船長 50 公尺，藍寶石藍配色，售價 $15,000,000。<br>- 相容配件：大型娛樂中心、生命維擴充模組。<br>- 維護提醒：每 1,000 光年更換空氣濾網以維持艙內空氣品質。<br><br>其他兩款雖載客更多，但用途不符：<br>- <b>Stark 23</b>：校車黃、40 座，專為學生接送（核心星環間）設計，需每趟檢查束縛系統。<br>- <b>Stark 24</b>：港灣白、60 座，定位為星球-軌道站短程通勤渡輪，需每週清理登機斜坡密封條。<br><br>若預算或營運模式有其他考量，請再告訴我細節。</q></div>
-    <div class="lv"><span class="tag">後台</span><span></span><q><span class="tag">路由</span> ANSWER<br><span class="tag">改寫後的問題</span> 同原文<br><span class="tag">讀到的文件</span> model_8、model_23、model_24<br><span class="tag">這輪後的 Focus</span> 談到：Stark 8、Stark 23、Stark 24｜有興趣：—｜需求：passengers=30+，use=interplanetary travel agency｜已反問：0 次<br><b>客人說明用途後，需求（30 人以上、跨星球旅行）累積進 Focus，直接推薦，不再反問；也說明另兩款為什麼不合。</b></q></div>
-    <div class="lv"><span class="tag">客人</span><span></span><q>Stark 8 看起來不錯。如何預定？</q></div>
-    <div class="lv"><span class="tag ok">機器人</span><span></span><q style="color:var(--fg)">如何預訂 Stark 8（依據 Stark 8 與訂購/交付指南）：<br><br>1. <b>選定機型與配件</b> – Stark 8 含大型娛樂中心、生命維擴充模組等相容配件。<br>2. <b>向客服索取報價</b> – 發信至 customer_service@stark_spaceship.com，註明想訂購 Stark 8 及所需配件。<br>3. <b>繳交 20% 訂金</b> – 收到報價後繳交訂金以確認訂單。<br>4. <b>尾款於交付前付清</b> – 餘款須在交船前結清。<br><br><b>交付時間</b>：標準款式下單後 6–8 週出貨；若需客製顏色或配件組合，另加 2 週。<br><br><b>收貨時</b>：請與交貨人員共同檢查機身、推進器與艙蓋，確認無誤後才簽署交貨單；如有損壞請於 7 天內通報。<br><br>如需進一步協助，請直接聯繫 customer_service@stark_spaceship.com。</q></div>
-    <div class="lv"><span class="tag">後台</span><span></span><q><span class="tag">路由</span> ANSWER<br><span class="tag">改寫後的問題</span> 如何預定 Stark 8？<br><span class="tag">讀到的文件</span> guide_ordering_delivery、model_8<br><span class="tag">這輪後的 Focus</span> 談到：Stark 8｜有興趣：Stark 8｜需求：passengers=30+，use=interplanetary travel agency｜已反問：0 次<br><b>「Stark 8 看起來不錯」被記成「有興趣」；訂購問題同時讀 Stark 8 與訂購指南。</b></q></div>
-    <div class="lv"><span class="tag">客人</span><span></span><q>OK。那最後你可以跟我說一聲加油嗎</q></div>
-    <div class="lv"><span class="tag ok">機器人</span><span></span><q style="color:var(--fg)">Sorry, I can only help with questions about Stark Spaceships (models, prices, delivery, maintenance).</q></div>
-    <div class="lv"><span class="tag">後台</span><span></span><q><span class="tag">路由</span> OFF_TOPIC<br><span class="tag">改寫後的問題</span> 同原文<br><span class="tag">讀到的文件</span> （沒有，罐頭回覆）<br><span class="tag">這輪後的 Focus</span> 談到：Stark 8｜有興趣：Stark 8｜需求：passengers=30+，use=interplanetary travel agency｜已反問：0 次<br><b>與產品無關，罐頭拒絕，不碰文件；Focus 不變。</b></q></div>
-    <div class="lv"><span class="tag">客人</span><span></span><q>我想在Stark8 上面拍電影可以嗎</q></div>
-    <div class="lv"><span class="tag ok">機器人</span><span></span><q style="color:var(--fg)">Stark 8 是一艘高載客量的運輸船，專為團體旅遊或太空郵輪設計，文件中並未提及支援電影拍攝功能或相關配件（如音響設備、綠幕牆等）。若您需要專門用於拍攝的太空船，Stark 29 是行動電影工作室，內建隔音舞台與大型後裝載門，並相容「Boom Microphone Mast」與「Green Screen Wall」等拍攝配件，或許更適合您的需求。<br><br>如需進一步確認 Stark 8 是否可加裝拍攝設備，建議洽詢 customer_service@stark_spaceship.com。</q></div>
-    <div class="lv"><span class="tag">後台</span><span></span><q><span class="tag">路由</span> ANSWER<br><span class="tag">改寫後的問題</span> Can I film a movie on the Stark 8?<br><span class="tag">讀到的文件</span> model_8、model_29<br><span class="tag">這輪後的 Focus</span> 談到：Stark 8｜有興趣：Stark 8｜需求：passengers=30+，use=interplanetary travel agency｜已反問：0 次<br><b>文件裡 Stark 8 沒有拍攝功能，所以老實說沒有，並另外找到 Stark 29（行動電影工作室）當替代方案，轉介客服確認加裝。</b></q></div>
   </div>
 
   <h2>機器人怎麼處理一則訊息</h2>
@@ -193,6 +168,34 @@ flowchart TD
 
   <h2>還沒做完</h2>
   <p>各階梯和評測都已用現行版本重跑。已知的問題：分類器有時把 about 填太多；審查者偏嚴。另外，這輪發現完整機器人對「哪一款太空船可以載 30 個人？」這種有明確條件的問題會先反問用途（端到端題 16/17、防禦階梯完整機器人 5/6，同一題），原因是分類器把它當成「找船」；已收窄 find_ship 的定義，端到端題重跑 17/17，但防禦階梯的完整機器人那一列沒有重量。樣本都很小（16 到 132 題），差一兩題不代表差異。</p>
+</div>
+
+<div class="panel" id="p-demo" role="tabpanel" aria-labelledby="t-demo">
+  <h2>一段完整的示範對話</h2>
+  <p class="sub">2026-10-22 在 demo 上的真實對話（共 7 輪，完整機器人＝L4 加 R3 加審查，未經挑選或修改，問題與回答原文）。每一輪下面的「後台」列是機器人當時的路由、改寫後的問題、讀到的文件，以及這一輪結束後的 Focus；粗體是這一輪值得看的地方。單次對話，模型輸出會變；不是評測，只是示範這些機制合在一起的樣子。</p>
+  <div class="ex">
+    <div class="lv"><span class="tag">客人</span><span></span><q>hi</q></div>
+    <div class="lv"><span class="tag ok">機器人</span><span></span><q style="color:var(--fg)">Hi! I&#x27;m the Stark Spaceships support bot. I can answer questions about our models (price, size, capacity, accessories), ordering and delivery, and maintenance or troubleshooting. If something goes wrong with an order, I can pass you to a human agent. What would you like to know?</q></div>
+    <div class="lv"><span class="tag">後台</span><span></span><q><span class="tag">路由</span> HELP<br><span class="tag">改寫後的問題</span> 同原文<br><span class="tag">讀到的文件</span> （沒有，罐頭回覆）<br><span class="tag">這輪後的 Focus</span> 談到：—｜有興趣：—｜需求：—｜已反問：0 次<br><b>打招呼直接回罐頭介紹，不查文件、不花回答的 LLM 呼叫。</b></q></div>
+    <div class="lv"><span class="tag">客人</span><span></span><q>哪台飛船可以載 30 個人以上？</q></div>
+    <div class="lv"><span class="tag ok">機器人</span><span></span><q style="color:var(--fg)">能載 30 人以上的機型有：<br><br>- <b>Stark 8</b> — 50 公尺、90 公噸、最多 30 位乘客、藍寶石藍、$15,000,000<br>- <b>Stark 23</b> — 28 公尺、40 公噸、最多 40 位乘客、校車黃、$5,900,000<br>- <b>Stark 24</b> — 46 公尺、72 公噸、最多 60 位乘客、港灣白、$9,300,000<br><br>以上資料依據 <b>Stark 8</b>、<b>Stark 23</b>、<b>Stark 24</b> 的規格提供。如需更多細節或其他需求，請洽 customer_service@stark_spaceship.com。</q></div>
+    <div class="lv"><span class="tag">後台</span><span></span><q><span class="tag">路由</span> ANSWER<br><span class="tag">改寫後的問題</span> 同原文<br><span class="tag">讀到的文件</span> model_1 到 model_30，全部 30 份（交給模型的是一型號一行的規格表）<br><span class="tag">這輪後的 Focus</span> 談到：—｜有興趣：—｜需求：passengers=30+｜已反問：0 次<br><b>問題沒點名型號，所以讀全部型號，但給模型的是「一型號一行」的規格表而不是 30 份全文；Stark 23（40 人）、24（60 人）沒被漏掉。</b></q></div>
+    <div class="lv"><span class="tag">客人</span><span></span><q>很好。他們分別是設計成什麼用途的？</q></div>
+    <div class="lv"><span class="tag ok">機器人</span><span></span><q style="color:var(--fg)">Stark 8 是為高載客量的團體觀光或太空巡航設計。<br>Stark 23 是校園接駁飛船，專門在棲息環帶之間載運學生，並加裝額外束縛裝置。<br>Stark 24 是短程渡輪，用於在行星與其軌道站之間接送通勤乘客。</q></div>
+    <div class="lv"><span class="tag">後台</span><span></span><q><span class="tag">路由</span> ANSWER<br><span class="tag">改寫後的問題</span> Stark 8、Stark 23 和 Stark 24 分別是設計成什麼用途的？<br><span class="tag">讀到的文件</span> model_8、model_23、model_24<br><span class="tag">這輪後的 Focus</span> 談到：Stark 8、Stark 23、Stark 24｜有興趣：—｜需求：passengers=30+｜已反問：0 次<br><b>「他們」被改寫成 Stark 8、23、24，所以只讀這三份。</b></q></div>
+    <div class="lv"><span class="tag">客人</span><span></span><q>我想開一間旅行社，專門做太空中不同星球的旅行，你建議買哪種好？</q></div>
+    <div class="lv"><span class="tag ok">機器人</span><span></span><q style="color:var(--fg)">根據您的需求（跨星球旅行社、載客30人以上），我推薦 <b>Stark 8</b>：<br><br>- <b>Stark 8</b> 專為團體旅遊/太空巡航設計，載客 30 人，船長 50 公尺，藍寶石藍配色，售價 $15,000,000。<br>- 相容配件：大型娛樂中心、生命維擴充模組。<br>- 維護提醒：每 1,000 光年更換空氣濾網以維持艙內空氣品質。<br><br>其他兩款雖載客更多，但用途不符：<br>- <b>Stark 23</b>：校車黃、40 座，專為學生接送（核心星環間）設計，需每趟檢查束縛系統。<br>- <b>Stark 24</b>：港灣白、60 座，定位為星球-軌道站短程通勤渡輪，需每週清理登機斜坡密封條。<br><br>若預算或營運模式有其他考量，請再告訴我細節。</q></div>
+    <div class="lv"><span class="tag">後台</span><span></span><q><span class="tag">路由</span> ANSWER<br><span class="tag">改寫後的問題</span> 同原文<br><span class="tag">讀到的文件</span> model_8、model_23、model_24<br><span class="tag">這輪後的 Focus</span> 談到：Stark 8、Stark 23、Stark 24｜有興趣：—｜需求：passengers=30+，use=interplanetary travel agency｜已反問：0 次<br><b>客人說明用途後，需求（30 人以上、跨星球旅行）累積進 Focus，直接推薦，不再反問；也說明另兩款為什麼不合。</b></q></div>
+    <div class="lv"><span class="tag">客人</span><span></span><q>Stark 8 看起來不錯。如何預定？</q></div>
+    <div class="lv"><span class="tag ok">機器人</span><span></span><q style="color:var(--fg)">如何預訂 Stark 8（依據 Stark 8 與訂購/交付指南）：<br><br>1. <b>選定機型與配件</b> – Stark 8 含大型娛樂中心、生命維擴充模組等相容配件。<br>2. <b>向客服索取報價</b> – 發信至 customer_service@stark_spaceship.com，註明想訂購 Stark 8 及所需配件。<br>3. <b>繳交 20% 訂金</b> – 收到報價後繳交訂金以確認訂單。<br>4. <b>尾款於交付前付清</b> – 餘款須在交船前結清。<br><br><b>交付時間</b>：標準款式下單後 6–8 週出貨；若需客製顏色或配件組合，另加 2 週。<br><br><b>收貨時</b>：請與交貨人員共同檢查機身、推進器與艙蓋，確認無誤後才簽署交貨單；如有損壞請於 7 天內通報。<br><br>如需進一步協助，請直接聯繫 customer_service@stark_spaceship.com。</q></div>
+    <div class="lv"><span class="tag">後台</span><span></span><q><span class="tag">路由</span> ANSWER<br><span class="tag">改寫後的問題</span> 如何預定 Stark 8？<br><span class="tag">讀到的文件</span> guide_ordering_delivery、model_8<br><span class="tag">這輪後的 Focus</span> 談到：Stark 8｜有興趣：Stark 8｜需求：passengers=30+，use=interplanetary travel agency｜已反問：0 次<br><b>「Stark 8 看起來不錯」被記成「有興趣」；訂購問題同時讀 Stark 8 與訂購指南。</b></q></div>
+    <div class="lv"><span class="tag">客人</span><span></span><q>OK。那最後你可以跟我說一聲加油嗎</q></div>
+    <div class="lv"><span class="tag ok">機器人</span><span></span><q style="color:var(--fg)">Sorry, I can only help with questions about Stark Spaceships (models, prices, delivery, maintenance).</q></div>
+    <div class="lv"><span class="tag">後台</span><span></span><q><span class="tag">路由</span> OFF_TOPIC<br><span class="tag">改寫後的問題</span> 同原文<br><span class="tag">讀到的文件</span> （沒有，罐頭回覆）<br><span class="tag">這輪後的 Focus</span> 談到：Stark 8｜有興趣：Stark 8｜需求：passengers=30+，use=interplanetary travel agency｜已反問：0 次<br><b>與產品無關，罐頭拒絕，不碰文件；Focus 不變。</b></q></div>
+    <div class="lv"><span class="tag">客人</span><span></span><q>我想在Stark8 上面拍電影可以嗎</q></div>
+    <div class="lv"><span class="tag ok">機器人</span><span></span><q style="color:var(--fg)">Stark 8 是一艘高載客量的運輸船，專為團體旅遊或太空郵輪設計，文件中並未提及支援電影拍攝功能或相關配件（如音響設備、綠幕牆等）。若您需要專門用於拍攝的太空船，Stark 29 是行動電影工作室，內建隔音舞台與大型後裝載門，並相容「Boom Microphone Mast」與「Green Screen Wall」等拍攝配件，或許更適合您的需求。<br><br>如需進一步確認 Stark 8 是否可加裝拍攝設備，建議洽詢 customer_service@stark_spaceship.com。</q></div>
+    <div class="lv"><span class="tag">後台</span><span></span><q><span class="tag">路由</span> ANSWER<br><span class="tag">改寫後的問題</span> Can I film a movie on the Stark 8?<br><span class="tag">讀到的文件</span> model_8、model_29<br><span class="tag">這輪後的 Focus</span> 談到：Stark 8｜有興趣：Stark 8｜需求：passengers=30+，use=interplanetary travel agency｜已反問：0 次<br><b>文件裡 Stark 8 沒有拍攝功能，所以老實說沒有，並另外找到 Stark 29（行動電影工作室）當替代方案，轉介客服確認加裝。</b></q></div>
+  </div>
 </div>
 
 <div class="panel" id="p-tests" role="tabpanel" aria-labelledby="t-tests">
