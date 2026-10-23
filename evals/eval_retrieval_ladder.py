@@ -1,6 +1,6 @@
 """Retrieval ladder: how the bot decides which documents to read, measured at two corpus sizes.
 `python -m evals.gen_scaled_corpus 15 && python -m evals.eval_retrieval_ladder 15` (live LLM calls; `--dry` builds the questions and checks gold, no calls).
-R0 load every document | R1 embedding top-3 | R2 top-3, or top-15 when an LLM scope check says the question is broad | R3 the LLM reads
+R0 load every document | R1 embedding top-3 | R2 top-3, or every document when an LLM scope check says the question is catalogue-wide | R3 the LLM reads
 INDEX.md and names the documents to open. Doc reads are traced tools (doc_tools.py); set MLFLOW_TRACKING_URI=sqlite:///data/runtime/mlflow.db and
 run `mlflow ui --backend-store-uri sqlite:///data/runtime/mlflow.db` to compare runs and open each question's trace."""
 
@@ -55,7 +55,6 @@ def throttled(llm):
 
 app.llm = throttled(app.llm)
 LEVELS = ["R0", "R1", "R2", "R3"]
-WIDE_K = 15  # ponytail: "broad" means top-15; at 60+ models even that misses, which is what the larger run shows
 INDEX_PROMPT = """You pick which documents a Stark Spaceships support bot must read to answer a question.
 Below is the document index. Reply with JSON only: {"read": ["<path>", ...]} using paths exactly as written in the index.
 Pick every document the answer needs (one manual per model asked about, all of them for catalogue-wide questions), and no others.
@@ -157,10 +156,10 @@ def pick(level, question, history=()):
         return doc_tools.search_docs(question, 3)
 
     if level == "R2":
-        k = 3
         if app.needs_all_docs(question, history):
-            k = WIDE_K
-        return doc_tools.search_docs(question, k)
+            return doc_tools.list_docs()  # catalogue-wide: read everything, however many models there are
+
+        return doc_tools.search_docs(question, 3)
 
     raw = app.llm(
         [
