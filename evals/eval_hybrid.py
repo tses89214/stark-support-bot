@@ -12,6 +12,7 @@ This shows the technique and what it buys at this size; the bot itself still pic
 import math
 import re
 from collections import Counter
+from itertools import pairwise
 
 from sentence_transformers import CrossEncoder, SentenceTransformer, util
 
@@ -26,7 +27,7 @@ def tokens(text):
     """Lower-case words, plus overlapping character pairs for Chinese (no spaces to split on)."""
     text = text.lower()
     words = re.findall(r"[a-z0-9]+", text)
-    return words + [a + b for run in re.findall(r"[一-鿿]+", text) for a, b in zip(run, run[1:])]
+    return words + [a + b for run in re.findall(r"[一-鿿]+", text) for a, b in pairwise(run)]
 
 
 def bm25_scores(query, docs, k1=1.5, b=0.75):
@@ -121,7 +122,7 @@ if __name__ == "__main__":
     )
     print(f"{'':8}{'hit@1':>8}{'hit@3':>8}{'hit@5':>8}{'  hit@3 en':>11}{'  hit@3 zh':>11}{'  MRR':>7}")
     for label, rows in results.items():
-        at = lambda n, sel=lambda q: True: [g in r[:n] for q, g, r in rows if sel(q)]  # noqa: E731
+        at = lambda n, sel=lambda q: True, rows=rows: [g in r[:n] for q, g, r in rows if sel(q)]
         lo, hi = wilson(sum(at(3)), len(rows))
         mrr = sum(next((1 / p for p, d in enumerate(r, 1) if d == g), 0) for _, g, r in rows) / len(rows)
         en, zh = at(3, lambda q: q.isascii()), at(3, lambda q: not q.isascii())

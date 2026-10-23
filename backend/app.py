@@ -456,15 +456,26 @@ def read_docs(sources):
         return "\n".join(docs[n] for n in sources)
 
     rows = []
+    seats = []
     for n in models:
-        field = lambda name, text=docs[n]: re.search(rf"\*\*{name}\*\*: (.*?)[. ]*$", text, re.MULTILINE).group(1)  # noqa: E731
+        field = lambda name, text=docs[n]: re.search(rf"\*\*{name}\*\*: (.*?)[. ]*$", text, re.MULTILINE).group(1)
+        seats.append((int(re.match(r"\d+", field("Capacity")).group()), docs[n].splitlines()[0].lstrip("# ")))
         rows.append(
             f"{docs[n].splitlines()[0].lstrip('# ')} | {field('Description')} | Size: {field('Size')} | Weight: {field('Weight')} | "
             f"Capacity: {field('Capacity')} | Color: {field('Color')} | Price: {field('Price')} | Accessories: {field('Compatible Accessories')}"
         )
 
+    # computed here, not left to the model: "which carry 30 or more?" is a lookup in this sorted line, the scan over 30 rows is what got skipped
+    ranking = "Seats (the first number of Capacity), largest first: " + ", ".join(
+        f"{m} = {c}" for c, m in sorted(seats, reverse=True)
+    )
     return "\n".join(
-        ["One line per model (Notes left out):", *rows, *(docs[n] for n in sources if not n.startswith("model_"))]
+        [
+            "One line per model (Notes left out):",
+            *rows,
+            ranking,
+            *(docs[n] for n in sources if not n.startswith("model_")),
+        ]
     )
 
 
