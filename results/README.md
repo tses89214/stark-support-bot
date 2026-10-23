@@ -4,7 +4,7 @@ Each page covers one question; they are independent, read the one you need.
 
 | Page | Question | Produced by |
 |---|---|---|
-| [Full report (HTML)](https://tses89214.github.io/stark-support-bot/results/report.html) | All of the above as one tabbed page (Traditional Chinese), including the 對話順暢 tab: the conversation-flow design (server sessions, Focus, CLARIFY, pinned docs) and what is not yet measured. Open in a browser. | written by hand from these pages; same as the private Artifact |
+| Full report (HTML): [English](https://tses89214.github.io/stark-support-bot/results/report.en.html) · [中文](https://tses89214.github.io/stark-support-bot/results/report.html) | All of the above as one tabbed page, including the conversation-flow tab (server sessions, Focus, CLARIFY, pinned docs) and what is not yet measured. Open in a browser. | written by hand from these pages |
 | [Defense ladder](ladder.md) | How much does each defense (answer rules, input fence, classifier and routing, L0 to L3) add, from a deliberately defenseless bot? (Retrieval is measured on its own ladder below.) Scores, intervals, caveats. | `python -m evals.eval_ladder` (live LLM calls) |
 | [Input classifier](guardrails.md) | How accurate is the 7-category input filter, and what does it get wrong? | `python -m evals.eval_guardrails` (live LLM calls) |
 | [Ladder examples](ladder-examples.md) | What does the model actually receive at each level, and what does it reply to real attacks? | same run as the ladder |
