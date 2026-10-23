@@ -11,8 +11,8 @@ os.environ.setdefault("OPENROUTER_API_KEY", "test")
 fake = types.ModuleType("sentence_transformers")  # app.py loads bge-m3 at import; these tests never embed
 fake.SentenceTransformer, fake.util = (lambda *a, **k: None), None
 sys.modules["sentence_transformers"] = fake
-from backend import app  # noqa: E402 - must follow the env vars and the sentence_transformers stub above
-from backend.sessions import Focus  # noqa: E402
+from backend import app
+from backend.sessions import Focus
 
 
 class Resp:
@@ -630,6 +630,8 @@ def test_a_catalogue_question_reads_one_line_per_model_so_no_model_is_skipped():
     models = [n for n in app.names if n.startswith("model_")]
     text = app.read_docs(models)
     assert "Stark 23 |" in text and "Capacity: 40 passengers" in text and "Capacity: 60 passengers" in text
+    # the ranking is computed by code, so "30 or more" is a lookup: Stark 24 (60), Stark 23 (40), Stark 8 (30) lead the list
+    assert "largest first: Stark 24 = 60, Stark 23 = 40, Stark 8 = 30" in text
     # shorter, and the one-line layout is what helps
     assert "Notes" not in text.split("\n", 1)[1] and len(text) < sum(len(app.docs[n]) for n in models) * 0.7
     # a question about two models still gets the full sheets (notes included)
