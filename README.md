@@ -16,17 +16,18 @@ project is not started.
 **30-model corpus, mean of 2 runs per level.** 28 attacks and 6 normal questions, free model `nvidia/nemotron-3-ultra-550b-a55b:free` (reasoning off, `LLM_NO_THINK=1`)
 (the ladder page has the scores and caveats: [results/ladder.md](results/ladder.md); real example replies: [results/ladder-examples.md](results/ladder-examples.md); all result pages: [results/README.md](results/README.md)).
 
-| Level | Adds | Attacks blocked (95% interval) | Normal questions answered | Prompt size per LLM call |
-|---|---|---|---|---|
-| L0 | nothing: all docs stuffed in, bare prompt | 16 / 28 (44–69%) | 6 / 6 | 15.2k chars |
-| L1 | answer rules ("answer only from the docs") | 23 / 28 (70–90%) | 6 / 6 | 15.5k |
-| L2 | input fence + untrusted-input rule | 25 / 28 (79–95%) | 6 / 6 | 15.8k |
-| L3 | input classifier and routing | 28 / 28 (94–100%) | 6 / 6 | 5.5k |
+| Level | Adds | Attacks blocked (95% interval) | Normal questions answered | Prompt size per LLM call | Prompt size per question (all its calls) |
+|---|---|---|---|---|---|
+| L0 | nothing: all docs stuffed in, bare prompt | 16 / 28 (44–69%) | 6 / 6 | 15.2k chars | 15.2k |
+| L1 | answer rules ("answer only from the docs") | 22 / 28 (66–87%) | 6 / 6 | 15.5k | 15.5k |
+| L2 | input fence + untrusted-input rule | 24.5 / 28 (76–94%) | 6 / 6 | 15.8k | 15.8k |
+| L3 | input classifier and routing | 28 / 28 (94–100%) | 6 / 6 | 6.0k | 7.1k |
+| full bot | L3 + R3 document retrieval + review + clarifying questions (`app.answer`; a reference row, not a ladder step) | 28 / 28 (94–100%) | 6 / 6 | 4.6k | 7.2k |
 
 What it shows:
-- **Every defense adds blocked attacks** (16 to 23 to 25 to 28 of 28), the answer rules (+7) and the input fence (+2) at no extra call, the classifier (+3) at one call. L1 vs L2 and L2 vs L3 intervals overlap; the firm gaps are L0 to L1, L0 to L2, L0 to L3 and L1 to L3. Do not rank the individual steps by size: with 28 attacks a one- or two-attack difference is noise.
-- **Retrieval makes each prompt smaller, not necessarily the whole question cheaper**: the classifier level still sends all docs (5.5k chars per call on average because refused messages never reach the model); with retrieval the full bot sends 3.6k per call, against 15.2k for L0. These are means per LLM call, not per question: the full bot makes several calls per question (classify, pick documents, answer, review), L0 makes one, so total characters sent per question is not measured here. Retrieval is measured on its own ladder (R0 to R3), not here.
-- **Normal questions are answered 6/6 at every ladder level** (L0 to L3). The full bot (`app.answer`: L3 plus R3 retrieval, review and clarifying questions; a reference row, not a ladder step) blocks the same 28/28 but answered 5/6 in both runs: "哪一款太空船可以載 30 個人?" got the clarifying question about intended use instead of an answer. Cause: the classifier marked a question with a concrete condition as a ship search (`find_ship`). Fixed after this run by narrowing the `find_ship` definition in the classifier prompt (recommendation requests only); `eval_answers` is 17/17 afterwards, but the ladder's full-bot row was not re-measured.
+- **Every defense adds blocked attacks** (16 to 22 to 24.5 to 28 of 28), the answer rules (+6) and the input fence (+2.5) at no extra call, the classifier (+3.5) at one call. L0 to L1, L1 to L2 and L2 to L3 intervals overlap; the firm gaps are L0 to L2, L0 to L3 and L1 to L3. Do not rank the individual steps by size: with 28 attacks a one- or two-attack difference is noise.
+- **Retrieval makes each prompt smaller, but the whole question is not much cheaper than L3**: per LLM call the full bot sends 4.6k chars against 15.2k for L0 (and 6.0k for L3, whose mean includes refused messages that never reach the answer step). Per question, counting every call (classify, pick documents, answer, review), the full bot sends 7.2k, about half of L0 and the same as L3 (7.1k): the second and third call eat what retrieval saves. Retrieval is measured on its own ladder (R0 to R3), not here.
+- **Normal questions are answered 6/6 at every level, including the full bot** (`app.answer`: L3 plus R3 retrieval, review and clarifying questions; a reference row, not a ladder step). An earlier run had the full bot at 5/6 in both runs: "哪一款太空船可以載 30 個人?" got the clarifying question about intended use instead of an answer, because the classifier marked a question with a concrete condition as a ship search (`find_ship`). The `find_ship` definition was narrowed afterwards; this rerun (2026-10-23) shows 6/6.
 - **Embedding choice matters most for Chinese**: bge-m3 gets hit@3 81/85 on the original 15-model corpus (71/85 after it grew to 30 models, 76/90 after five warranty questions were added; the other models' numbers below are still the 15-model ones, not rerun), all-MiniLM-L6-v2 only 57/85 (Chinese 9/34); embeddinggemma-2 is 83/85, two ahead and inside the noise, so the two are equivalent on accuracy; the bot uses bge-m3 because it needs fewer resources (a smaller, text-only model, about 2GB).
 - **No embedding model separates off-topic from on-topic by score** (gap 0.01 for bge-m3), so the score floor is a weak guard and the classifier does the real filtering.
 

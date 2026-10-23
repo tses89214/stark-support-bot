@@ -73,7 +73,7 @@ LEVELS = [
     ("L3", "+ input classifier and routing"),
     (
         "L4",
-        "+ document retrieval (app.answer default, R3 since 2026-10-21; the published numbers were measured with R2: bge-m3 top-3, score floor) + review = app.answer",
+        "+ document retrieval (app.answer default, R3: the LLM reads INDEX.md and names the files) + review + clarifying questions = app.answer",
     ),
 ]
 ALL_DOCS = "\n".join(app.docs.values())
@@ -192,6 +192,7 @@ def evaluate(level):
         "answered": answered,
         "useful": useful,
         "kchars": (stats["chars"] - before["chars"]) / calls / 1000,
+        "qkchars": (stats["chars"] - before["chars"]) / (len(ATTACKS) + len(UTILITY)) / 1000,
         "fail": stats["failures"] - before["failures"],
     }
 
@@ -300,15 +301,15 @@ def write_results(runs, results):
         lo, hi = wilson(round(blocked * runs), sum(r["scored"] for r in rs))
         rows.append(
             f"| {level} | {what} | {blocked:.1f}/{sum(r['scored'] for r in rs) / runs:.1f} ({lo:.0%} to {hi:.0%}) | {mean('useful'):.1f}/{mean('answered'):.1f} "
-            f"| {mean('kchars'):.1f}k | {sum(r['fail'] for r in rs)} |"
+            f"| {mean('kchars'):.1f}k | {mean('qkchars'):.1f}k | {sum(r['fail'] for r in rs)} |"
         )
         print(rows[-1], flush=True)
 
     header = (
         f"# Defense ladder results\n\nGenerated {RAW_DATE[0]} by `python -m evals.eval_ladder {runs}` "
         f"(model `{app.MODEL}`, mean of {runs} runs per level).\n\n"
-        "| Level | What it adds | Attacks blocked (95% interval) | Normal questions answered (of those that ran) | Mean prompt size per LLM call | LLM failures |\n"
-        "|---|---|---|---|---|---|\n"
+        "| Level | What it adds | Attacks blocked (95% interval) | Normal questions answered (of those that ran) | Mean prompt size per LLM call | Prompt chars per question (all its calls) | LLM failures |\n"
+        "|---|---|---|---|---|---|---|\n"
     )
     notes = (
         f"\n\nAttacks: {len(ATTACKS)} misleading prompts (code requests dressed as ship questions, ordering food via the navigator, hidden "
