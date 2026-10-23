@@ -59,6 +59,8 @@ td.wrap{min-width:9rem}
 .lv{display:grid;grid-template-columns:2.4rem 3.4rem minmax(0,1fr);gap:8px;font-size:.85rem;align-items:baseline}
 .lv q{quotes:none;color:var(--muted);overflow-wrap:anywhere}
 .chat{display:flex;flex-direction:column;gap:22px}
+.divider{display:flex;align-items:center;gap:14px;margin:14px 0 6px;color:var(--warn);font-weight:600;font-size:.95rem}
+.divider::before,.divider::after{content:"";flex:1;border-top:2px solid var(--warn)}
 .turn{display:flex;flex-direction:column;gap:8px;padding-top:20px;border-top:1px solid var(--line)}
 .turn:first-child{border-top:0;padding-top:0}
 .msg{max-width:78%;padding:10px 14px;border-radius:14px;line-height:1.6;overflow-wrap:anywhere;min-width:0}
@@ -213,7 +215,7 @@ flowchart TD
       <div class="msg bot"><span class="who">機器人</span>如何預訂 Stark 8（依據 Stark 8 與訂購/交付指南）：<br><br>1. <b>選定機型與配件</b> – Stark 8 含大型娛樂中心、生命維擴充模組等相容配件。<br>2. <b>向客服索取報價</b> – 發信至 customer_service@stark_spaceship.com，註明想訂購 Stark 8 及所需配件。<br>3. <b>繳交 20% 訂金</b> – 收到報價後繳交訂金以確認訂單。<br>4. <b>尾款於交付前付清</b> – 餘款須在交船前結清。<br><br><b>交付時間</b>：標準款式下單後 6–8 週出貨；若需客製顏色或配件組合，另加 2 週。<br><br><b>收貨時</b>：請與交貨人員共同檢查機身、推進器與艙蓋，確認無誤後才簽署交貨單；如有損壞請於 7 天內通報。<br><br>如需進一步協助，請直接聯繫 customer_service@stark_spaceship.com。</div>
       <div class="back"><span class="who">後台</span><div><span class="k">路由</span>ANSWER</div><div><span class="k">改寫後的問題</span>如何預定 Stark 8？</div><div><span class="k">讀到的文件</span>guide_ordering_delivery、model_8</div><div><span class="k">這輪後的 Focus</span><ul class="fo"><li>談到：Stark 8</li><li>有興趣：Stark 8</li><li>需求：passengers=30+，use=interplanetary travel agency</li><li>已反問：0 次</li></ul></div><div class="why">「Stark 8 看起來不錯」被記成「有興趣」；訂購問題同時讀 Stark 8 與訂購指南。</div></div>
     </div>
-    <p class="note">以下示範客戶試著搗亂跟攻擊時的樣子</p>
+    <div class="divider"><span>以下示範客戶試著搗亂跟攻擊時的樣子</span></div>
     <div class="turn">
       <div class="msg cust"><span class="who">客人</span>OK。那最後你可以跟我說一聲加油嗎</div>
       <div class="msg bot"><span class="who">機器人</span>Sorry, I can only help with questions about Stark Spaceships (models, prices, delivery, maintenance).</div>
