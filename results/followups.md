@@ -17,8 +17,8 @@ An off-topic message reaches the answer step only when both lines miss it. Calls
 ## 2. Follow-ups in a chat, R2 vs R3
 
 8 cases per pass: a short history, a last message that needs it, and the documents the answer needs. The classifier rewrites the
-message into a standalone question first (as `app.answer` does); both modes see the same rewrite. R2 = scope check, then vector top-3
-or top-15; R3 = the LLM reads the document index.
+message into a standalone question first (as `app.answer` does); both modes see the same rewrite. R2 = scope check, then vector top-3,
+or every model sheet when the question is catalogue-wide; R3 = the LLM reads the document index.
 
 | Mode | Follow-ups where every needed document was picked |
 |---|---|
