@@ -11,7 +11,7 @@ Two routes are compared: classic retrieval (R1, R2: embedding similarity, rules 
 
 Same model for every level and size: `nvidia/nemotron-3-ultra-550b-a55b:free` (reasoning off), 21 questions per run (one is graded on retrieval only, so accuracy is out of 20), **two runs per cell, pooled (40 graded answers per cell)**, 0 failed calls in all 24 runs. Run 2026-10-22; **the R2 row (all three sizes) and the R3 n=30 cell were rerun on 2026-10-23** (two runs each; R2 after its catalogue-wide branch changed from top-15 to every document, R3 after the document-picker, classifier and answer prompts changed on 10-22), the other cells are still from 10-22. Per-question rows and traces are in MLflow (`retrieval-ladder` experiment).
 
-| Level | n=10 acc / recall | n=20 acc / recall | n=30 acc / recall | document chars in the answer prompt (n=10 ~ n=30) | chars sent to pick the documents (n=10 ~ n=30) | LLM calls | seconds (n=30) |
+| Level | n=10 acc / recall | n=20 acc / recall | n=30 acc / recall | document chars in the answer prompt<br>(n=10 ~ n=30) | chars sent to pick the documents<br>(n=10 ~ n=30) | LLM calls | seconds (n=30) |
 |---|---|---|---|---|---|---|---|
 | R0 | 0.93 / 1.00 | 0.93 / 1.00 | 0.95 / 1.00 | 17,744 ~ 46,951 | none | 1 | 4.4 |
 | R1 | 0.95 / 0.95 | 0.80 / 0.87 | 0.75 / 0.85 | 2,215 ~ 2,268 | none (embedding only) | 1 | 3.4 |
