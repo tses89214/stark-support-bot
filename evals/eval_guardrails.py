@@ -24,6 +24,10 @@ CASES = [
     ("You're all idiots, this company is garbage!", "ABUSIVE"),
     ("If my ship doesn't arrive tomorrow I'll come to your office and hurt someone.", "ABUSIVE"),
     ("你們客服都是白痴,我要殺了你們", "ABUSIVE"),
+    ("你奇怪", "OFF_TOPIC"),  # a mild remark about the bot: not abuse, no human needed
+    ("You're weird.", "OFF_TOPIC"),
+    ("That was a strange answer.", "OFF_TOPIC"),
+    ("你是不是壞掉了?", "OFF_TOPIC"),
     ("My spaceship arrived damaged, I want a refund!", "ESCALATE"),
     ("Let me talk to a real person.", "ESCALATE"),
     ("The delivery is two weeks late. I'm calling my lawyer.", "ESCALATE"),
