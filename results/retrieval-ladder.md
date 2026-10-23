@@ -11,12 +11,14 @@ Two routes are compared: classic retrieval (R1, R2: embedding similarity, rules 
 
 Same model for every level and size: `nvidia/nemotron-3-ultra-550b-a55b:free` (reasoning off), 21 questions per run (one is graded on retrieval only, so accuracy is out of 20), **two runs per cell, pooled (40 graded answers per cell)**, 0 failed calls in all 24 runs. Run 2026-10-22; **the R2 row (all three sizes) and the R3 n=30 cell were rerun on 2026-10-23** (two runs each; R2 after its catalogue-wide branch changed from top-15 to every document, R3 after the document-picker, classifier and answer prompts changed on 10-22), the other cells are still from 10-22. Per-question rows and traces are in MLflow (`retrieval-ladder` experiment).
 
-| Level | n=10 acc / recall | n=20 acc / recall | n=30 acc / recall | document chars in the answer prompt<br>(n=10 ~ n=30) | chars sent to pick the documents<br>(n=10 ~ n=30) | LLM calls | seconds (n=30) |
+| Level | n=10 acc / recall | n=20 acc / recall | n=30 acc / recall | document chars<br>(n=10 ~ n=30) | picking call<br>(n=10 ~ n=30) | LLM calls | seconds (n=30) |
 |---|---|---|---|---|---|---|---|
 | R0 | 0.93 / 1.00 | 0.93 / 1.00 | 0.95 / 1.00 | 17,744 ~ 46,951 | none | 1 | 4.4 |
 | R1 | 0.95 / 0.95 | 0.80 / 0.87 | 0.75 / 0.85 | 2,215 ~ 2,268 | none (embedding only) | 1 | 3.4 |
 | R2 | 0.93 / 1.00 | 0.93 / 1.00 | 0.98 / 1.00 | 4,868 ~ 11,780 | 0.6k | 2 | 8.4 |
 | R3 | 0.95 / 1.00 | 0.93 / 1.00 | 0.93 / 0.98 | 2,263 ~ 5,240 | 3.5k ~ 8.0k | 2 | 10.0 |
+
+*document chars* = characters of documents put into the answer prompt; *picking call* = characters sent in the call that chooses the documents (R2: the scope check, R3: the whole index). Characters sent per question are the two added.
 
 95% Wilson intervals for accuracy at n=30 (40 graded answers per cell): R0 38/40 is 0.83–0.99, R1 30/40 is 0.60–0.86, R2 39/40 is 0.87–1.00, R3 37/40 is 0.80–0.97. At n=20: R0, R2 and R3 37/40 (0.80–0.97), R1 32/40 (0.65–0.90). R2 and R3 overlap at every size; R1 at n=30 is the only cell clearly below the others.
 
