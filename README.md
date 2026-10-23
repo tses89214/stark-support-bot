@@ -1,6 +1,8 @@
 # Stark Spaceships customer-service chatbot
 
-**📊 [Full report](https://tses89214.github.io/stark-support-bot/results/report.html)** · [all result pages](results/README.md)
+**English** · [繁體中文](README.zh-TW.md)
+
+**📊 Full report: [English](https://tses89214.github.io/stark-support-bot/results/report.en.html) · [中文](https://tses89214.github.io/stark-support-bot/results/report.html)** · [all result pages](results/README.md)
 
 A RAG customer-service bot over fake product docs (`data/stark_spaceships/`), built as a testbed for **guardrails and
 evaluation**: start from a deliberately defenseless bot (L0), add one defense at a time, and re-run the same fixed
@@ -42,13 +44,13 @@ message ─► classifier (LLM) ─┬─ OFF_TOPIC / INJECTION ─► canned re
                              ├─ HELP ──────────────────► canned intro (what I can do), no retrieval
                              ├─ ABUSIVE / ESCALATE ────► ticket in data/runtime/tickets.jsonl + canned reply
                              ├─ HANDOFF ───────────────► ticket + canned reply (order status, quotes, discounts, custom work)
-                             └─ ANSWER ─► embed (bge-m3) ─► top-3 docs ─► LLM answers from them
-                                          (best score < 0.4 ─► "no answer" reply)
+                             └─ ANSWER ─► LLM reads the document index and names the files to read ─► none named: "no answer" reply
+                                          named files ─► LLM drafts from them only ─► reviewer (LLM) ─► reply
 any model failure ─► ERROR reply (+ ticket if the classifier failed); never shown as "not found"
 reviewer rejects the draft twice ─► UNVERIFIED reply (the docs may cover it; the answer could not be checked)
 ```
 
-The LLM is any free model on [OpenRouter](https://openrouter.ai); embeddings run locally.
+The LLM is any free model on [OpenRouter](https://openrouter.ai); embeddings (bge-m3) run locally and serve the R1/R2 retrieval modes.
 
 ## Design decisions
 
