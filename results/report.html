@@ -410,7 +410,7 @@ about Stark Spaceships (models, prices, delivery, maintenance)."</pre></details>
     <tbody>
       <tr><td>R0 全部載入</td><td class="wrap">每次都把所有文件放進 prompt，不做任何挑選</td><td class="num">0.93 / 1.00</td><td class="num">0.93 / 1.00</td><td class="num">0.95 / 1.00</td><td class="num">17,744 → 46,951</td><td class="num">1</td></tr>
       <tr><td>R1 向量檢索</td><td class="wrap">問題轉成向量（bge-m3），取最相近的 3 份文件放進 prompt</td><td class="num">0.95 / 0.95</td><td class="num">0.80 / 0.87</td><td class="num">0.75 / 0.85</td><td class="num">2,215 → 2,268</td><td class="num">1</td></tr>
-      <tr><td>R2 範圍判斷 + 檢索</td><td class="wrap">先用 LLM 判斷是單一型號（FEW）還是全目錄（ALL）。FEW 取 top-3，ALL 放寬（取 top-15）</td><td class="num">1.00 / 1.00</td><td class="num">0.80 / 0.98</td><td class="num">0.85 / 0.97</td><td class="num">4,151 → 4,880</td><td class="num">2</td></tr>
+      <tr><td>R2 範圍判斷 + 檢索</td><td class="wrap">先用 LLM 判斷是單一型號（FEW）還是全目錄（ALL）。FEW 取 top-3，ALL 全部文件都讀</td><td class="num">0.93 / 1.00</td><td class="num">0.93 / 1.00</td><td class="num">0.98 / 1.00</td><td class="num">4,868 → 11,780</td><td class="num">2</td></tr>
       <tr><td>R3 LLM 讀索引</td><td class="wrap">準備 <code>INDEX.md</code>（每份文件一行摘要），讓 LLM 讀它並列出要打開的檔案；編造的路徑會被丟掉</td><td class="num">0.95 / 1.00</td><td class="num">0.93 / 1.00</td><td class="num">0.93 / 0.98</td><td class="num">2,263 → 5,240</td><td class="num">2</td></tr>
     </tbody></table></div>
   <h2>R0 到 R3 是什麼、怎麼實作</h2>
@@ -436,17 +436,18 @@ return doc_tools.search_docs(question, 3)   # bge-m3 餘弦相似度前 3 名</p
     <div class="stage"><div class="badge">R2</div><div class="sbody">
       <h3>範圍判斷 + 檢索：先問「要看幾份」，再去找</h3>
       <div class="kv"><b>是什麼</b><div>R1 一律取 3 份，但有些問題本來就需要很多份（「哪些型號用搖桿操控」要看所有手冊）。R2 在檢索前多加一道 LLM 判斷：這題是問單一型號／主題（FEW），還是問整個目錄（ALL）。</div></div>
-      <div class="kv"><b>怎麼實作</b><div>1. 把問題（與最近 4 則對話）交給 <code>needs_all_docs()</code>，LLM 只回 JSON <code>{"scope": "ALL" 或 "FEW"}</code>。<br>2. FEW：向量檢索取 top-3。<br>3. ALL：放寬取 top-15（<code>WIDE_K</code>）。<br>4. 判斷失敗時退回 top-3（舊行為），不讓整題失敗。<br>用 LLM 而不是關鍵字，是因為「all of them?」這類追問、各種語言的問法，關鍵字抓不到。</div></div>
+      <div class="kv"><b>怎麼實作</b><div>1. 把問題（與最近 4 則對話）交給 <code>needs_all_docs()</code>，LLM 只回 JSON <code>{"scope": "ALL" 或 "FEW"}</code>。<br>2. FEW：向量檢索取 top-3。<br>3. ALL：全部文件都讀（型號有幾個就讀幾個）。<br>4. 判斷失敗時退回 top-3（舊行為），不讓整題失敗。<br>用 LLM 而不是關鍵字，是因為「all of them?」這類追問、各種語言的問法，關鍵字抓不到。</div></div>
       <details><summary>範圍判斷的提示與核心程式</summary><pre>ALL  問題涉及整個目錄或許多型號：列出／計數型號、「你們賣什麼」、
      比較多個型號、「最便宜／最大／哪些可以…」；「all of them?」類追問也算
 FEW  問題只涉及一個型號或主題（價格、規格、交貨步驟、維修）
 回 JSON：{"scope": "ALL" 或 "FEW"}
 
 # R2 選文件
-k = WIDE_K if app.needs_all_docs(question, history) else 3
-return doc_tools.search_docs(question, k)</pre></details>
-      <div class="kv"><b>取捨</b><div>多一次 LLM 呼叫（共 2 次）。範圍判斷（ALL／FEW）如果判錯，就會漏文件。底下的向量檢索也還有三個老問題沒解決：<br>1. 份數只有「3 份」「15 份」兩種，不會依題目需要增減；型號到 60 個以上，15 份就不夠。<br>2. 問法和文件用詞差很多時，向量比對撈不到。<br>3. 分數門檻擋不住離題問題：離題問題的最高分（0.47）比相關問題的最低分（0.42）還高，兩邊重疊，離題主要靠分類器擋。</div></div>
-      <div class="kv"><b>現況</b><div>正式機器人預設用 R3（失敗時的行為：R2 撈錯會答錯，R3 選不到會退回問客人）。這輪數字也指向 R3：型號 20、30 個時答對率 R3 為 0.93、0.93，R2 為 0.80、0.85（40 題裡差 5 題與 3 題），R3 的召回率只有重跑的一輪掉到 0.95，其餘都是 1.00；R2 與 R3 的信賴區間仍有重疊，只能說方向一致，不能說已證明。</div></div>
+if app.needs_all_docs(question, history):
+    return doc_tools.list_docs()   # 全目錄問題：全部讀
+return doc_tools.search_docs(question, 3)</pre></details>
+      <div class="kv"><b>取捨</b><div>多一次 LLM 呼叫（共 2 次）。範圍判斷（ALL／FEW）如果判錯，就會漏文件。全目錄問題會把所有型號手冊都放進 prompt（n=30 時約 11.8k 字元，R3 約 5.2k）。底下的向量檢索（單一型號問題走這條）還有兩個老問題沒解決：<br>1. 問法和文件用詞差很多時，向量比對撈不到。<br>2. 分數門檻擋不住離題問題：離題問題的最高分（0.47）比相關問題的最低分（0.42）還高，兩邊重疊，離題主要靠分類器擋。</div></div>
+      <div class="kv"><b>現況</b><div>正式機器人預設用 R3（失敗時的行為：R2 撈錯會答錯，R3 選不到會退回問客人）。型號 20、30 個時答對率 R3 為 0.93、0.93，R2 為 0.93、0.98（各 40 題），R2 的召回率每一輪都是 1.00，R3 有一輪掉到 0.95。兩者在這批題上看不出差別，區間完全重疊；差在 prompt：n=30 時 R2 約 R0 的 25%，R3 約 11%。</div></div>
       <div class="kv"><b>離題與追問</b><div>R3 沒有分數門檻，所以另外量了離題訊息會不會漏進回答：15 則離題訊息各問 2 次，分類器擋下 30/30，文件挑選也 30/30 回「找不到」，兩道防線各自都沒漏。8 個需要前文的追問（「它多少錢？」、中文追問、換話題）各跑 2 次，R2 與 R3 都 16/16 選對文件。樣本很小（區間約 81% 到 100%），而且對話只有兩到四輪，不代表長對話。</div></div>
     </div></div>
 
@@ -508,7 +509,7 @@ rerank = [top[j] for j in sorted(range(10), key=lambda j: -scores[j])] + h[10:]<
   </div>
   <div class="kv"><b>怎麼看</b><div>切句進步最多（76 → 87）：一份文件塞好幾個事實在同一個向量裡會被平均掉，一句一個向量就不會。這是因為這裡的文件很短、每個事實剛好一句，不代表長文件；長文件要另外調切多大。混合檢索補回了英文的措辭落差（41 → 50 / 54），但中文反而掉了（35 → 31 / 36）：BM25 對短中文問句很吵，融合時把雜訊帶進來。重排讓第 1 名最準（85/90，向量只有 68/90），但它只能重排檢索給它的候選：兩題中文保固題沒進混合的前 10 名，重排器根本沒看到正確文件。結論是重排管精準，召回要靠前一段。</div></div>
   <div class="kv"><b>限制</b><div>每種做法只跑一次（都是確定性的）；切句、混合、重排三者的區間互相重疊，只能說都比純向量好，不能排名；「切句 + BM25 + 重排」的組合沒試。正式機器人用的是 R3，不靠這些；文件只有 33 份，沒有它們也答得好，這一節展示的是技術能力與量測方法。</div></div>
-  <p class="note">每格 40 個答案，R1 和 R3 在 30 個型號時區間不重疊（60–86% 對 87–100%），其餘多半重疊（例如 R2 對 R3 是 71–93% 對 87–100%），只能看方向。手冊刻意用模板（讓目錄型問題有可計算的標準答案）。</p>
+  <p class="note">每格 40 個答案，R1 在 30 個型號時明顯低於其他三種（60–86%），R0、R2、R3 的區間互相重疊（80–100%），只能看方向。手冊刻意用模板（讓目錄型問題有可計算的標準答案）。</p>
 
 </div>
 
