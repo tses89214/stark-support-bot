@@ -275,4 +275,4 @@
 - 探針「哪一款太空船可以載 30 個人以上?」4 次：3 次 ANSWER 且三款都列、沒有「唯一」，1 次 UNVERIFIED。**那次不是內容問題，是審查者回的 JSON 壞了**（`JSONDecodeError: Expecting ',' delimiter`，同一輪重寫也壞）。樣本 4 次太小，不能說已修好。
 - 明天要做：(1) 查 `review()` JSON 解析失敗原因（problems 內含未跳脫的引號？）並加容錯＋測試；(2) 露營題與「載 30 人」各重放約 8 次，數 ANSWER／UNVERIFIED／「唯一」；(3) `eval_review 2`、`eval_answers`、`eval_guardrails` 確認沒退步；(4) 要不要 push 先問。
 - 排程：session-only cron 6346e297（10-24 08:13），Claude 會話與 Mac 都要開著才會觸發；沒觸發就手動說「跑 TODO」。
-- 還沒做：Artifact 報告同步（#4）、英文版報告瀏覽器檢查（#5）。
+- 已做：Artifact 報告同步（Version 79，等於 repo `results/report.html`）；英文版報告用 Chromium 看過（1280 與 390 寬，無橫向捲動、mermaid 有畫出），修了兩處粗體冒號後缺空格。
