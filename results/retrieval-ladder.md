@@ -11,12 +11,12 @@ Two routes are compared: classic retrieval (R1, R2: embedding similarity, rules 
 
 Same model for every level and size: `nvidia/nemotron-3-ultra-550b-a55b:free` (reasoning off), 21 questions per run (one is graded on retrieval only, so accuracy is out of 20), **two runs per cell, pooled (40 graded answers per cell)**, 0 failed calls in all 24 runs. Run 2026-10-22; **the R2 row (all three sizes) and the R3 n=30 cell were rerun on 2026-10-23** (two runs each; R2 after its catalogue-wide branch changed from top-15 to every document, R3 after the document-picker, classifier and answer prompts changed on 10-22), the other cells are still from 10-22. Per-question rows and traces are in MLflow (`retrieval-ladder` experiment).
 
-| Level | n=10 acc / recall | n=20 acc / recall | n=30 acc / recall | document chars<br>(n=10 ~ n=30) | picking call<br>(n=10 ~ n=30) | LLM calls | seconds (n=30) |
+| Level | n=10 | n=20 | n=30 | document chars<br>(n=10 ~ n=30) | picking call<br>(n=10 ~ n=30) | LLM calls | seconds (n=30) |
 |---|---|---|---|---|---|---|---|
-| R0 | 0.93 / 1.00 | 0.93 / 1.00 | 0.95 / 1.00 | 17,744 ~ 46,951 | none | 1 | 4.4 |
-| R1 | 0.95 / 0.95 | 0.80 / 0.87 | 0.75 / 0.85 | 2,215 ~ 2,268 | none (embedding only) | 1 | 3.4 |
-| R2 | 0.93 / 1.00 | 0.93 / 1.00 | 0.98 / 1.00 | 4,868 ~ 11,780 | 0.6k | 2 | 8.4 |
-| R3 | 0.95 / 1.00 | 0.93 / 1.00 | 0.93 / 0.98 | 2,263 ~ 5,240 | 3.5k ~ 8.0k | 2 | 10.0 |
+| R0 | acc 0.93<br>recall 1.00 | acc 0.93<br>recall 1.00 | acc 0.95<br>recall 1.00 | 17,744 ~ 46,951 | none | 1 | 4.4 |
+| R1 | acc 0.95<br>recall 0.95 | acc 0.80<br>recall 0.87 | acc 0.75<br>recall 0.85 | 2,215 ~ 2,268 | none (embedding only) | 1 | 3.4 |
+| R2 | acc 0.93<br>recall 1.00 | acc 0.93<br>recall 1.00 | acc 0.98<br>recall 1.00 | 4,868 ~ 11,780 | 0.6k | 2 | 8.4 |
+| R3 | acc 0.95<br>recall 1.00 | acc 0.93<br>recall 1.00 | acc 0.93<br>recall 0.98 | 2,263 ~ 5,240 | 3.5k ~ 8.0k | 2 | 10.0 |
 
 *document chars* = characters of documents put into the answer prompt; *picking call* = characters sent in the call that chooses the documents (R2: the scope check, R3: the whole index). Characters sent per question are the two added.
 
