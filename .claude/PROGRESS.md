@@ -269,3 +269,10 @@
 - 報告重點修正：檢索階梯的 prompt 字元只算回答用的文件，已補「選文件那次呼叫」與每題總量（R2 約 12.4k、R3 約 13.3k、R0 47.0k），不再說 R3 省一半；檢索階梯定調為「傳統檢索（R1、R2）vs 全權交給 LLM（R3）」。
 - 未決（下次）：目錄型回答偶爾說「唯一載 30 人的是 Stark 8」（Stark 23、24 也可）且審查規則 8 沒擋住——想法是程式先算出載客量 ≥ N 的型號清單再交給審查者；推薦型回答偶發 UNVERIFIED（露營題 8 次有 3 次）；Artifact 版報告（claude.ai）沒同步；英文版報告沒在瀏覽器實際看過版面。
 - 工作區殘留：`git stash` 還有兩筆舊 stash（內容已在 main，可刪）。API 額度今天用到約 80%。
+
+## 2026-10-24 TODO（額度 08:00 重置後；10-23 晚額度剩約 120，不夠，使用者說排明天）
+- 已做（分支 `fix/capacity-ranking-ruff`，未 push）：`read_docs` 目錄表加程式算的「載客量由大到小」一行（Stark 24 = 60, Stark 23 = 40, Stark 8 = 30…）；ruff 6 個舊錯全清；兩筆舊 stash 已刪（內容確認已在 HEAD／是 n=10 殘留）。
+- 探針「哪一款太空船可以載 30 個人以上?」4 次：3 次 ANSWER 且三款都列、沒有「唯一」，1 次 UNVERIFIED。**那次不是內容問題，是審查者回的 JSON 壞了**（`JSONDecodeError: Expecting ',' delimiter`，同一輪重寫也壞）。樣本 4 次太小，不能說已修好。
+- 明天要做：(1) 查 `review()` JSON 解析失敗原因（problems 內含未跳脫的引號？）並加容錯＋測試；(2) 露營題與「載 30 人」各重放約 8 次，數 ANSWER／UNVERIFIED／「唯一」；(3) `eval_review 2`、`eval_answers`、`eval_guardrails` 確認沒退步；(4) 要不要 push 先問。
+- 排程：session-only cron 6346e297（10-24 08:13），Claude 會話與 Mac 都要開著才會觸發；沒觸發就手動說「跑 TODO」。
+- 還沒做：Artifact 報告同步（#4）、英文版報告瀏覽器檢查（#5）。
