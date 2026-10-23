@@ -93,7 +93,7 @@ cp .env.example .env              # add your OpenRouter key, pick a :free model
 | `python -m evals.eval_threshold` | `MIN_SCORE` sweep and `TOP_K` hit@k with bge-m3 | free, local |
 | `python -m evals.eval_guardrails` | classifier accuracy and confusion matrix on 132 labelled messages (7 categories) | free-tier LLM calls |
 | `python -m evals.eval_ladder [runs]` | defense ladder L0 (no defenses) to L3 plus a full-bot reference row: attacks blocked, answers, prompt size; writes `results/ladder.md`; saves each finished level and resumes after an interruption | free-tier LLM calls, ~30 min |
-| `python -m evals.eval_review [runs]` | review layer: 61 constructed drafts (29 good, 32 bad, one broken rule each; the saved results are from the earlier 55-draft run, rule 8 not rerun yet); catch rate per rule and false-reject rate; writes `results/review.md` | free-tier LLM calls, ~110 |
+| `python -m evals.eval_review [runs]` | review layer: 62 constructed drafts (30 good, 32 bad, one broken rule each, 4 per rule); catch rate per rule and false-reject rate; writes `results/review.md` | free-tier LLM calls, ~110 |
 | `python -m evals.eval_followups [runs]` | off-topic messages under R3 (classifier and document picker, separately) and follow-up questions in a chat, R2 vs R3; writes `results/followups.md` | free-tier LLM calls, ~110 |
 | `python -m evals.eval_hybrid` | chunking, BM25 + vector fusion and cross-encoder rerank against plain vector search on the 90 retrieval questions (`results/hybrid.md`) | free, local (needs the `BAAI/bge-reranker-v2-m3` weights, 2GB) |
 | `python -m evals.eval_answers` | end to end: grounded answers contain doc facts, unanswerable ones point to support (17/17 on the current model) | free-tier LLM calls |
