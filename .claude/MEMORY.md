@@ -36,3 +36,5 @@
 - 2026-10-21：成果報告有兩份要同步：私人 Artifact（https://claude.ai/artifact/U49cMV838JcXaQd4L6ELjM，Version 33）與 `results/report.html`。使用者偏好：報告欄寬窄一點、段落精簡（曾要求刪「Focus 為什麼三列」、總覽流程圖不放 Focus）。`python -m evals.eval_ladder --render` 需設 `CHAT_MODEL` 才能 import（不呼叫 LLM）。
 
 - 2026-10-21 晚：報告是給面試官看的（Artifact 已到 Version 66，`results/report.html` 同步）。使用者偏好：不放開發流水帳、題目來源、「證據」欄、示意說明；閱讀順序先背景再題目再結果；總覽流程圖不出現 L/R 編號；防禦階梯停在 L3。報告改動先改 scratchpad 版再同步兩份。
+
+- 2026-10-23：報告給面試官看，不放開發過程／額度／重跑經過；題庫看過結果後不刪題（需要改就重跑、照實報）；使用者習慣「commit push merge」一次說完，小改動可以直接合併，視覺改動會先要求看過再合併；回答前先查實際資料，不要憑記憶（prompt 字元那次就是這樣查出文件有錯）。
