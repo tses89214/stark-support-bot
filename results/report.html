@@ -474,15 +474,15 @@ about Stark Spaceships (models, prices, delivery, maintenance)."</pre></details>
     <li><b>全權交給 LLM（R3）</b>：給模型一份文件目錄，讓它自己判斷要打開哪些檔案。不用調向量，能理解「哪些型號用搖桿操控」這類需要推理的問題，但行為取決於模型有多聰明，也比較難控制。</li>
   </ul>
   <p>兩條路線各有優劣，沒有絕對的贏家：看用的模型夠不夠聰明，也看你要對檢索多大的控制權。R0（全部載入）是不做任何挑選的基準。</p>
-  <p class="sub">一樣從最簡單的版本開始，一次換一種選文件的方式。型號 10／20／30 個、21 題，每格 2 輪合併（40 個答案）、0 失敗。n=10／20／30 的格子是「答對率/召回率」：答對率＝最後的回答含正確事實的比例（1 題只評檢索，分母 20）；召回率＝問題需要的文件有多少份真的進了 prompt。召回率低，答案一定有風險；召回率高，答案仍可能因為模型沒讀好而答錯。</p>
+  <p class="sub">一樣從最簡單的版本開始，一次換一種選文件的方式。型號 10／20／30 個、21 題，每格 2 輪合併（40 個答案）、0 失敗。n=10／20／30 每格兩行，上面是答對率、下面是召回率：答對率＝最後的回答含正確事實的比例（1 題只評檢索，分母 20）；召回率＝問題需要的文件有多少份真的進了 prompt。召回率低，答案一定有風險；召回率高，答案仍可能因為模型沒讀好而答錯。</p>
 
   <div class="tbl"><table>
     <thead><tr><th>方式</th><th>做了什麼</th><th>n=10<br>(答對/召回)</th><th>n=20<br>(答對/召回)</th><th>n=30<br>(答對/召回)</th><th>文件字元<br>(n=10 ~ n=30)</th><th>選文件呼叫<br>(n=10 ~ n=30)</th><th>LLM<br>次數</th></tr></thead>
     <tbody>
-      <tr><td>R0 全部載入</td><td class="wrap">每次都把所有文件放進 prompt，不做任何挑選</td><td class="num">0.93/1.00</td><td class="num">0.93/1.00</td><td class="num">0.95/1.00</td><td class="num">17,744 ~ 46,951</td><td class="num">無</td><td class="num">1</td></tr>
-      <tr><td>R1 向量檢索</td><td class="wrap">問題轉成向量（bge-m3），取最相近的 3 份文件放進 prompt</td><td class="num">0.95/0.95</td><td class="num">0.80/0.87</td><td class="num">0.75/0.85</td><td class="num">2,215 ~ 2,268</td><td class="num">無（只用 embedding）</td><td class="num">1</td></tr>
-      <tr><td>R2 範圍判斷 + 檢索</td><td class="wrap">先用 LLM 判斷是單一型號（FEW）還是全目錄（ALL）。FEW 取 top-3，ALL 全部文件都讀</td><td class="num">0.93/1.00</td><td class="num">0.93/1.00</td><td class="num">0.98/1.00</td><td class="num">4,868 ~ 11,780</td><td class="num">約 0.6k</td><td class="num">2</td></tr>
-      <tr><td>R3 LLM 讀索引</td><td class="wrap">準備 <code>INDEX.md</code>（每份文件一行摘要），讓 LLM 讀它並列出要打開的檔案；編造的路徑會被丟掉</td><td class="num">0.95/1.00</td><td class="num">0.93/1.00</td><td class="num">0.93/0.98</td><td class="num">2,263 ~ 5,240</td><td class="num">約 3.5k ~ 8.0k</td><td class="num">2</td></tr>
+      <tr><td>R0 全部載入</td><td class="wrap">每次都把所有文件放進 prompt，不做任何挑選</td><td class="num">0.93<br>1.00</td><td class="num">0.93<br>1.00</td><td class="num">0.95<br>1.00</td><td class="num">17,744 ~ 46,951</td><td class="num">無</td><td class="num">1</td></tr>
+      <tr><td>R1 向量檢索</td><td class="wrap">問題轉成向量（bge-m3），取最相近的 3 份文件放進 prompt</td><td class="num">0.95<br>0.95</td><td class="num">0.80<br>0.87</td><td class="num">0.75<br>0.85</td><td class="num">2,215 ~ 2,268</td><td class="num">無</td><td class="num">1</td></tr>
+      <tr><td>R2 範圍判斷 + 檢索</td><td class="wrap">先用 LLM 判斷是單一型號（FEW）還是全目錄（ALL）。FEW 取 top-3，ALL 全部文件都讀</td><td class="num">0.93<br>1.00</td><td class="num">0.93<br>1.00</td><td class="num">0.98<br>1.00</td><td class="num">4,868 ~ 11,780</td><td class="num">約 0.6k</td><td class="num">2</td></tr>
+      <tr><td>R3 LLM 讀索引</td><td class="wrap">準備 <code>INDEX.md</code>（每份文件一行摘要），讓 LLM 讀它並列出要打開的檔案；編造的路徑會被丟掉</td><td class="num">0.95<br>1.00</td><td class="num">0.93<br>1.00</td><td class="num">0.93<br>0.98</td><td class="num">2,263 ~ 5,240</td><td class="num">約 3.5k ~ 8.0k</td><td class="num">2</td></tr>
     </tbody></table></div>
   <p class="note">文件字元＝放進回答 prompt 的文件字元數；選文件呼叫＝選文件那次 LLM 呼叫送出的字元數（R2 是範圍判斷，R3 是整份目錄）。每題實際送出的總量是兩者相加。</p>
   <h2>R0 到 R3 是什麼、怎麼實作</h2>

@@ -13,10 +13,10 @@ Same model for every level and size: `nvidia/nemotron-3-ultra-550b-a55b:free` (r
 
 | Level | n=10<br>(acc/recall) | n=20<br>(acc/recall) | n=30<br>(acc/recall) | document chars<br>(n=10 ~ n=30) | picking call<br>(n=10 ~ n=30) | LLM calls | seconds (n=30) |
 |---|---|---|---|---|---|---|---|
-| R0 | 0.93/1.00 | 0.93/1.00 | 0.95/1.00 | 17,744 ~ 46,951 | none | 1 | 4.4 |
-| R1 | 0.95/0.95 | 0.80/0.87 | 0.75/0.85 | 2,215 ~ 2,268 | none (embedding only) | 1 | 3.4 |
-| R2 | 0.93/1.00 | 0.93/1.00 | 0.98/1.00 | 4,868 ~ 11,780 | 0.6k | 2 | 8.4 |
-| R3 | 0.95/1.00 | 0.93/1.00 | 0.93/0.98 | 2,263 ~ 5,240 | 3.5k ~ 8.0k | 2 | 10.0 |
+| R0 | 0.93<br>1.00 | 0.93<br>1.00 | 0.95<br>1.00 | 17,744 ~ 46,951 | none | 1 | 4.4 |
+| R1 | 0.95<br>0.95 | 0.80<br>0.87 | 0.75<br>0.85 | 2,215 ~ 2,268 | none | 1 | 3.4 |
+| R2 | 0.93<br>1.00 | 0.93<br>1.00 | 0.98<br>1.00 | 4,868 ~ 11,780 | 0.6k | 2 | 8.4 |
+| R3 | 0.95<br>1.00 | 0.93<br>1.00 | 0.93<br>0.98 | 2,263 ~ 5,240 | 3.5k ~ 8.0k | 2 | 10.0 |
 
 *document chars* = characters of documents put into the answer prompt; *picking call* = characters sent in the call that chooses the documents (R2: the scope check, R3: the whole index). Characters sent per question are the two added.
 
