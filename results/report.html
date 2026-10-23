@@ -413,8 +413,26 @@ about Stark Spaceships (models, prices, delivery, maintenance)."</pre></details>
       <tr><td>R2 範圍判斷 + 檢索</td><td class="wrap">先用 LLM 判斷是單一型號（FEW）還是全目錄（ALL）。FEW 取 top-3，ALL 放寬（取 top-15）</td><td class="num">1.00 / 1.00</td><td class="num">0.80 / 0.98</td><td class="num">0.85 / 0.97</td><td class="num">4,151 → 4,880</td><td class="num">2</td></tr>
       <tr><td>R3 LLM 讀索引</td><td class="wrap">準備 <code>INDEX.md</code>（每份文件一行摘要），讓 LLM 讀它並列出要打開的檔案；編造的路徑會被丟掉</td><td class="num">0.95 / 1.00</td><td class="num">0.93 / 1.00</td><td class="num">0.93 / 0.98</td><td class="num">2,263 → 5,240</td><td class="num">2</td></tr>
     </tbody></table></div>
-  <h2>R2 與 R3 是什麼、怎麼實作</h2>
+  <h2>R0 到 R3 是什麼、怎麼實作</h2>
   <div class="stages">
+    <div class="stage"><div class="badge">R0</div><div class="sbody">
+      <h3>全部載入：不挑，整個資料夾都給模型</h3>
+      <div class="kv"><b>是什麼</b><div>每一題都把所有文件原文放進 prompt，完全不做檢索。最簡單，也是比較的基準：答案能用的資訊一定都在裡面。</div></div>
+      <div class="kv"><b>怎麼實作</b><div>列出資料夾裡所有 <code>.txt</code>，全部讀進來接在回答提示後面。不呼叫檢索、不多一次 LLM（共 1 次）。</div></div>
+      <details><summary>核心程式</summary><pre># R0 選文件
+return doc_tools.list_docs()   # 全部</pre></details>
+      <div class="kv"><b>取捨</b><div>prompt 跟著文件量線性長大（型號 10 個約 17.7k 字元，30 個約 47.0k）。文件少時答得準（答對率 0.93 到 0.95），但文件一多，成本變高、模型也可能漏看中間的內容。</div></div>
+    </div></div>
+
+    <div class="stage"><div class="badge">R1</div><div class="sbody">
+      <h3>向量檢索：問題轉成向量，取最像的 3 份</h3>
+      <div class="kv"><b>是什麼</b><div>先把每份文件用 embedding 模型（bge-m3）轉成向量存起來。來了新問題，也轉成向量，找出餘弦相似度最高的 3 份文件放進 prompt。</div></div>
+      <div class="kv"><b>怎麼實作</b><div>1. 事先：每份文件算一次向量，存成索引檔。<br>2. 每題：問題算向量，和所有文件向量比餘弦相似度。<br>3. 取前 3 名，其餘不給模型。不多一次 LLM（共 1 次）。</div></div>
+      <details><summary>核心程式</summary><pre># R1 選文件
+return doc_tools.search_docs(question, 3)   # bge-m3 餘弦相似度前 3 名</pre></details>
+      <div class="kv"><b>取捨</b><div>prompt 最小（約 2.2k 字元）、最便宜。但固定 3 份：問題需要很多份（「哪些型號用搖桿操控」）就一定漏；型號多了，長得很像的手冊互相搶名額，召回率從 0.95 掉到 0.85，答對率從 0.95 掉到 0.75。</div></div>
+    </div></div>
+
     <div class="stage"><div class="badge">R2</div><div class="sbody">
       <h3>範圍判斷 + 檢索：先問「要看幾份」，再去找</h3>
       <div class="kv"><b>是什麼</b><div>R1 一律取 3 份，但有些問題本來就需要很多份（「哪些型號用搖桿操控」要看所有手冊）。R2 在檢索前多加一道 LLM 判斷：這題是問單一型號／主題（FEW），還是問整個目錄（ALL）。</div></div>
