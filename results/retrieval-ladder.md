@@ -2,6 +2,8 @@
 
 Question: as the document set grows (10, 20, 30 models; 27, 47, 67 files), which way of choosing documents keeps answers right without stuffing the whole library into the prompt?
 
+Two routes are compared: classic retrieval (R1, R2: embedding similarity, rules and knobs you control) and handing the choice to the LLM (R3: it reads a document index and decides). Each has strengths; which fits depends on how capable the model is and how much control over retrieval you want. R0 is the no-selection baseline.
+
 - **R0** load every document into the prompt.
 - **R1** embedding top-3 (bge-m3).
 - **R2** top-3, or every document when an LLM scope check says the question is catalogue-wide.
