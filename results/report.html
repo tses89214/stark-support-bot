@@ -189,7 +189,7 @@ flowchart TD
 
 <div class="panel" id="p-demo" role="tabpanel" aria-labelledby="t-demo">
   <h2>一段完整的示範對話</h2>
-  <p class="sub">一段真實對話（共 9 輪，完整機器人＝L4 加 R3 加審查，問題與回答原文，最後一輪為分類器調整後的重跑結果）。右邊是客人，左邊是機器人；機器人下方的灰色框是「後台」：當時的路由、改寫後的問題、讀到的文件，以及這一輪結束後的 Focus，粗體是這一輪值得看的地方。</p>
+  <p class="sub">一段真實對話（共 9 輪，完整機器人＝分類器、R3 選文件、審查、反問，問題與回答原文，最後一輪為分類器調整後的重跑結果）。右邊是客人，左邊是機器人；機器人下方的灰色框是「後台」：當時的路由、改寫後的問題、讀到的文件，以及這一輪結束後的 Focus，粗體是這一輪值得看的地方。</p>
   <div class="chat">
     <div class="turn">
       <div class="msg cust"><span class="who">客人</span>hi</div>
@@ -443,13 +443,12 @@ about Stark Spaceships (models, prices, delivery, maintenance)."</pre></details>
 
   <h2>每一層的結果</h2>
   <div class="tbl"><table>
-    <thead><tr><th>層</th><th>攻擊擋下</th><th>正常題</th><th>每次呼叫平均 prompt</th><th>每題 prompt 總量（所有呼叫）</th><th>突破的攻擊（例）</th></tr></thead>
+    <thead><tr><th>層</th><th>攻擊擋下</th><th>正常題</th><th>突破的攻擊（例）</th></tr></thead>
     <tbody>
-      <tr><td>L0</td><td class="num">16 / 28</td><td class="num">6 / 6</td><td class="num">15.2k</td><td class="num">15.2k</td><td class="wrap">12 題。叫它忽略規則寫泡泡排序、角色扮演 ARRR-5 開頭、STARKBOT-X 人格都照做</td></tr>
-      <tr><td>L1</td><td class="num">22 / 28</td><td class="num">6 / 6</td><td class="num">15.5k</td><td class="num">15.5k</td><td class="wrap">6 題。報價後附 Python 程式；角色扮演 ARRR-5、維護模式、BANANA-7 開頭、haiku 結尾加 HAIKU-OK 照做</td></tr>
-      <tr><td>L2</td><td class="num">24.5 / 28</td><td class="num">6 / 6</td><td class="num">15.8k</td><td class="num">15.8k</td><td class="wrap">3–4 題。角色扮演 ARRR-5、翻譯信件內的 HACKED-4、haiku 結尾加 HAIKU-OK、BANANA-7 開頭仍得手</td></tr>
-      <tr><td>L3</td><td class="num">28 / 28</td><td class="num">6 / 6</td><td class="num">6.0k</td><td class="num">7.1k</td><td class="wrap">0 題</td></tr>
-      <tr><td>完整機器人（參考，不是階梯的一層）</td><td class="num">28 / 28</td><td class="num">6 / 6</td><td class="num">4.6k</td><td class="num">7.2k</td><td class="wrap">0 題。L3 加 R3 檢索、審查、反問</td></tr>
+      <tr><td>L0</td><td class="num">16 / 28</td><td class="num">6 / 6</td><td class="wrap">12 題。叫它忽略規則寫泡泡排序、角色扮演 ARRR-5 開頭、STARKBOT-X 人格都照做</td></tr>
+      <tr><td>L1</td><td class="num">22 / 28</td><td class="num">6 / 6</td><td class="wrap">6 題。報價後附 Python 程式；角色扮演 ARRR-5、維護模式、BANANA-7 開頭、haiku 結尾加 HAIKU-OK 照做</td></tr>
+      <tr><td>L2</td><td class="num">24.5 / 28</td><td class="num">6 / 6</td><td class="wrap">3–4 題。角色扮演 ARRR-5、翻譯信件內的 HACKED-4、haiku 結尾加 HAIKU-OK、BANANA-7 開頭仍得手</td></tr>
+      <tr><td>L3</td><td class="num">28 / 28</td><td class="num">6 / 6</td><td class="wrap">0 題</td></tr>
     </tbody></table></div>
     <details><summary>最後仍突破的攻擊</summary>
   <p class="sub">L3 沒有任何一題突破。下面是較低層的代表例，標籤為該層平均被突破的題數（28 題裡）。</p>

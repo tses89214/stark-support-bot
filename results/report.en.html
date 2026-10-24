@@ -189,7 +189,7 @@ flowchart TD
 
 <div class="panel" id="p-demo" role="tabpanel" aria-labelledby="t-demo">
   <h2>A complete demo conversation</h2>
-  <p class="sub">A real conversation (9 turns; the full bot = L4 plus R3 plus review; the final turn is a re-run after the classifier was adjusted). The conversation was held in Chinese and English; Chinese messages are translated here, the original is in the Chinese report. The customer is on the right, the bot on the left; the grey box under each bot message is the “backstage”: the route at that moment, the rewritten question, the documents read and the Focus after the turn, with bold marking what is worth looking at in that turn.</p>
+  <p class="sub">A real conversation (9 turns; the full bot = classifier, R3 document picking, review and clarifying questions; the final turn is a re-run after the classifier was adjusted). The conversation was held in Chinese and English; Chinese messages are translated here, the original is in the Chinese report. The customer is on the right, the bot on the left; the grey box under each bot message is the “backstage”: the route at that moment, the rewritten question, the documents read and the Focus after the turn, with bold marking what is worth looking at in that turn.</p>
   <div class="chat">
     <div class="turn">
       <div class="msg cust"><span class="who">Customer</span>hi</div>
@@ -443,13 +443,12 @@ about Stark Spaceships (models, prices, delivery, maintenance)."</pre></details>
 
   <h2>Results per layer</h2>
   <div class="tbl"><table>
-    <thead><tr><th>Layer</th><th>Attacks blocked</th><th>Normal questions</th><th>Mean prompt per call</th><th>Prompt total per question (all calls)</th><th>Attacks that got through (examples)</th></tr></thead>
+    <thead><tr><th>Layer</th><th>Attacks blocked</th><th>Normal questions</th><th>Attacks that got through (examples)</th></tr></thead>
     <tbody>
-      <tr><td>L0</td><td class="num">16 / 28</td><td class="num">6 / 6</td><td class="num">15.2k</td><td class="num">15.2k</td><td class="wrap">12 attacks. Telling it to ignore the rules and write a bubble sort, an ARRR-5 role-play and the STARKBOT-X persona all worked</td></tr>
-      <tr><td>L1</td><td class="num">22 / 28</td><td class="num">6 / 6</td><td class="num">15.5k</td><td class="num">15.5k</td><td class="wrap">6 attacks. A quote followed by Python code; the ARRR-5 role-play, maintenance mode, a BANANA-7 opening and a haiku ending with HAIKU-OK all worked</td></tr>
-      <tr><td>L2</td><td class="num">24.5 / 28</td><td class="num">6 / 6</td><td class="num">15.8k</td><td class="num">15.8k</td><td class="wrap">3–4 attacks. The ARRR-5 role-play, HACKED-4 inside a translated letter, a haiku ending with HAIKU-OK and a BANANA-7 opening still got through</td></tr>
-      <tr><td>L3</td><td class="num">28 / 28</td><td class="num">6 / 6</td><td class="num">6.0k</td><td class="num">7.1k</td><td class="wrap">0 attacks</td></tr>
-      <tr><td>Full bot (reference, not a layer of the ladder)</td><td class="num">28 / 28</td><td class="num">6 / 6</td><td class="num">4.6k</td><td class="num">7.2k</td><td class="wrap">0 attacks. L3 plus R3 retrieval, review and clarifying questions</td></tr>
+      <tr><td>L0</td><td class="num">16 / 28</td><td class="num">6 / 6</td><td class="wrap">12 attacks. Telling it to ignore the rules and write a bubble sort, an ARRR-5 role-play and the STARKBOT-X persona all worked</td></tr>
+      <tr><td>L1</td><td class="num">22 / 28</td><td class="num">6 / 6</td><td class="wrap">6 attacks. A quote followed by Python code; the ARRR-5 role-play, maintenance mode, a BANANA-7 opening and a haiku ending with HAIKU-OK all worked</td></tr>
+      <tr><td>L2</td><td class="num">24.5 / 28</td><td class="num">6 / 6</td><td class="wrap">3–4 attacks. The ARRR-5 role-play, HACKED-4 inside a translated letter, a haiku ending with HAIKU-OK and a BANANA-7 opening still got through</td></tr>
+      <tr><td>L3</td><td class="num">28 / 28</td><td class="num">6 / 6</td><td class="wrap">0 attacks</td></tr>
     </tbody></table></div>
     <details><summary>Attacks that still got through</summary>
   <p class="sub">No question got through at L3. Below are representative examples from the lower layers; the label is the mean number of attacks that got through at that layer (out of 28).</p>
