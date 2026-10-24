@@ -635,11 +635,13 @@ flowchart TD
     <li>Only requests such as “help me choose” and “recommend a ship” count as looking for a ship; questions such as “which model carries 30 people?” and “which is the cheapest?”, which can be answered by listing the matching models, are answered directly without asking back.</li>
   </ul>
   <div class="ex">
-    <h3>A real conversation</h3>
-    <div class="lv"><span class="tag">Customer</span><span></span><q>I want a ship that four people can travel in</q></div>
-    <div class="lv"><span class="tag ok">CLARIFY</span><span></span><q>It asks only about the use (the number of people is known); 0 documents, 0 answer drafts</q></div>
-    <div class="lv"><span class="tag">Customer</span><span></span><q>For family trips</q></div>
-    <div class="lv"><span class="tag ok">ANSWER</span><span></span><q>It recommends the Stark 4 directly, with no further question about budget</q></div>
+    <h3>A real conversation (single run, model output varies; replies shortened; the chat was in Chinese and is translated here)</h3>
+    <div class="lv"><span class="tag">Customer</span><span></span><q>I want a ship for taking the family out</q></div>
+    <div class="lv"><span class="tag ok">CLARIFY</span><span></span><q>Hello! To find the ship that suits you best, how many family members usually travel together? (You can also just reply “just list them” and I will list the best options.)</q></div>
+    <div class="lv"><span class="tag"></span><span></span><q>Backstage: the use (“family trips”) was already taken from the first message, so it asks only for the missing number of people; 0 documents, 0 answer drafts; asked 1 time</q></div>
+    <div class="lv"><span class="tag">Customer</span><span></span><q>Four people, two adults and two children, everyday family trips</q></div>
+    <div class="lv"><span class="tag ok">ANSWER</span><span></span><q>Based on your need (a family of four, everyday family trips), a ship must carry at least 4 people and its document must describe it as suited to family, comfort, long voyages or sightseeing. Going through the documents, these models qualify: Stark 4 — a family-friendly spaceship with ample space and comfort for long voyages (12 passengers, $8,000,000, accessories: entertainment system, extra sleeping pods) … (the full reply also lists Stark 6, 11 and 20)</q></div>
+    <div class="lv"><span class="tag"></span><span></span><q>Backstage: the needs accumulate to “use = family trips, passengers = 4”, so it does not ask again; this turn read all 30 model documents (the one-line-per-model table) and passed the review</q></div>
   </div>
 
   <h2>What Focus looks like</h2>
@@ -668,7 +670,6 @@ flowchart TD
   </ul>
 </div>
 
-<footer>Sources: the results/ directory and the evals/ scripts of the repo. Single runs; model output varies.</footer>
 <div class="panel" id="p-review" role="tabpanel" aria-labelledby="t-review">
   <h2>The answer review layer</h2>
   <p>After the answer is written, a third LLM checks it item by item against the source documents and guards three things:<b>facts are in the documents, numbers match, no promise of discounts / refunds / delivery dates</b>.</p>

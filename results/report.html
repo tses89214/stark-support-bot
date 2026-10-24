@@ -635,11 +635,13 @@ flowchart TD
     <li>只有「幫我挑」「推薦一艘」這類請求才算找船；「哪一款可以載 30 個人？」「最便宜的是哪一款？」這種有明確條件、列出符合的型號就能回答的問題直接回答，不反問。</li>
   </ul>
   <div class="ex">
-    <h3>一次真實對話</h3>
-    <div class="lv"><span class="tag">客人</span><span></span><q>我想找四個人出門可以搭的飛船</q></div>
-    <div class="lv"><span class="tag ok">CLARIFY</span><span></span><q>只問用途（人數已知）；0 份文件、0 次回答草稿</q></div>
-    <div class="lv"><span class="tag">客人</span><span></span><q>家庭旅行用</q></div>
-    <div class="lv"><span class="tag ok">ANSWER</span><span></span><q>直接推薦 Stark 4，沒有再追問預算</q></div>
+    <h3>一次真實對話（單次，模型輸出會變；回覆已截短）</h3>
+    <div class="lv"><span class="tag">客人</span><span></span><q>我想找個飛船，帶家人出遊用</q></div>
+    <div class="lv"><span class="tag ok">CLARIFY</span><span></span><q>您好！為了幫您找到最適合的飛船，請問通常會有幾位家人一起出遊呢？（您也可以直接回覆「just list them」，我會為您列出最合適的選項。）</q></div>
+    <div class="lv"><span class="tag"></span><span></span><q>後台：用途「家庭旅行」已從第一句記下，所以只問缺的人數；0 份文件、0 次回答草稿；已反問 1 次</q></div>
+    <div class="lv"><span class="tag">客人</span><span></span><q>四個人，大人兩個小孩兩個，日常家庭旅行</q></div>
+    <div class="lv"><span class="tag ok">ANSWER</span><span></span><q>根據您「四口之家、日常家庭旅行」的需求，需符合載客 ≥ 4 人且文件中有提到適合「家庭、舒適、長途或觀光」用途的機型。經查閱文件，找到以下符合條件的機型：Stark 4 — 家庭友善太空船，擁有充足空間與舒適度，適合長途航行（載客 12 人、$8,000,000、配件：娛樂系統、額外睡眠艙）…（原回覆另列 Stark 6、11、20）</q></div>
+    <div class="lv"><span class="tag"></span><span></span><q>後台：需求累積成「用途＝家庭旅行、人數＝4」，不再反問；這輪讀了全部 30 份型號（一型號一行的規格表）、通過審查</q></div>
   </div>
 
   <h2>Focus 長什麼樣子</h2>
@@ -668,7 +670,6 @@ flowchart TD
   </ul>
 </div>
 
-<footer>資料來源：repo 的 results/ 目錄與 evals/ 腳本。單次執行，模型輸出會變動。</footer>
 <div class="panel" id="p-review" role="tabpanel" aria-labelledby="t-review">
   <h2>回答審查層</h2>
   <p>回答寫好後，由第三個 LLM 拿來源文件逐項檢查，把關三件事：<b>事實在文件內、數字相符、不承諾折扣／退款／交期</b>。</p>
