@@ -198,6 +198,70 @@ def drop_leaked_fence(text):
     return re.split(r"\s*===== (?:END )?USER INPUT", text, maxsplit=1)[0]
 
 
+def ship_shortlist(needs, message):
+    """A ship search whose written recommendation could not be verified still gets something to act on: models whose documents show seats for the
+    customer's party (passengers only: a "3 crew, 250 tons of cargo" hauler is not a family ship), the ones whose description uses a word the customer
+    said about the use first, then closest fit, all copied from the documents. No model writes it, so nothing in it can be invented or claimed as
+    "the only one". None when the party size is unknown (then the plain UNVERIFIED reply is used). In the customer's language."""
+    found = re.search(r"\d+", needs.get("passengers", ""))
+    if not found:
+        return None
+
+    party, rows = int(found.group()), []
+    words = set(re.findall(r"[a-z]{4,}", needs.get("use", "").lower())) - {
+        "trip",
+        "trips",
+        "travel",
+        "with",
+        "that",
+        "this",
+        "using",
+        "long",
+        "short",
+    }
+    for name, text in docs.items():
+        if not name.startswith("model_"):
+            continue
+
+        field = lambda f, text=text: re.search(rf"\*\*{f}\*\*: (.*?)[. ]*$", text, re.MULTILINE).group(1)
+        capacity = field("Capacity")
+        seats = re.fullmatch(r"(\d+) passengers?", capacity)  # not crew, researchers, cargo or stretchers
+        if seats and int(seats.group(1)) >= party:
+            desc = field("Description")
+            match = sum(w in desc.lower() for w in words)
+            rows.append(
+                (
+                    -match,
+                    int(seats.group(1)),
+                    int(re.sub(r"\D", "", field("Price"))),
+                    text.splitlines()[0].lstrip("# "),
+                    capacity,
+                    field("Price"),
+                    desc,
+                    name,
+                )
+            )
+
+    if not rows:
+        return None
+
+    top = sorted(rows)[:5]
+    lines = "\n".join(f"- **{title}**: {cap}; {price}; {desc}" for _, _, _, title, cap, price, desc, _ in top)
+    if re.search(r"[\u3040-\u30ff\u4e00-\u9fff]", message):
+        text = (
+            f"我沒辦法替您寫出能逐項對照文件查證的推薦，所以只列出文件中載客量至少 {party} 人的型號（描述裡有您提到的用途字眼的排前面，其次是最接近的人數，最多 5 款），內容取自文件原文：\n\n{lines}\n\n"
+            f"文件沒有寫這些型號適不適合您的用途；要針對用途建議，請寄信到 {SUPPORT}。"
+        )
+    else:
+        text = (
+            f"I couldn't write a recommendation I can check against our documents, so here are the models whose documents show seats for at least {party} "
+            f"passengers (those whose description uses a word you said about the use first, then the closest fit; at most 5), quoted from the documents:\n\n{lines}\n\n"
+            f"The documents do not say whether they suit your use; for advice on that, email {SUPPORT}."
+        )
+
+    return text, [r[-1] for r in top]
+
+
 def pin_support_email(text):
     """The model keeps "correcting" the support address (any other spelling or domain); the code sets it, so a spelling slip
     never costs a reviewer rejection and a rewrite."""
@@ -582,6 +646,7 @@ def answer(message, history, defense="L4", retrieval="R3", session="", focus=Non
 
     # 1-2. classify, then route: only ANSWER continues (L3 and up)
     question = message
+    searching = False  # a ship search by criteria: if its recommendation cannot be verified, the customer still gets a shortlist
     if level >= 3:
         route, reason, question, seen = classify(message, history, focus, full=True)
         meta["question"] = question
@@ -599,7 +664,8 @@ def answer(message, history, defense="L4", retrieval="R3", session="", focus=Non
             return REPLIES[route], route, []
 
         # 2b. a search by criteria with the essentials missing: ask first (L4 only), recommend once the customer has answered or after MAX_CLARIFY asks
-        if level == 4 and seen["find_ship"] and not seen["just_list"] and not models_in(message):
+        searching = level == 4 and seen["find_ship"] and not models_in(message)
+        if searching and not seen["just_list"]:
             wanted = missing_needs(meta["focus"])
         else:
             wanted = []
@@ -685,6 +751,10 @@ def answer(message, history, defense="L4", retrieval="R3", session="", focus=Non
         if not ok:
             print(f"review rejected the rewrite: {problems}", file=sys.stderr)
             # the docs may well cover it; the draft just could not be verified
+            shortlist = ship_shortlist(meta["focus"].needs, message) if searching else None
+            if shortlist:
+                return shortlist[0], "SHORTLIST", shortlist[1]
+
             return REPLIES["UNVERIFIED"], "UNVERIFIED", []
 
     history += [{"role": "user", "content": message}, {"role": "assistant", "content": reply}]
