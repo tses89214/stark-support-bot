@@ -401,24 +401,23 @@ Before writing, decide for each item you were going to mention (model, price, op
 
 @trace("CLASSIFIER")
 def review(message, draft, docs_text):
-    """(ok, problems): third LLM layer, checks the draft after generation. Any failure counts as not ok (fail closed)."""
-    try:
-        raw = llm(
-            [
-                {"role": "system", "content": REVIEW_PROMPT},
-                {
-                    "role": "user",
-                    "content": f"DOCUMENTS:\n{docs_text}\n\nQUESTION:\n{fence(message)}\n\nDRAFT:\n{draft}",
-                },
-            ],
-            temperature=0,
-            max_tokens=1000,
-        )
-        verdict = json.loads(raw[raw.index("{") : raw.rindex("}") + 1])
-        return bool(verdict["ok"]), [str(p) for p in verdict.get("problems", [])]
-    except Exception as e:  # noqa: BLE001 - an unreviewed draft is not released
-        print(f"review failed, treating draft as not ok: {e!r}", file=sys.stderr)
-        return False, [f"reviewer failed: {e!r}"]
+    """(ok, problems): third LLM layer, checks the draft after generation. Any failure counts as not ok (fail closed).
+    A reply that is not valid JSON is asked for once more: it happens now and then, and one bad format used to send a good draft to UNVERIFIED."""
+    messages = [
+        {"role": "system", "content": REVIEW_PROMPT},
+        {"role": "user", "content": f"DOCUMENTS:\n{docs_text}\n\nQUESTION:\n{fence(message)}\n\nDRAFT:\n{draft}"},
+    ]
+    for attempt in (1, 2):
+        try:
+            raw = llm(messages, temperature=0, max_tokens=1000)
+            verdict = json.loads(raw[raw.index("{") : raw.rindex("}") + 1])
+            return bool(verdict["ok"]), [str(p) for p in verdict.get("problems", [])]
+        except Exception as e:  # noqa: BLE001 - an unreviewed draft is not released
+            failure = e
+            print(
+                f"review failed (attempt {attempt}), treating draft as not ok if it fails again: {e!r}", file=sys.stderr
+            )
+    return False, [f"reviewer failed: {failure!r}"]
 
 
 # ---- tickets and retrieval ----

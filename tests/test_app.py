@@ -668,6 +668,21 @@ def test_the_real_bot_is_told_to_recommend_only_what_the_documents_support():
     assert app.FIT_RULE in answer_prompts["L4"] and app.FIT_RULE not in answer_prompts["L1"]
 
 
+def test_reviewer_asked_again_once_when_its_reply_is_not_valid_json():
+    # a good draft used to end as UNVERIFIED because one reviewer reply had a broken JSON string; a retry fixes that, but two broken replies still must not release the draft
+    replies = iter(['{"ok": true, "problems": ["bad "quote" here"]', '{"ok": true}'])
+    real = app.llm
+    app.llm = lambda messages, **kw: next(replies)
+    try:
+        assert app.review("q", "draft", "docs") == (True, [])
+        broken = iter(["not json", '{"ok": false, "problems": ["x" "y"]}'])
+        app.llm = lambda messages, **kw: next(broken)
+        ok, problems = app.review("q", "draft", "docs")
+        assert ok is False and "reviewer failed" in problems[0]
+    finally:
+        app.llm = real
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):
