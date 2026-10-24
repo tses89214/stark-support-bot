@@ -665,10 +665,6 @@ flowchart TD
       <tr><td><code>asked</code></td><td class="wrap">How many times it has asked back, at most 2</td><td class="wrap">Code: decides to stop asking; not shown on the card</td></tr>
     </tbody></table></div>
 
-  <h2>What has not been measured</h2>
-  <ul>
-    <li>Each item above was confirmed to “work” by a unit test or a single real conversation. Multi-turn behaviour also has one small evaluation: 14 scripted conversations (23 turns) run twice, with code judging every turn (route, required or forbidden text, reply language). The latest run passed 28/28 conversations in full (95% interval 88–100%); the first run of the same set was 25/28: the ship-search recommendation 0/2 (one UNVERIFIED, one reply in English to a Chinese conversation) and the catalogue question “which ship carries 30 people” 1/2 (it listed only the Stark 8). The conversations were written by the author and there are few of them, the checks are substrings and a regex, so this is a smoke test, not an estimate for real customers, and it cannot say “how much smoother” the conversation became.</li>
-  </ul>
 </div>
 
 <div class="panel" id="p-review" role="tabpanel" aria-labelledby="t-review">
