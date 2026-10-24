@@ -206,3 +206,9 @@
 - 多輪評測集（`evals/eval_conversations.py`）：先量基準（25/28）再改，符合「從最差基準一次改一個」。判定全由程式。老實揭露：判定規則放寬過一次（Crimson 的中文譯名「深紅」被誤判）；保底內容改版前的回覆被重新判定；作者寫的小樣本，只能當冒煙測試。
 - 防禦階梯只放「攻擊擋下」與「正常題答對」，拿掉兩個 prompt 長度欄位與 L4 完整機器人列。理由：混合平均把 28 題被一次小分類呼叫擋掉的攻擊和 6 題正常題攤在一起，L3 看起來比 L0 便宜，但正常題實測 L3 約 20.0k（分類 4.2k＋回答 15.8k）、完整機器人約 20.8k，比 L0 的 15.2k 更貴；這頁重點是擋下多少，成本不是重點。腳本不再跑 L4（下次重跑省約 140 次呼叫）。
 - 報告內容偏好：不放「已知限制」「還沒量測的部分」「頁尾資料來源」；標題不加括號補充；文字要簡單白話（例如檢索卡片）。
+
+## 2026-10-24 對照 Agent 詞彙表：本專案是固定管線，不是 agent
+- 有：Guardrails、Human-in-the-loop（工單）、Evals、Context engineering、RAG、Memory（伺服器 session）、Tracing（MLflow）、Routing、Prompt chaining、Parallelization、Evaluator-optimizer（審查→重寫）。
+- 部分：Harness（`llm()` 重試／金鑰輪替，無迴圈）、Structured output（提示要求 JSON＋手動切 `{}`，沒用 `response_format`）、Sandbox（只靠最小權限：唯一寫入是開工單）。
+- 沒有：Agent loop、Tool use、MCP、Skills、Subagents、Hooks、Compaction、Orchestrator-workers、Prompt caching、LLM-as-judge（刻意不用，評測要確定性）。
+- 原因：Rule 5「路由交給程式」；機器人沒有工具呼叫。缺口留給第二作品 Text-to-SQL Agent，建議補：agent loop（多輪 + 輪數上限）、`run_sql` tool use、SELECT-only 與成本記錄的 hook、唯讀帳戶＋掃描量上限、compaction、MCP 包資料源（可選），並沿用階梯／確定性判定／信賴區間。
