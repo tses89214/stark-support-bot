@@ -90,6 +90,7 @@ cp .env.example .env              # 填入 OpenRouter key，選一個 :free 模�
 | `python -m evals.eval_guardrails` | 143 則標好類別的訊息（7 類）的分類器準確度與混淆矩陣 | 免費額度的 LLM 呼叫 |
 | `python -m evals.eval_ladder [runs]` | 防禦階梯 L0（沒有防禦）到 L3：攻擊擋下、答對；寫入 `results/ladder.md`；每完成一層就存檔，中斷後可接續 | 免費額度的 LLM 呼叫，約 30 分鐘 |
 | `python -m evals.eval_review [runs]` | 審查層：62 份構造的草稿（30 好、32 壞，每份只壞一條規則，每條規則 4 份）；每條規則的抓出率與好稿誤擋率；寫入 `results/review.md` | 免費額度的 LLM 呼叫，約 110 次 |
+| `python -m evals.eval_conversations [runs]` | 14 組腳本化多輪對話走真正的 `app.chat`（共 23 輪），每輪由程式判：路由、必含或禁止的文字、回覆語言；寫入 `results/conversations.md` | 免費額度的 LLM 呼叫，每輪約 100 次 |
 | `python -m evals.eval_followups [runs]` | R3 下的離題訊息（分類器與選文件分開量）與對話中的追問，R2 對 R3；寫入 `results/followups.md` | 免費額度的 LLM 呼叫，約 110 次 |
 | `python -m evals.eval_hybrid` | 切句、BM25＋向量融合與 cross-encoder 重排，對 90 題檢索題和純向量檢索比較（`results/hybrid.md`） | 免費，本機（需要 `BAAI/bge-reranker-v2-m3` 權重，2GB） |
 | `python -m evals.eval_answers` | 端到端：有文件依據的答案含文件事實，沒有答案的指向客服（目前模型 17/17） | 免費額度的 LLM 呼叫 |

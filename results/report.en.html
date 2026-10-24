@@ -663,7 +663,7 @@ flowchart TD
 
   <h2>What has not been measured</h2>
   <ul>
-    <li>Each item above was confirmed to “work” by a unit test or a single real conversation, and there is<b>no</b>evaluation set of multi-turn conversations, so we cannot say how much smoother the conversation became.</li>
+    <li>Each item above was confirmed to “work” by a unit test or a single real conversation. Multi-turn behaviour also has one small evaluation: 14 scripted conversations (23 turns) run twice, with code judging every turn (route, required or forbidden text, reply language). The latest run passed 28/28 conversations in full (95% interval 88–100%); the first run of the same set was 25/28: the ship-search recommendation 0/2 (one UNVERIFIED, one reply in English to a Chinese conversation) and the catalogue question “which ship carries 30 people” 1/2 (it listed only the Stark 8). The conversations were written by the author and there are few of them, the checks are substrings and a regex, so this is a smoke test, not an estimate for real customers, and it cannot say “how much smoother” the conversation became.</li>
     <li>Known weakness: the classifier sometimes fills in too many models for <code>about</code>  (for example “I like a small one.” is classified as Stark 2 and Stark 3); the reviewer is strict and returns drafts because of subjective adjectives or the email address.</li>
   </ul>
 </div>
@@ -674,7 +674,7 @@ flowchart TD
   <p>After the answer is written, a third LLM checks it item by item against the source documents and guards three things:<b>facts are in the documents, numbers match, no promise of discounts / refunds / delivery dates</b>.</p>
   <ul>
     <li><b>Fail</b>: rewrite with all the pointed-out problems, at most twice.</li>
-    <li><b>Still failing after two tries</b>: reply UNVERIFIED (“I could not produce an answer I can check against the documents, so I will not guess”) and keep it out of the conversation history. This is not the same as “the documents do not say”.</li>
+    <li><b>Still failing after two tries</b>: reply UNVERIFIED (“I could not produce an answer I can check against the documents, so I will not guess”) and keep it out of the conversation history. This is not the same as “the documents do not say”. Exception: when the customer is looking for a ship and has said how many people, they get a shortlist built by code from the documents instead (passenger-only models; those whose description uses a word the customer said about the use first, then the closest fit; at most 5; every line copied from the documents, no model involved), so they do not hit a dead end.</li>
     <li><b>The reviewer itself fails</b>: if its reply is not valid JSON it is asked once more; if both replies are broken the draft counts as a fail, never as a pass.</li>
   </ul>
   <p class="sub">Review rules: every item listed as a match must satisfy every condition of the question; list all the problems at once; it must not sign which AI model wrote it.</p>
