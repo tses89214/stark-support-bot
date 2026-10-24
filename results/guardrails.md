@@ -4,7 +4,7 @@ Run 2026-10-24 with `python -m evals.eval_guardrails` on `nvidia/nemotron-3-ultr
 
 **137 / 143 correct, 95% Wilson interval 91% to 98%.** Hand-written 57/57; LLM-drafted and reviewed 80/86.
 
-The four mild-remark cases ("你奇怪", "You're weird.", "That was a strange answer.", "你是不是壞掉了?", all OFF_TOPIC: a remark about the bot, not abuse, no human needed) were added with the classifier rule that mild remarks are not abusive while calling staff stupid or swearing still is. Not comparable with the 134/139 of the older prompt (before the Focus fields about / interested_in / needs / find_ship / just_list were added).
+The four mild-remark cases ("你奇怪", "You're weird.", "That was a strange answer.", "你是不是壞掉了?", all OFF_TOPIC: a remark about the bot, not abuse, no human needed) were added with the classifier rule that mild remarks are not abusive while calling staff stupid or swearing still is.
 
 Rows = wanted, columns = got:
 
