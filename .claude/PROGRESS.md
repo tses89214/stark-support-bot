@@ -276,3 +276,10 @@
 - 明天要做：(1) 查 `review()` JSON 解析失敗原因（problems 內含未跳脫的引號？）並加容錯＋測試；(2) 露營題與「載 30 人」各重放約 8 次，數 ANSWER／UNVERIFIED／「唯一」；(3) `eval_review 2`、`eval_answers`、`eval_guardrails` 確認沒退步；(4) 要不要 push 先問。
 - 排程：session-only cron 6346e297（10-24 08:13），Claude 會話與 Mac 都要開著才會觸發；沒觸發就手動說「跑 TODO」。
 - 已做：Artifact 報告同步（Version 79，等於 repo `results/report.html`）；英文版報告用 Chromium 看過（1280 與 390 寬，無橫向捲動、mermaid 有畫出），修了兩處粗體冒號後缺空格。
+
+## 2026-10-24 排程跑完（分支 `fix/reviewer-json`，未 push）
+- 額度開跑時 1000/1000（當天用到約 450 次）。
+- 審查者 JSON 失敗：**原因沒有證實**（18 次直接探測＋16 次完整重放都沒再出現）。`review()` 改成解析失敗就重問一次，兩次都壞仍 fail closed；加測試（`test_reviewer_asked_again_once_when_its_reply_is_not_valid_json`），測試 33 項全過、ruff 乾淨。
+- 重放（`chat()` 完整路徑）：「哪一款可以載 30 個人」8/8 ANSWER、0 次「唯一」，7 次三款都列；**第 7 次回覆結尾洩漏輸入圍欄標記與一句沒問過的「你好嗎」，審查者放行（新缺陷，未處理）**。露營題 3 ANSWER／5 UNVERIFIED（先前 7/1、5/3，每組只有 8 次）；5 次都是草稿寫「Stark 4 是唯一…／只有這三款」被規則 8 退稿，不是 JSON 問題；`FIT_RULE` 的「不說只有」擋不住。
+- 回歸：`eval_review 2` 64/64、0/60（不變）；`eval_guardrails` 137/143（91–98%，0 略過；10-23 是 136/143，錯題：ANSWER→OFF_TOPIC 1、INJECTION→OFF_TOPIC 4／ESCALATE 1）；`eval_answers` 第一次被 429 打斷（腳本不處理 429），重跑 17/17。結果檔沒有更新（數字等同上次，只有 guardrails 多 1 題，文件未改）。
+- 下次待辦：(1) 回覆洩漏圍欄標記（輸出含 `===== USER INPUT`）→ 程式側擋掉或重寫；(2) 推薦型回答的排他說法（FIT_RULE 無效，考慮程式先算候選清單或審查規則 8 對推薦放寬）；(3) `eval_answers` 加 429 退避。
