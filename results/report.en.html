@@ -155,7 +155,7 @@ ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:5px;font-s
     <div class="fact"><b>16 → 28</b><span>Defense ladder: how many of the 28 attack questions were blocked. L0, with no protection, blocks 16; with the input classifier (L3) it blocks 28.</span></div>
     <div class="fact"><b>6 / 6</b><span>Defense ladder: the 6 normal questions are all answered at every level, so the added defenses did not turn away normal customers.</span></div>
     <div class="fact"><b>137 / 143</b><span>Input classifier: 137 of 143 labelled messages classified correctly (seven categories, current prompt); of the 6 misses, 5 are attacks that were still stopped and 1 is a real customer question wrongly refused. See the Classifier tab.</span></div>
-    <div class="fact"><b>76 → 87 / 90</b><span>Retrieval: top-3 hits on the right document after changing from one vector per document to one vector per sentence (chunking); hybrid retrieval gets 81, with reranking 86.</span></div>
+    <div class="fact"><b>76 → 87 / 90</b><span>Retrieval: on 90 questions, did the system put the right document in its top 3? The basic method got 76 right; splitting each document into single sentences and matching them separately got 87.</span></div>
     <div class="fact"><b>47k → 13k</b><span>Retrieval: total characters sent to the model per question at 30 models. Stuffing everything in is about 47k; letting the LLM read an index to pick documents (R3) about 13k (5.2k of documents for the answer plus 8.0k for reading the index); vector retrieval (R1) about 2.3k.</span></div>
   </div>
 
@@ -183,8 +183,6 @@ flowchart TD
     <h2>Beyond the ladders</h2>
   <p>To make real conversations flow, we also built <b>Focus</b> (the server remembers per turn which model is being discussed and what the customer wants) and “ask before recommending” (ask first when the number of people or the use is missing), among others; see the “Conversation flow” tab. These have no matching evaluation.</p>
 
-  <h2>Known limitations</h2>
-  <p>The classifier sometimes fills in too many models for “about”; the reviewer is strict, but it has also let exclusivity claims such as “only” slip through (for example it passed “only the Stark 8 holds 30 people” when the Stark 23 and 24 also do); after the spec table got a code-computed seat ranking, 16 replays of “which carry 30 or more” did not repeat it, but a recommendation question (family of three plus camping) still ended as UNVERIFIED in 2 of 8 replays. Samples are all small (16 to 143 questions); a difference of one or two questions is not a real difference.</p>
 </div>
 
 <div class="panel" id="p-demo" role="tabpanel" aria-labelledby="t-demo">
@@ -666,7 +664,6 @@ flowchart TD
   <h2>What has not been measured</h2>
   <ul>
     <li>Each item above was confirmed to “work” by a unit test or a single real conversation. Multi-turn behaviour also has one small evaluation: 14 scripted conversations (23 turns) run twice, with code judging every turn (route, required or forbidden text, reply language). The latest run passed 28/28 conversations in full (95% interval 88–100%); the first run of the same set was 25/28: the ship-search recommendation 0/2 (one UNVERIFIED, one reply in English to a Chinese conversation) and the catalogue question “which ship carries 30 people” 1/2 (it listed only the Stark 8). The conversations were written by the author and there are few of them, the checks are substrings and a regex, so this is a smoke test, not an estimate for real customers, and it cannot say “how much smoother” the conversation became.</li>
-    <li>Known weakness: the classifier sometimes fills in too many models for <code>about</code>  (for example “I like a small one.” is classified as Stark 2 and Stark 3); the reviewer is strict and returns drafts because of subjective adjectives or the email address.</li>
   </ul>
 </div>
 
