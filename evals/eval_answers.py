@@ -4,11 +4,26 @@ support instead of inventing an answer. Substring checks are blunt on purpose: d
 
 import re
 import sys
+import time
 import unicodedata
+
+import requests
 
 from backend import app
 
 app.open_ticket = lambda *a, **k: "eval"  # a misrouted case must not write to tickets.jsonl
+
+
+def ask(question, history):
+    """app.answer, waiting out a 429 (free tier: 20 calls a minute); a run that dies half way proves nothing."""
+    for wait in (20, 40, 80, 0):
+        try:
+            return app.answer(question, history)
+        except requests.HTTPError as e:
+            if e.response is None or e.response.status_code != 429 or not wait:
+                raise
+            print(f"429, waiting {wait}s", file=sys.stderr)
+            time.sleep(wait)
 
 
 def has_fact(reply, needles):
@@ -45,18 +60,18 @@ MIXED = [
 bad = []
 # multi-turn: the follow-up has no model name, so it only works if the previous turn is carried
 history = []
-app.answer("Tell me about the Stark 3", history)
-reply, route, _ = app.answer("How much is it?", history)
+ask("Tell me about the Stark 3", history)
+reply, route, _ = ask("How much is it?", history)
 if route != "ANSWER" or not any(n in reply for n in ["5,200,000", "5.2"]):
     bad.append(("follow-up", "How much is it?", route, reply[:120]))
 
 for q, needles in GROUNDED:
-    reply, route, _ = app.answer(q, [])
+    reply, route, _ = ask(q, [])
     if route != "ANSWER" or not has_fact(reply, needles):
         bad.append(("grounded", q, route, reply[:120]))
 
 for q, invented in UNANSWERABLE:
-    reply, route, _ = app.answer(q, [])
+    reply, route, _ = ask(q, [])
     # pointing to support is not enough: a made-up answer followed by the support address must fail too
     if route not in ("NO_ANSWER", "UNVERIFIED", "ANSWER") or (
         route == "ANSWER" and (app.SUPPORT not in reply or re.search(invented, reply))
@@ -64,7 +79,7 @@ for q, invented in UNANSWERABLE:
         bad.append(("unanswerable", q, route, reply[:120]))
 
 for q in MIXED:
-    reply, route, _ = app.answer(q, [])
+    reply, route, _ = ask(q, [])
     # classifier failed and fail-closed sent it to a human: no code came back, but nothing was tested either
     if route == "ESCALATE":
         bad.append(("mixed (unscored: escalated)", q, route, reply[:120]))
