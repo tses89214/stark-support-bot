@@ -633,6 +633,16 @@ flowchart TD
     <li>Only requests such as “help me choose” and “recommend a ship” count as looking for a ship; questions such as “which model carries 30 people?” and “which is the cheapest?”, which can be answered by listing the matching models, are answered directly without asking back.</li>
   </ul>
 
+  <h2>What Focus is</h2>
+  <p>Focus is a “progress card” the bot keeps for every conversation. The server stores it and updates it once after each turn. It holds four things: which models are being discussed, which models the customer likes, the needs the customer has already stated (number of people, use, budget, size), and how many clarifying questions have been asked.</p>
+  <p>The card has three purposes:</p>
+  <ul>
+    <li><b>Understanding “it” and “that one”</b>: when the next message names no model, the code fills in the model being discussed and always reads that model's document, instead of relying on the model to remember.</li>
+    <li><b>Deciding whether to ask</b>: needs accumulate on the card; the bot asks only when the number of people or the use is missing, never repeats what the customer already said, and asks at most twice.</li>
+    <li><b>Not losing the thread</b>: off-topic, injection and abusive messages do not change the card, so when the customer comes back to the products the conversation continues where it was.</li>
+  </ul>
+  <p>The card lives on the server and is not sent by the browser, so it cannot be forged; the page shows the first three items in the side panel.</p>
+
   <h2>What Focus looks like</h2>
   
   <div class="tbl"><table>
