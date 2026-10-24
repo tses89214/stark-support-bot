@@ -183,8 +183,6 @@ flowchart TD
     <h2>Beyond the ladders</h2>
   <p>To make real conversations flow, we also built <b>Focus</b> (the server remembers per turn which model is being discussed and what the customer wants) and “ask before recommending” (ask first when the number of people or the use is missing), among others; see the “Conversation flow” tab. These have no matching evaluation.</p>
 
-  <h2>Known limitations</h2>
-  <p>The classifier sometimes fills in too many models for “about”; the reviewer is strict, but it has also let exclusivity claims such as “only” slip through (for example it passed “only the Stark 8 holds 30 people” when the Stark 23 and 24 also do); after the spec table got a code-computed seat ranking, 16 replays of “which carry 30 or more” did not repeat it, but a recommendation question (family of three plus camping) still ended as UNVERIFIED in 2 of 8 replays. Samples are all small (16 to 143 questions); a difference of one or two questions is not a real difference.</p>
 </div>
 
 <div class="panel" id="p-demo" role="tabpanel" aria-labelledby="t-demo">
