@@ -614,7 +614,7 @@ rerank = [top[j] for j in sorted(range(10), key=lambda j: -scores[j])] + h[10:]<
     </tbody></table></div>
 
   <h2>Ask before recommending (CLARIFY)</h2>
-  <p>Whether to ask back is decided by code; the model only writes the question in the customer's language. It asks only when all of the conditions hold:</p>
+  <p>Whether to ask back is decided by code; the model only writes the question in the customer's language. The code goes by <b>Focus</b>, a progress card the server keeps for every conversation: it holds the needs the customer has already stated (number of people, use) and how many questions have been asked so far (explained in the next section). It asks only when all of the conditions hold:</p>
   <div class="tbl"><pre class="mermaid">
 flowchart TD
   M["Customer message"] --> C{"Classifier: ANSWER<br/>and find_ship"}

@@ -614,7 +614,7 @@ rerank = [top[j] for j in sorted(range(10), key=lambda j: -scores[j])] + h[10:]<
     </tbody></table></div>
 
   <h2>先問再推薦（CLARIFY）</h2>
-  <p>是否反問由程式判斷，模型只負責用客人的語言把問題寫出來。條件全部成立才問：</p>
+  <p>是否反問由程式判斷，模型只負責用客人的語言把問題寫出來。程式依據的是 <b>Focus</b>：伺服器替每場對話記的一張進度卡，裡面有客人已經說過的需求（人數、用途）和已經反問的次數（下一節說明）。條件全部成立才問：</p>
   <div class="tbl"><pre class="mermaid">
 flowchart TD
   M["客人訊息"] --> C{"分類器: ANSWER<br/>且 find_ship"}
