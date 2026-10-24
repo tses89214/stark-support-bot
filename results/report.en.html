@@ -632,19 +632,6 @@ flowchart TD
     <li>The classifier is told explicitly not to guess fields. The first version once filled in “four people” as “use: family trips” on its own and skipped the question; after the prompt was changed it was fixed.</li>
     <li>Only requests such as “help me choose” and “recommend a ship” count as looking for a ship; questions such as “which model carries 30 people?” and “which is the cheapest?”, which can be answered by listing the matching models, are answered directly without asking back.</li>
   </ul>
-  <p class="sub">A real conversation:</p>
-  <div class="chat">
-    <div class="turn">
-      <div class="msg cust"><span class="who">Customer</span>I want a ship for taking the family out</div>
-      <div class="msg bot"><span class="who">Bot</span>Hello! To find the ship that suits you best, how many family members usually travel together?<br><br>(You can also just reply “just list them” and I will list the best options.)</div>
-      <div class="back"><span class="who">Backstage</span><div><span class="k">Route</span>CLARIFY</div><div><span class="k">Documents read</span>(none, it only asks); 0 answer drafts</div><div><span class="k">Focus after this turn</span><ul class="fo"><li>Discussing: —</li><li>Interested in: —</li><li>Needs: use=family trips</li><li>Clarifying questions asked: 1</li></ul></div><div class="why">The use (“family trips”) was already taken from the first message, so it asks only for the missing number of people.</div></div>
-    </div>
-    <div class="turn">
-      <div class="msg cust"><span class="who">Customer</span>Four people, two adults and two children, everyday family trips</div>
-      <div class="msg bot"><span class="who">Bot</span>Based on your need (a family of four, everyday family trips), a ship must carry at least 4 people and its document must describe it as suited to family, comfort, long voyages or sightseeing. Going through the documents, these models qualify:<br><br><b>Stark 4</b> — a family-friendly spaceship with ample space and comfort for long voyages<br>- Passengers: 12<br>- Price: $8,000,000<br>- Accessories: entertainment system, extra sleeping pods<br><br>… (the full reply also lists Stark 6, 11 and 20)</div>
-      <div class="back"><span class="who">Backstage</span><div><span class="k">Route</span>ANSWER</div><div><span class="k">Documents read</span>model_1 to model_30, all 30 documents (the model is given a one-line-per-model spec table); passed the review</div><div><span class="k">Focus after this turn</span><ul class="fo"><li>Discussing: —</li><li>Interested in: —</li><li>Needs: use=family trips, passengers=4</li><li>Clarifying questions asked: 1</li></ul></div><div class="why">The needs accumulate to “use = family trips, passengers = 4”; both required fields are known, so it does not ask again and recommends directly.</div></div>
-    </div>
-  </div>
 
   <h2>What Focus looks like</h2>
   
@@ -665,6 +652,20 @@ flowchart TD
       <tr><td><code>asked</code></td><td class="wrap">How many times it has asked back, at most 2</td><td class="wrap">Code: decides to stop asking; not shown on the card</td></tr>
     </tbody></table></div>
 
+
+  <h2>A real conversation</h2>
+  <div class="chat">
+    <div class="turn">
+      <div class="msg cust"><span class="who">Customer</span>I want a ship for taking the family out</div>
+      <div class="msg bot"><span class="who">Bot</span>Hello! To find the ship that suits you best, how many family members usually travel together?<br><br>(You can also just reply “just list them” and I will list the best options.)</div>
+      <div class="back"><span class="who">Backstage</span><div><span class="k">Route</span>CLARIFY</div><div><span class="k">Documents read</span>(none, it only asks); 0 answer drafts</div><div><span class="k">Focus after this turn</span><ul class="fo"><li>Discussing: —</li><li>Interested in: —</li><li>Needs: use=family trips</li><li>Clarifying questions asked: 1</li></ul></div><div class="why">The use (“family trips”) was already taken from the first message, so it asks only for the missing number of people.</div></div>
+    </div>
+    <div class="turn">
+      <div class="msg cust"><span class="who">Customer</span>Four people, two adults and two children, everyday family trips</div>
+      <div class="msg bot"><span class="who">Bot</span>Based on your need (a family of four, everyday family trips), a ship must carry at least 4 people and its document must describe it as suited to family, comfort, long voyages or sightseeing. Going through the documents, these models qualify:<br><br><b>Stark 4</b> — a family-friendly spaceship with ample space and comfort for long voyages<br>- Passengers: 12<br>- Price: $8,000,000<br>- Accessories: entertainment system, extra sleeping pods<br><br>… (the full reply also lists Stark 6, 11 and 20)</div>
+      <div class="back"><span class="who">Backstage</span><div><span class="k">Route</span>ANSWER</div><div><span class="k">Documents read</span>model_1 to model_30, all 30 documents (the model is given a one-line-per-model spec table); passed the review</div><div><span class="k">Focus after this turn</span><ul class="fo"><li>Discussing: —</li><li>Interested in: —</li><li>Needs: use=family trips, passengers=4</li><li>Clarifying questions asked: 1</li></ul></div><div class="why">The needs accumulate to “use = family trips, passengers = 4”; both required fields are known, so it does not ask again and recommends directly.</div></div>
+    </div>
+  </div>
 </div>
 
 <div class="panel" id="p-review" role="tabpanel" aria-labelledby="t-review">
