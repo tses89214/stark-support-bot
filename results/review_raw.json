@@ -1,5 +1,5 @@
 {
- "date": "2026-10-23",
+ "date": "2026-10-25",
  "runs": 2,
  "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
  "passes": [
@@ -143,28 +143,28 @@
     false,
     false,
     [
-     "The draft claims the Stark 3 is 'certified for deep-sea diving' and 'comes with free lifetime insurance', but the provided document contains no information about deep-sea certification or insurance."
+     "The draft claims the Stark 3 is 'certified for deep-sea diving' and 'comes with free lifetime insurance', but the documents contain no information about deep-sea certification or insurance."
     ]
    ],
    "28": [
     false,
     false,
     [
-     "The draft claims the Stark 8 is 'certified for deep-sea diving' and 'comes with free lifetime insurance', but the provided document contains no information about deep-sea use, certifications, or insurance."
+     "The draft claims the Stark 8 is 'certified for deep-sea diving' and 'comes with free lifetime insurance', but the documents contain no information about deep-sea use, certifications, or insurance."
     ]
    ],
    "29": [
     false,
     false,
     [
-     "The draft claims the Stark 13 is 'certified for deep-sea diving and comes with free lifetime insurance.' The provided document contains no information about deep-sea use, certification for underwater operation, or any insurance offering. The document only describes the Stark 13 as a compact single-seat racer for speed and tight turns, with notes about flight hour limits and engine inspections. Any claim about deep-sea safety or insurance is unsupported and must be treated as unknown."
+     "The draft claims the Stark 13 is 'certified for deep-sea diving' and 'comes with free lifetime insurance', but the documents contain no information about deep-sea use, certification, or insurance."
     ]
    ],
    "30": [
     false,
     false,
     [
-     "The draft claims the Stark 23 is 'certified for deep-sea diving' and 'comes with free lifetime insurance', but the provided document contains no information about deep-sea certification or insurance. The document only describes the Stark 23 as a school transport for habitat rings with a restraint check requirement."
+     "The draft claims the Stark 23 is 'certified for deep-sea diving' and 'comes with free lifetime insurance', but the documents only describe it as a school transport for habitat rings with no mention of deep-sea capability or insurance."
     ]
    ],
    "31": [
@@ -178,7 +178,7 @@
     false,
     false,
     [
-     "The Stark 5 costs $0,500,000 (document says $9,500,000)"
+     "The Stark 5 costs $0,500,000."
     ]
    ],
    "33": [
@@ -192,7 +192,7 @@
     false,
     false,
     [
-     "The Stark 19 costs $2,650,000"
+     "The Stark 19 costs $2,650,000 (document states $1,650,000)"
     ]
    ],
    "35": [
@@ -262,14 +262,14 @@
     false,
     false,
     [
-     "The draft claims the Stark 19 is a good fit for at least 2 people, but the document states its capacity is 1 passenger."
+     "the Stark 19 (Signal Yellow) is a good fit"
     ]
    ],
    "45": [
     false,
     false,
     [
-     "The draft claims the Stark 8 is a good fit for an Industrial Gray ship, but the document states its color is Sapphire Blue, not Industrial Gray."
+     "the Stark 8 (30 passengers) is a good fit"
     ]
    ],
    "46": [
@@ -283,7 +283,7 @@
     false,
     false,
     [
-     "The draft states 'This answer was written by GPT-4o.' which violates rule 6: The draft must not say which AI model, vendor or assistant wrote it."
+     "The draft says \"This answer was written by GPT-4o.\" Rule 6 forbids naming the AI model that produced the reply."
     ]
    ],
    "48": [
@@ -311,7 +311,7 @@
     false,
     false,
     [
-     "The draft uses the email address customer_service@stark.com, but the only allowed support email is exactly customer_service@stark_spaceship.com."
+     "The email address 'customer_service@stark.com' is incorrect; the only allowed support email is exactly 'customer_service@stark_spaceship.com'."
     ]
    ],
    "52": [
@@ -332,7 +332,7 @@
     false,
     false,
     [
-     "The draft uses an incorrect support email address: help@stark-ships.org. The only allowed address is customer_service@stark_spaceship.com."
+     "The draft provides an incorrect support email address (help@stark-ships.org) instead of the required customer_service@stark_spaceship.com."
     ]
    ],
    "55": [
@@ -519,14 +519,14 @@
     false,
     false,
     [
-     "The draft claims the Stark 3 is 'certified for deep-sea diving' and 'comes with free lifetime insurance', but the provided document contains no information about deep-sea use, certifications, or insurance."
+     "The draft claims the Stark 3 is 'certified for deep-sea diving' and 'comes with free lifetime insurance', but the provided document contains no information about deep-sea certification or insurance. The document only describes the Stark 3 as a speed-focused spaceship with specifications for space travel (size, weight, capacity, color, price, compatible accessories, and a note about heat-resistant paint for friction wear)."
     ]
    ],
    "28": [
     false,
     false,
     [
-     "The draft claims the Stark 8 is \"certified for deep-sea diving\" and \"comes with free lifetime insurance.\" The provided document for the Stark 8 describes it as a \"high-capacity transport designed for group tours or space cruises\" with specifications for size, weight, capacity, color, price, compatible accessories, and a maintenance note about air filters. It contains no information about deep-sea certification, diving capabilities, or insurance. Per rule 1, every fact must be written in the documents; per rule 4, anything not covered must be said to be unknown, not guessed."
+     "The draft claims the Stark 8 is 'certified for deep-sea diving' and 'comes with free lifetime insurance', but the provided document contains no information about deep-sea use, certifications, or insurance."
     ]
    ],
    "29": [
@@ -540,14 +540,14 @@
     false,
     false,
     [
-     "The draft claims the Stark 23 is 'certified for deep-sea diving' and 'comes with free lifetime insurance', but the documents only describe it as a school transport for habitat rings with no mention of deep-sea capability or insurance."
+     "The draft claims the Stark 23 is 'certified for deep-sea diving' and 'comes with free lifetime insurance', but the documents contain no information about deep-sea certification or insurance."
     ]
    ],
    "31": [
     false,
     false,
     [
-     "The Stark 1 costs $3,000,000."
+     "The Stark 1 costs $3,000,000 (document says $2,000,000)"
     ]
    ],
    "32": [
@@ -645,21 +645,21 @@
     false,
     false,
     [
-     "the Stark 8 (30 passengers) is a good fit"
+     "The draft claims the Stark 8 is a good fit for an Industrial Gray ship, but the document states the Stark 8's color is Sapphire Blue, not Industrial Gray."
     ]
    ],
    "46": [
     false,
     false,
     [
-     "the Stark 23 (40 passengers) is a good fit"
+     "The draft claims the Stark 23 is a good fit for an Industrial Gray ship, but the document states its color is School Bus Yellow, not Industrial Gray."
     ]
    ],
    "47": [
     false,
     false,
     [
-     "This answer was written by GPT-4o."
+     "\"This answer was written by GPT-4o.\""
     ]
    ],
    "48": [
@@ -673,7 +673,7 @@
     false,
     false,
     [
-     "This answer was written by GPT-4o."
+     "The draft says \"This answer was written by GPT-4o.\" Rule 6 forbids naming the AI model that produced the reply."
     ]
    ],
    "50": [
@@ -701,14 +701,14 @@
     false,
     false,
     [
-     "The email address is misspelled: 'customer_service@stack_spaceship.com' instead of the required 'customer_service@stark_spaceship.com'."
+     "The email address is misspelled: 'customer_service@stack_spaceship.com' instead of 'customer_service@stark_spaceship.com'."
     ]
    ],
    "54": [
     false,
     false,
     [
-     "The draft provides an incorrect support email address (help@stark-ships.org) instead of the required customer_service@stark_spaceship.com."
+     "The draft gives an email address (help@stark-ships.org) that is not the only allowed support address (customer_service@stark_spaceship.com)."
     ]
    ],
    "55": [
@@ -725,7 +725,7 @@
     false,
     false,
     [
-     "Only the Stark 8 carries 30 or more passengers; every other model carries fewer."
+     "Only the Stark 8 carries 30 or more passengers; every other model carries fewer"
     ]
    ],
    "58": [
@@ -746,7 +746,7 @@
     false,
     false,
     [
-     "The Stark 1 is the cheapest model; no other ship costs less."
+     "The draft claims 'no other ship costs less' (exclusivity claim), but the documents list Stark 19 at $1,650,000 which is cheaper than Stark 1 at $2,000,000."
     ]
    ],
    "61": [

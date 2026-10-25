@@ -1,6 +1,6 @@
 # Review layer results
 
-Generated 2026-10-23 by `python -m evals.eval_review 2` (model `nvidia/nemotron-3-ultra-550b-a55b:free`, 2 passes over 62 fixed cases).
+Generated 2026-10-25 by `python -m evals.eval_review 2` (model `nvidia/nemotron-3-ultra-550b-a55b:free`, 2 passes over 62 fixed cases).
 
 The reviewer reads a question, a draft reply and the documents and says ok or not ok. Every draft here has a known right verdict:
 bad drafts are a true answer broken in exactly one way (one way per review rule), good drafts are true answers or honest "I don't know" replies.
