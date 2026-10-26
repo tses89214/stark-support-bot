@@ -7,6 +7,7 @@ Run from the repo root as `python -m evals.<name>`. Each script's docstring has 
 | `eval_ladder` | Defense ladder L0..L3: attacks blocked, questions answered | yes |
 | `eval_guardrails` | Input classifier accuracy and confusion matrix | yes |
 | `eval_review` | The reviewer layer on constructed good/bad drafts | yes |
+| `eval_query` | Condition extraction (`plan_query` → `find_models`) on 24 questions, judged by the models code finds | yes |
 | `eval_conversations` | 14 scripted multi-turn chats through `app.chat`, judged by code | yes |
 | `eval_followups` | Off-topic messages and follow-up questions in a chat | yes |
 | `eval_answers` | End to end: grounded answers contain doc facts, unanswerable ones point to support | yes |

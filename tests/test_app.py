@@ -830,6 +830,12 @@ def test_a_catalogue_question_gets_the_looked_up_models_and_a_bad_plan_gets_none
         app.llm = real
 
 
+def test_the_document_list_is_the_folder_not_the_index():
+    # a text edit needs only a restart, and a document added or removed shows up in the catalogue and the spec table without build_index
+    assert app.names == sorted(p.stem for p in app.DOCS_DIR.glob("*.txt")) and set(app.names) == set(app.docs)
+    assert "Traditional" in app.ANSWER_PROMPT  # a Chinese question is answered in the script it was asked in
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):
