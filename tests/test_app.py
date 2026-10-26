@@ -476,6 +476,9 @@ def run_ship_search(verdict, focus=None, message="我想找四個人出門可以
         if "how many product documents" in system:
             return '{"scope": "ALL"}'
 
+        if "filters models by exact conditions" in system:
+            return '{"where": []}'
+
         if "final reviewer" in system:
             return '{"ok": true}'
 
@@ -793,6 +796,38 @@ def test_a_ship_search_that_cannot_be_verified_still_gets_a_shortlist_quoted_fro
 
     assert route == "SHORTLIST" and "Stark" in reply and "only family ship" not in reply and shown
     assert route2 == "UNVERIFIED"
+
+
+def test_find_models_filters_by_code_and_refuses_a_bad_plan():
+    # the model only names the conditions; which models meet them is code, so "30 or more" cannot skip Stark 23 or list the 25-seat Stark 29
+    assert set(app.find_models([{"field": "seats", "op": ">=", "value": 30}])) == {"Stark 8", "Stark 23", "Stark 24"}
+    assert "Stark 8" in app.find_models([{"field": "color", "op": "contains", "value": "blue"}])
+    both = app.find_models([{"field": "seats", "op": ">=", "value": 30}, {"field": "price", "op": "<=", "value": 9300000}])
+    assert set(both) == {"Stark 23", "Stark 24"}  # every condition must hold: Stark 8 has the seats but costs $15,000,000; the bound is inclusive
+    assert "Stark 8" not in app.find_models([{"field": "seats", "op": ">", "value": 30}])  # strict: exactly 30 seats is not "more than 30"
+    for bad in ({"field": "speed", "op": ">=", "value": 1}, {"field": "seats", "op": "contains", "value": 1}, {"field": "color", "op": ">=", "value": "red"}):
+        try:
+            app.find_models([bad])
+        except ValueError:
+            continue
+        raise AssertionError(f"accepted {bad}")
+
+
+def test_a_catalogue_question_gets_the_looked_up_models_and_a_bad_plan_gets_none():
+    models = [n for n in app.names if n.startswith("model_")]
+    line = "Looked up by the program"
+    assert app.read_docs(models, line + ": Stark 8.").count(line) == 1
+    assert line not in app.read_docs(models)
+    real = app.llm
+    try:
+        app.llm = lambda m, **kw: '{"where": [{"field": "seats", "op": ">=", "value": 30}]}'
+        assert app.plan_query("which carry 30 or more?") == [{"field": "seats", "op": ">=", "value": 30}]
+        app.llm = lambda m, **kw: '{"where": [{"field": "speed", "op": ">=", "value": 3}]}'
+        assert app.plan_query("fast ships") == []  # an unusable plan is dropped, the answer goes on without the line
+        app.llm = lambda m, **kw: "no json at all"
+        assert app.plan_query("x") == []
+    finally:
+        app.llm = real
 
 
 if __name__ == "__main__":
