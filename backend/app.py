@@ -122,7 +122,9 @@ if not INDEX.exists():
     raise SystemExit("index.npz not found: run `python -m backend.build_index` first")
 
 index = np.load(INDEX)
-names, vectors = list(index["names"]), index["vectors"]
+index_names, vectors = list(index["names"]), index["vectors"]  # what embedding search knows: only a document added to the folder later needs build_index again
+# the document list is the folder, not the index: edit, add or remove a .txt and restart (R0, R3, the catalogue and the spec table follow; R1/R2 search needs build_index)
+names = sorted(p.stem for p in DOCS_DIR.glob("*.txt"))
 # ponytail: whole docs in prompt, no chunking; fine for 10 short files
 docs = {n: (DOCS_DIR / f"{n}.txt").read_text() for n in names}
 
@@ -156,7 +158,7 @@ def fence(text):
 ANSWER_PROMPT = (
     "You are a customer service chatbot for Stark Spaceships. Answer ONLY from the documents below. "
     f"If they don't contain the answer, say you don't know and suggest contacting {SUPPORT}. "
-    "Mention the Stark model (for example Stark 3) you rely on; never say which AI model or vendor wrote the reply. Reply in the language of the customer's message.\n\nDocuments:\n{docs}"
+    "Mention the Stark model (for example Stark 3) you rely on; never say which AI model or vendor wrote the reply. Reply in the language of the customer's message; write Chinese in the customer's script (Traditional stays Traditional, never Simplified).\n\nDocuments:\n{docs}"
 )
 
 # Added to the answer prompt at L4 only (L1-L3 keep the ladder's plain prompt). Output length is most of the latency: a catalogue-wide
@@ -624,7 +626,7 @@ def read_docs(sources, lookup=None):
 def retrieve(query):
     """Top-k documents by embedding similarity: [(name, cosine score)], best first."""
     hits = util.semantic_search(encoder.encode(query), vectors, top_k=TOP_K)[0]
-    return [(names[h["corpus_id"]], round(float(h["score"]), 3)) for h in hits]
+    return [(index_names[h["corpus_id"]], round(float(h["score"]), 3)) for h in hits if index_names[h["corpus_id"]] in docs]
 
 
 def doc_index():
