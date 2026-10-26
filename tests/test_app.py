@@ -634,7 +634,7 @@ def test_a_catalogue_question_reads_one_line_per_model_so_no_model_is_skipped():
     # the ranking is computed by code, so "30 or more" is a lookup: Stark 24 (60), Stark 23 (40), Stark 8 (30) lead the list
     assert "largest first: Stark 24 = 60, Stark 23 = 40, Stark 8 = 30" in text
     # shorter, and the one-line layout is what helps
-    assert "Notes" not in text.split("\n", 1)[1] and len(text) < sum(len(app.docs[n]) for n in models) * 0.7
+    assert "Notes" not in text.split("\n", 1)[1] and len(text) < sum(len(app.docs[n]) for n in models) * 0.85  # was 0.7 before the sorted lines (about 1.2k characters) were added
     # a question about two models still gets the full sheets (notes included)
     few = app.read_docs(["model_8", "model_3"])
     assert few == app.docs["model_8"] + "\n" + app.docs["model_3"]
@@ -650,6 +650,18 @@ def test_the_matching_models_for_a_party_are_filtered_by_code_not_left_for_the_m
     assert "Stark 29" not in text.split("Computed by the program")[1]  # 25 seats
     assert "Computed by the program" not in app.read_docs(models)  # no party size known: nothing to filter on
     assert "passengers: none." in app.read_docs(models, 100)
+
+
+def test_price_size_and_weight_come_sorted_by_code_so_cheapest_and_longest_are_lookups():
+    # "the cheapest", "the longest", "under $5,000,000" were left to the model to find in 30 rows; now each is the head (or a prefix) of a sorted line
+    models = [n for n in app.names if n.startswith("model_")]
+    text = app.read_docs(models)
+    assert "Price (USD), cheapest first: Stark 19 = 1,650,000, Stark 1 = 2,000,000, Stark 13 = 2,800,000" in text
+    assert "Length (meters), longest first: " in text and "Weight (metric tons), heaviest first: Stark 12 = 400, Stark 25 = 210" in text
+    # a ship with two equal lengths appears once each, and with few models (full sheets) nothing is added
+    longest = text.split("Length (meters), longest first: ")[1].split("\n")[0]
+    assert longest.count("Stark 25 =") == 1 and longest.count("Stark 12 =") == 1
+    assert "cheapest first" not in app.read_docs(["model_8", "model_3"])
 
 
 def test_the_real_bot_is_told_to_recommend_only_what_the_documents_support():

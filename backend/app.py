@@ -526,18 +526,28 @@ def read_docs(sources, party=None):
 
     rows = []
     seats = []
+    numbers = {"Price": [], "Size": [], "Weight": []}  # (value, title, text as written) per model, for the sorted lines below
     for n in models:
         field = lambda name, text=docs[n]: re.search(rf"\*\*{name}\*\*: (.*?)[. ]*$", text, re.MULTILINE).group(1)
         seats.append((int(re.match(r"\d+", field("Capacity")).group()), docs[n].splitlines()[0].lstrip("# ")))
+        for name, found in numbers.items():
+            found.append((float(re.match(r"[\d.,]+", field(name).lstrip("$")).group().replace(",", "")), docs[n].splitlines()[0].lstrip("# "), field(name)))
         rows.append(
             f"{docs[n].splitlines()[0].lstrip('# ')} | {field('Description')} | Size: {field('Size')} | Weight: {field('Weight')} | "
             f"Capacity: {field('Capacity')} | Color: {field('Color')} | Price: {field('Price')} | Accessories: {field('Compatible Accessories')}"
         )
 
-    # computed here, not left to the model: "which carry 30 or more?" is a lookup in this sorted line, the scan over 30 rows is what got skipped
+    # computed here, not left to the model: "which carry 30 or more?" is a lookup in this sorted line, the scan over 30 rows is what got skipped.
+    # The same for the other numbers a customer compares by ("the cheapest", "the longest", "under $5,000,000"): one sorted line each.
     ranking = "Seats (the first number of Capacity), largest first: " + ", ".join(
         f"{m} = {c}" for c, m in sorted(seats, reverse=True)
     )
+    for name, label, descending in (
+        ("Price", "Price (USD), cheapest first", False),
+        ("Size", "Length (meters), longest first", True),
+        ("Weight", "Weight (metric tons), heaviest first", True),
+    ):
+        ranking += f"\n{label}: " + ", ".join(f"{m} = {text:,.10g}" for text, m, _ in sorted(numbers[name], reverse=descending))
     # With a party size (the customer's passengers, from the Focus) the matching models are filtered here too: the model only copies the list. The same text goes to
     # the reviewer, so an exclusive claim ("only Stark 8") is checked against it instead of against its own scan of 30 rows.
     fits = ""
