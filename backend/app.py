@@ -516,7 +516,7 @@ def open_ticket(category, message, history, reason="", session=""):
 
 # the documents that reach the prompt: a read per document would be noise, one span with the list is what a demo needs
 @trace()
-def read_docs(sources):
+def read_docs(sources, party=None):
     """Text of the named documents, joined for the prompt. Reading many models at once (a catalogue question: "which ships carry 30 or more people?")
     gives one line per model instead of the full sheets: the model has to compare them all, and a fixed one-line layout is far easier to scan than
     30 sheets (it skipped Stark 23 and Stark 24 when it was shown the sheets). The Notes field is left out of the lines; the other documents stay whole."""
@@ -526,23 +526,43 @@ def read_docs(sources):
 
     rows = []
     seats = []
+    numbers = {"Price": [], "Size": [], "Weight": []}  # (value, title, text as written) per model, for the sorted lines below
     for n in models:
         field = lambda name, text=docs[n]: re.search(rf"\*\*{name}\*\*: (.*?)[. ]*$", text, re.MULTILINE).group(1)
         seats.append((int(re.match(r"\d+", field("Capacity")).group()), docs[n].splitlines()[0].lstrip("# ")))
+        for name, found in numbers.items():
+            found.append((float(re.match(r"[\d.,]+", field(name).lstrip("$")).group().replace(",", "")), docs[n].splitlines()[0].lstrip("# "), field(name)))
         rows.append(
             f"{docs[n].splitlines()[0].lstrip('# ')} | {field('Description')} | Size: {field('Size')} | Weight: {field('Weight')} | "
             f"Capacity: {field('Capacity')} | Color: {field('Color')} | Price: {field('Price')} | Accessories: {field('Compatible Accessories')}"
         )
 
-    # computed here, not left to the model: "which carry 30 or more?" is a lookup in this sorted line, the scan over 30 rows is what got skipped
+    # computed here, not left to the model: "which carry 30 or more?" is a lookup in this sorted line, the scan over 30 rows is what got skipped.
+    # The same for the other numbers a customer compares by ("the cheapest", "the longest", "under $5,000,000"): one sorted line each.
     ranking = "Seats (the first number of Capacity), largest first: " + ", ".join(
         f"{m} = {c}" for c, m in sorted(seats, reverse=True)
     )
+    for name, label, descending in (
+        ("Price", "Price (USD), cheapest first", False),
+        ("Size", "Length (meters), longest first", True),
+        ("Weight", "Weight (metric tons), heaviest first", True),
+    ):
+        ranking += f"\n{label}: " + ", ".join(f"{m} = {text:,.10g}" for text, m, _ in sorted(numbers[name], reverse=descending))
+    # With a party size (the customer's passengers, from the Focus) the matching models are filtered here too: the model only copies the list. The same text goes to
+    # the reviewer, so an exclusive claim ("only Stark 8") is checked against it instead of against its own scan of 30 rows.
+    fits = ""
+    if party:
+        fitting = [m for c, m in sorted(seats, reverse=True) if c >= party]
+        fits = (
+            f"Computed by the program from the lines above (complete and exact): models with room for at least {party} passengers: "
+            f"{', '.join(fitting) or 'none'}. Every model in this list meets the seat condition; no model outside it does."
+        )
     return "\n".join(
         [
             "One line per model (Notes left out):",
             *rows,
             ranking,
+            *([fits] if fits else []),
             *(docs[n] for n in sources if not n.startswith("model_")),
         ]
     )
@@ -687,7 +707,8 @@ def answer(message, history, defense="L4", retrieval="R3", session="", focus=Non
         return REPLIES["NO_ANSWER"], "NO_ANSWER", []
 
     # 4. write the draft: the system prompt gets the documents and (from L2) the untrusted-input rule; the user turn is fenced
-    docs_text = read_docs(sources)
+    party = re.search(r"\d+", meta["focus"].needs.get("passengers", ""))
+    docs_text = read_docs(sources, int(party.group()) if party and level == 4 else None)
     if level == 0:
         system = f"You are a helpful assistant for Stark Spaceships.\n\nDocuments:\n{docs_text}"
     else:
