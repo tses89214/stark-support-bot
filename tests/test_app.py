@@ -642,6 +642,16 @@ def test_a_catalogue_question_reads_one_line_per_model_so_no_model_is_skipped():
     assert mixed.endswith(app.docs["warranty_policy"])  # a policy or guide is never squeezed into a line
 
 
+def test_the_matching_models_for_a_party_are_filtered_by_code_not_left_for_the_model_to_scan():
+    # the model and the reviewer both missed Stark 23 and 24 (or listed Stark 29, 25 seats, as "30 or more") when they had to scan 30 rows themselves
+    models = [n for n in app.names if n.startswith("model_")]
+    text = app.read_docs(models, 30)
+    assert "at least 30 passengers: Stark 24, Stark 23, Stark 8." in text
+    assert "Stark 29" not in text.split("Computed by the program")[1]  # 25 seats
+    assert "Computed by the program" not in app.read_docs(models)  # no party size known: nothing to filter on
+    assert "passengers: none." in app.read_docs(models, 100)
+
+
 def test_the_real_bot_is_told_to_recommend_only_what_the_documents_support():
     # a recommendation used to praise ships for needs the documents never mention ("landing gear is useful for camping"); the reviewer rejected every
     # such draft and the customer got UNVERIFIED. The L4 answer prompt must carry the fit rule, the lower ladder levels must not (their numbers stay comparable).

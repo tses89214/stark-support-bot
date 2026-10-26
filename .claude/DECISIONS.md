@@ -213,3 +213,11 @@
 - 沒有：Agent loop、Tool use、MCP、Skills、Subagents、Hooks、Compaction、Orchestrator-workers、Prompt caching、LLM-as-judge（刻意不用，評測要確定性）。
 - 原因：Rule 5「路由交給程式」；機器人沒有工具呼叫。缺口留給第二作品 Text-to-SQL Agent，建議補：agent loop（多輪 + 輪數上限）、`run_sql` tool use、SELECT-only 與成本記錄的 hook、唯讀帳戶＋掃描量上限、compaction、MCP 包資料源（可選），並沿用階梯／確定性判定／信賴區間。
 - 使用者另有 Medium 文章〈數據分析白皮書（實作篇）〉（2026-09-17，https://medium.com/@tses89214/ 數據團隊進化中系列）：Claude Code 當 harness，調度 Genie（Text-to-SQL）與 Tavily，四階段（取資料／摘要／驗證渲染／整體檢查）、五層驗證、打回重寫、重試上限後交人。文章已涵蓋 harness、tool use、prompt chaining、evaluator-optimizer、guardrails、human-in-the-loop；**沒寫**到 evals（驗證層抓錯率／誤殺率）、tracing、hooks／sandbox。第二作品方向：以這套為實戰案例，補上本專案的評測方法（如 `eval_review` 對驗證層量抓錯／誤殺）。程式未看過，只依文章。
+
+## 2026-10-26 第三條路：預先計算（聚合），不叫 LLM 掃得更仔細
+- 問題：目錄題「載 30 人」，回答模型與審查者都要在 30 列裡掃出「全部符合的」，會漏（Stark 23、24）或多列（Stark 29 只有 25 人）。
+- 試過並放棄：審查規則加「漏列符合條件的型號也算問題」。`eval_review 2` 誤擋 0/60 → 1/60（好草稿「文件沒有露營船…」被當成漏列），重放「載 30 人」8 次：每題 LLM 呼叫 5.0 → 5.5、退稿 4 → 6 次、三款都列沒有變好。結論：叫 LLM 掃得更仔細，成本漲、沒有收益。
+- 採用：`read_docs(sources, party)`。Focus 已有人數時，程式在規格表尾多一行「由程式算出（完整且精確）：載客量至少 N 人的型號：…，這份清單以外沒有符合的」。回答與審查者拿到同一份文字，回答只需照抄，審查者的排他檢查對照這行。審查規則沒有變嚴。
+- 數字（重放同題 8 次，單輪，只看方向）：三款都列 8/8、每題 LLM 呼叫 4.5（基準 5.0）、退稿 2 次（基準 4）、沒有列出 Stark 29。
+- 適用範圍：只有能寫成程式條件的問題（數字、排序、最大最小）。「適合露營」這類語意判斷程式算不出來，仍交給 LLM。現在只做了載客量；價格上限、最便宜等同型問題沒做。
+- 邊界：Focus 的人數是分類器抽的；人數抽錯，清單就錯，審查者也會跟著信這行。

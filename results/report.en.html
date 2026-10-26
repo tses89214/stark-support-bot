@@ -591,6 +591,25 @@ rerank = [top[j] for j in sorted(range(10), key=lambda j: -scores[j])] + h[10:]<
   <div class="kv"><b>Limits</b><div>Each technique was run once (all are deterministic); the intervals of chunking, hybrid and rerank overlap, so we can only say all of them beat plain vector search, not rank them; the combination “chunking + BM25 + reranking” was not tried. The production bot uses R3 and does not rely on these; with only 33 documents it answers well without them, and this section shows the technique and the way of measuring.</div></div>
   <p class="note">40 answers per cell. At 30 models R1 is clearly lower than the other three (60–86%), while the intervals of R0, R2 and R3 overlap (80–100%), so only the direction can be read. The manuals are deliberately templated (so catalogue-wide questions have a computable reference answer).</p>
 
+  <h2>A third route: compute what code can compute</h2>
+  <p>The first two routes are about choosing which documents the model sees. A catalogue question (“which ships carry 30 or more?”) has another weak spot: even with every document loaded, the answer model and the reviewer must scan 30 rows for all the matches, and they miss some and add others. When the question has a plain numeric condition, code can compute the exact answer, so the model need not scan at all.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Approach</th><th>Who finds all the matches</th><th>Fits</th><th>In this project</th></tr></thead>
+    <tbody>
+      <tr><td>Leave it to the LLM</td><td class="wrap">the model scans the documents</td><td class="wrap">questions that need judgement (use, situation)</td><td class="wrap">R3 document choice, answer, review</td></tr>
+      <tr><td>Classic retrieval</td><td class="wrap">vector similarity ranking</td><td class="wrap">vague wording, finding one document</td><td class="wrap">R1, R2</td></tr>
+      <tr><td><b>Pre-computation</b></td><td class="wrap"><b>code computes it first, the model copies</b></td><td class="wrap">numeric conditions, “list all”, “largest / cheapest”</td><td class="wrap">the “seats, largest first” line under the spec table; once the customer has given a party size, one more line filtered by code</td></tr>
+    </tbody></table></div>
+  <p>How: when the customer has given a party size (the Focus’s passengers), code adds a line under the spec table: “Computed by the program from the lines above (complete and exact): models with room for at least 30 passengers: Stark 24, Stark 23, Stark 8. Every model in this list meets the seat condition; no model outside it does.” The answer and the reviewer get the same text; the answer copies it, and the reviewer checks an “only” claim against that line instead of scanning 30 rows itself.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Same question (“carry 30”), replayed 8 times</th><th>All three listed</th><th>Review rejections</th><th>LLM calls per question</th><th>Other</th></tr></thead>
+    <tbody>
+      <tr><td class="wrap">Baseline: review rules unchanged</td><td class="num">8/8</td><td class="num">4</td><td class="num">5.0</td><td class="wrap">another run with the same setup was 6/8: one run of 8 swings a lot</td></tr>
+      <tr><td class="wrap">Ask the reviewer to also check for omissions (dropped)</td><td class="num">7/8</td><td class="num">6</td><td class="num">5.5</td><td class="wrap">false rejects in the review layer 0/60 → 1/60</td></tr>
+      <tr><td class="wrap"><b>Code filters the list first</b></td><td class="num"><b>8/8</b></td><td class="num"><b>2</b></td><td class="num"><b>4.5</b></td><td class="wrap">the 25-seat Stark 29 is not listed</td></tr>
+    </tbody></table></div>
+  <div class="kv"><b>Reading it</b><div>Asking the model to scan harder cost more and did not help; letting code compute what it can made the answer steadier and the calls fewer (fewer rejections and rewrites). Eight runs per row: a direction, not a rate.</div></div>
+  <div class="kv"><b>Limits</b><div>Only for questions that can be written as a condition in code (numbers, ordering, largest / smallest); a judgement such as “good for camping” cannot be computed and stays with the LLM. Only seats are done so far; a price cap or “cheapest” is not. The party size comes from the classifier, so a wrong extraction gives a wrong list.</div></div>
 </div>
 
 <div class="panel" id="p-conversation" role="tabpanel" aria-labelledby="t-conversation">
