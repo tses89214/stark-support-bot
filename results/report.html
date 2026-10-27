@@ -603,7 +603,7 @@ rerank = [top[j] for j in sorted(range(10), key=lambda j: -scores[j])] + h[10:]<
       <tr><td>傳統檢索</td><td class="wrap">向量相似度排序</td><td class="wrap">問法模糊、找單一文件</td><td class="wrap">R1、R2</td></tr>
       <tr><td><b>預先計算</b></td><td class="wrap"><b>程式先算好，模型只照抄</b></td><td class="wrap">有數字條件、要「列出全部」「最大／最便宜」</td><td class="wrap">規格表尾的四行排序，加上一個查詢工具 <code>find_models</code>（模型填條件，程式回傳符合的型號）</td></tr>
     </tbody></table></div>
-  <p>做法：目錄型問題（一次讀到 6 款以上）時，模型把問題寫成條件，例如 <code>{"field":"seats","op":">=","value":30}</code>。查詢工具 <code>find_models</code> 逐份讀文件，回傳符合<b>全部</b>條件的型號，附在規格表尾，回答和審查者看到同一份名單。可查載客量、價格、長度、重量（≥ ≤ &gt; &lt;）和顏色（包含）。條件不合法會被程式丟掉，不會變成錯的名單；沒有精確條件的問題（「適合露營」「最便宜」）不產生條件。</p>
+  <p>做法：目錄型問題（一次讀到 6 款以上）時，模型把問題寫成條件，例如 <code>{"field":"seats","op":">=","value":30}</code>。查詢工具 <code>find_models</code> 逐份讀文件，回傳符合<b>全部</b>條件的型號，附在規格表尾，回答和審查者看到同一份名單。可查載客量、價格、長度、重量（≥ ≤ &gt; &lt;）和顏色（包含）。條件不合法會被程式丟掉，不會變成錯的名單；沒有精確條件的問題不產生條件：「適合露營」這類語意判斷仍交給模型；「最便宜」「最長」不是門檻，改查規格表尾已排好的排序行。</p>
   <div class="tbl"><table>
     <thead><tr><th>同一題「載 30 人」重放 8 次</th><th>回答正確</th><th>審查退稿</th><th>每題 LLM 呼叫</th></tr></thead>
     <tbody>
