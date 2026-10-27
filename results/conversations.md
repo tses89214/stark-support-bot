@@ -1,6 +1,6 @@
 # Multi-turn conversations
 
-Generated 2026-10-26 by `python -m evals.eval_conversations 4` (model `nvidia/nemotron-3-ultra-550b-a55b:free`). 14 scripted chats through `app.chat`, 4 runs each; every turn is judged by code (route, required and forbidden text, reply language).
+Generated 2026-10-27 by `python -m evals.eval_conversations 4` (model `nvidia/nemotron-3-ultra-550b-a55b:free`). 14 scripted chats through `app.chat`, 4 runs each; every turn is judged by code (route, required and forbidden text, reply language).
 
 **56/56 chats passed in full** (95% interval 94% to 100%); 92/92 single turns passed.
 
