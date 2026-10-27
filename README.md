@@ -4,9 +4,12 @@
 
 **📊 Full report: [English](https://tses89214.github.io/stark-support-bot/results/report.en.html) · [中文](https://tses89214.github.io/stark-support-bot/results/report.html)** · [all result pages](results/README.md)
 
-A RAG customer-service bot over fake product docs (`data/stark_spaceships/`), built as a testbed for **guardrails and
-evaluation**: start from a deliberately defenseless bot (L0), add one defense at a time, and re-run the same fixed
-attack and question set after each step.
+**In short:** a customer-service bot used as a test subject for LLM guardrails. It starts defenseless, gets one defense at a time, and after every step the same 28 attacks and 6 normal questions are re-run. Attacks blocked went from 16/28 to 28/28 while the 6 normal questions stayed answerable.
+
+- **Evaluation first:** deterministic checks (no LLM judge), confidence intervals on small samples, hand-reviewed generated test cases.
+- **Honest limits:** small fixed sets, one free model; the limits section says what the numbers do not show.
+
+The bot is a RAG customer-service bot over fake product docs (`data/stark_spaceships/`).
 
 **What this project is for:** the bot is the test subject; the work is the evaluation method (a worst-baseline ladder, deterministic
 checks, intervals on small samples, hand-reviewed generated test cases). The same approach is meant to carry over to other LLM
