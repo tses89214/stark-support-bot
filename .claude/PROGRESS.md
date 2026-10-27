@@ -364,3 +364,9 @@
 - 中文報告（`results/report.html`）與英文報告（`report.en.html`）的「第三條路」加了「推薦型搜尋：模型挑，程式把關」與驗證兩段；Artifact 已到 Version 99。
 - Demo 在 :8010（帶 `MLFLOW_TRACKING_URI`，trace 看 :5001）。8000 埠仍是舊程式。
 - 下次可做：短名單漏選（Stark 6、11）可試提示加「舒適＝描述提到 comfort、luxury」；草稿「唯一」仍偶爾出現。
+
+## 2026-10-27 下班（報告「第三條路」精簡，PR #39–#43 已合併）
+- 中英報告「第三條路」同步精簡：刪掉「怎麼看／排序行／限制／推薦型搜尋／推薦型搜尋的驗證」五塊（推薦型搜尋與其驗證不再寫在報告），開頭與「做法」段縮短，重放表欄名「三款都列」改「回答正確」（EN: Correct answer）。
+- Artifact 已同步到 Version 100（含先前漏同步的火箭 icon）。Artifact 只有中文版，英文版沒有對應 Artifact。
+- 注意：被刪的內容只存在於 git 歷史與 DECISIONS.md；若要再放回報告，從 PR #39 之前的 `results/report.html` 取。
+- 下次待辦：無。
