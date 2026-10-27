@@ -43,3 +43,5 @@
 - 2026-10-24：保底清單 `SHORTLIST`、多輪評測 `eval_conversations`、審查器 JSON 重試、規則 8 反例須字面——細節見 DECISIONS.md。
 
 - 2026-10-27：數字條件的查詢要做成程式裡的 TOOL（`find_models`，LLM 只填條件、程式回型號），不要由程式從 Focus 的人數自己篩（那版已撤回），也不要另做分類器結構化篩選。模糊詞（便宜、大、露營）留給 LLM。排程評測的授權：全部數字如預期才自動 merge，否則只 push 分支並照實回報。文件清單現由資料夾決定（`names`），向量搜尋才讀 `index.npz`。
+
+- 2026-10-27：推薦型搜尋不接受程式拼的固定格式回覆（`SHORTLIST` 已刪）；短名單只能當「搜尋的一環」縮小給 LLM 讀的文件（模型挑、程式驗證），審查兩次不過回 `UNVERIFIED`。改方法後中英報告與 Artifact 都要同步。啟動 demo 要帶 `MLFLOW_TRACKING_URI=sqlite:///data/runtime/mlflow.db`，否則 :5001 看不到 trace。
