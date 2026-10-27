@@ -751,21 +751,17 @@ def test_conversation_eval_judges_a_turn_by_route_facts_and_language_not_by_a_mo
     assert judge("Stark 3 是 Crimson。", "ANSWER", {"route": {"ANSWER"}, "lang": "en"})[0] is False
 
 
-def test_a_ship_search_that_cannot_be_verified_still_gets_a_shortlist_quoted_from_the_documents():
-    # the camping family ended in "I couldn't put together an answer" in 2 of 8 replays: a dead end for a customer who had already told us what they need.
-    # The shortlist is code, not a model: models whose capacity is at least the party, closest fit first, every figure copied from the document.
-    text, sources = app.ship_shortlist({"passengers": "3", "use": "family trips"}, "三人小家庭")
-    assert (
-        "至少 3 人" in text and len(sources) == 5 and sources[0] == "model_4"
-    )  # the one description that says "family-friendly" comes first
-    assert "crew" not in text and "tons" not in text  # a cargo hauler or a tanker is not offered to a family
-    seats = [int(re.search(r"\*\*Capacity\*\*: (\d+)", app.docs[n]).group(1)) for n in sources]
-    assert min(seats) >= 3 and seats[1:] == sorted(
-        seats[1:]
-    )  # every one fits the party; after the first (a word match), closest fit first
-    assert "Stark 1 " not in text and app.SUPPORT in text  # Stark 1 seats 2
-    assert "at least 3" in app.ship_shortlist({"passengers": "3"}, "a family of three")[0]
-    assert app.ship_shortlist({}, "I need a ship") is None  # no party size: nothing honest to filter on
+def test_a_ship_search_is_answered_from_the_shortlist_documents_only():
+    # the camping couple got a canned list because the draft talked about all 30 models ("no model has both") and the reviewer refuted it with
+    # the others. The program picks the shortlist; the model and the reviewer see only those documents.
+    party, rows = app.ship_candidates({"passengers": "3", "use": "family trips"})
+    names = [r[-1] for r in rows]
+    assert party == 3 and len(names) == 5 and names[0] == "model_4"  # the one description that says "family-friendly" comes first
+    seats = [int(re.search(r"\*\*Capacity\*\*: (\d+)", app.docs[n]).group(1)) for n in names]
+    assert min(seats) >= 3 and seats[1:] == sorted(seats[1:])  # every one fits the party; after the first (a word match), closest fit first
+    assert app.ship_candidates({}) is None  # no party size: nothing honest to filter on
+
+    seen = {}
 
     def fake_llm(messages, **kw):
         system = messages[0]["content"]
@@ -776,9 +772,11 @@ def test_a_ship_search_that_cannot_be_verified_still_gets_a_shortlist_quoted_fro
             return '{"scope": "FEW"}'
 
         if "final reviewer" in system:
-            return '{"ok": false, "problems": ["Stark 4 is the only family ship"]}'
+            seen["reviewed"] = system
+            return '{"ok": true}'
 
-        return "Stark 4 is the only family ship."
+        seen["answered"] = system
+        return "Stark 4 fits a family of three."
 
     real = (app.llm, app.encoder, app.util)
     app.llm = fake_llm
@@ -787,16 +785,12 @@ def test_a_ship_search_that_cannot_be_verified_still_gets_a_shortlist_quoted_fro
         semantic_search=lambda q, v, top_k: [[{"corpus_id": i, "score": 0.9} for i in range(top_k)]]
     )
     try:
-        reply, route, shown = app.answer("a ship for a family of three", [], "L4", "R2")
-        # a question that names a model is not a search: it keeps the plain UNVERIFIED reply
-        app.llm = lambda m, **kw: fake_llm(m, **kw).replace('"find_ship": true', '"find_ship": false')
-        _, route2, _ = app.answer("a ship for a family of three", [], "L4", "R2")
+        _, route, shown = app.answer("a ship for a family of three", [], "L4", "R2")
     finally:
         app.llm, app.encoder, app.util = real
 
-    assert route == "SHORTLIST" and "Stark" in reply and "only family ship" not in reply and shown
-    assert route2 == "UNVERIFIED"
-
+    assert route == "ANSWER" and shown == names
+    assert "shortlist" in seen["answered"] and "# Stark 4" in seen["answered"] and "# Stark 1\n" not in seen["answered"]
 
 def test_find_models_filters_by_code_and_refuses_a_bad_plan():
     # the model only names the conditions; which models meet them is code, so "30 or more" cannot skip Stark 23 or list the 25-seat Stark 29

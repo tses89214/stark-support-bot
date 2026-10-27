@@ -356,3 +356,8 @@
 ## 2026-10-27 最終程式的 eval 補跑（排程觸發）
 - `eval_review 2`：64/64 擋下、誤擋 0/60、審查呼叫失敗 0。`eval_conversations 4`：56/56 chats、92/92 turns。兩者都用含 `find_models`、資料夾文件清單、中文字體規則的最終程式；報告裡的數字不變，不需改報告。
 - 下次待辦：無排程中的項目。仍未做：露營題「唯一」（1/56、無法重現）、目錄只看前約 160 字（設計取捨）、部署（決定不做）。
+
+## 2026-10-27 推薦型搜尋改走短名單文件（分支 `fix/shortlist-as-search`，未 push）
+- 露營對話重放 ×4：第二輪 4/4 `ANSWER`（舊程式 SHORTLIST，改提示版 4/4 SHORTLIST）。回覆品質普通：文件沒寫舒適度與裝備空間，多半坦承再列幾款；排序沒有語意，露營對不到任何描述。
+- 測試 40 ok、ruff 乾淨；`eval_answers` 17/17；`eval_review 2` 64/64、0/60；`eval_conversations 4`（刪掉舊 partial 全部重跑）55/56、91/92 turns，失敗是注入題 `OK, and its color?` 回 ERROR（模型呼叫失敗，原因沒查到，不是推薦路徑）。第一次因為沿用舊 partial 看到的 SHORTLIST 回覆是舊資料，不算。
+- 還沒做：中英報告若有提到推薦保底需同步（grep 沒找到 SHORTLIST 字樣）；短名單排序沒有語意。

@@ -201,11 +201,10 @@ def drop_leaked_fence(text):
     return re.split(r"\s*===== (?:END )?USER INPUT", text, maxsplit=1)[0]
 
 
-def ship_shortlist(needs, message):
-    """A ship search whose written recommendation could not be verified still gets something to act on: models whose documents show seats for the
-    customer's party (passengers only: a "3 crew, 250 tons of cargo" hauler is not a family ship), the ones whose description uses a word the customer
-    said about the use first, then closest fit, all copied from the documents. No model writes it, so nothing in it can be invented or claimed as
-    "the only one". None when the party size is unknown (then the plain UNVERIFIED reply is used). In the customer's language."""
+def ship_candidates(needs):
+    """The models a ship search is about: models whose documents show seats for the
+    customer's party (passengers only: a "3 crew, 250 tons of cargo" hauler is not a family ship), the ones whose description or accessories use a word the customer
+    said about the use first, then closest fit (at most 5). (party, rows), or None when the party size is unknown or no model fits."""
     found = re.search(r"\d+", needs.get("passengers", ""))
     if not found:
         return None
@@ -231,7 +230,7 @@ def ship_shortlist(needs, message):
         seats = re.fullmatch(r"(\d+) passengers?", capacity)  # not crew, researchers, cargo or stretchers
         if seats and int(seats.group(1)) >= party:
             desc = field("Description")
-            match = sum(w in desc.lower() for w in words)
+            match = sum(w in f"{desc} {field('Compatible Accessories')}".lower() for w in words)
             rows.append(
                 (
                     -match,
@@ -248,21 +247,7 @@ def ship_shortlist(needs, message):
     if not rows:
         return None
 
-    top = sorted(rows)[:5]
-    lines = "\n".join(f"- **{title}**: {cap}; {price}; {desc}" for _, _, _, title, cap, price, desc, _ in top)
-    if re.search(r"[\u3040-\u30ff\u4e00-\u9fff]", message):
-        text = (
-            f"我沒辦法替您寫出能逐項對照文件查證的推薦，所以只列出文件中載客量至少 {party} 人的型號（描述裡有您提到的用途字眼的排前面，其次是最接近的人數，最多 5 款），內容取自文件原文：\n\n{lines}\n\n"
-            f"文件沒有寫這些型號適不適合您的用途；要針對用途建議，請寄信到 {SUPPORT}。"
-        )
-    else:
-        text = (
-            f"I couldn't write a recommendation I can check against our documents, so here are the models whose documents show seats for at least {party} "
-            f"passengers (those whose description uses a word you said about the use first, then the closest fit; at most 5), quoted from the documents:\n\n{lines}\n\n"
-            f"The documents do not say whether they suit your use; for advice on that, email {SUPPORT}."
-        )
-
-    return text, [r[-1] for r in top]
+    return party, sorted(rows)[:5]
 
 
 def pin_support_email(text):
@@ -720,7 +705,7 @@ def answer(message, history, defense="L4", retrieval="R3", session="", focus=Non
 
     # 1-2. classify, then route: only ANSWER continues (L3 and up)
     question = message
-    searching = False  # a ship search by criteria: if its recommendation cannot be verified, the customer still gets a shortlist
+    searching = False  # a ship search by criteria: answered from a program-picked shortlist of documents (ship_candidates)
     if level >= 3:
         route, reason, question, seen = classify(message, history, focus, full=True)
         meta["question"] = question
@@ -760,6 +745,12 @@ def answer(message, history, defense="L4", retrieval="R3", session="", focus=Non
     if sources is None:
         return REPLIES["NO_ANSWER"], "NO_ANSWER", []
 
+    # a ship search is answered from the program's shortlist: the model recommends among these few documents, and the reviewer checks against the
+    # same few, so "no model has both" claims about the other 25 are not made (and cannot be refuted by them)
+    candidates = ship_candidates(meta["focus"].needs) if searching else None
+    if candidates:
+        sources = [row[-1] for row in candidates[1]]
+
     # 4. write the draft: the system prompt gets the documents and (from L2) the untrusted-input rule; the user turn is fenced
     lookup = None
     if level == 4 and sum(n.startswith("model_") for n in sources) >= TABLE_MIN_MODELS:
@@ -778,6 +769,8 @@ def answer(message, history, defense="L4", retrieval="R3", session="", focus=Non
             system += UNTRUSTED_RULE
         if level == 4:
             system += BREVITY + FIT_RULE
+            if candidates:
+                system += "\n\nThe documents above are a shortlist the program picked by seats and wording, not every model: recommend from them, and say more models exist."
 
     # follow-up: the customer's own words, restated, are the only conversation facts the answer gets
     if history and question != message:
@@ -832,11 +825,6 @@ def answer(message, history, defense="L4", retrieval="R3", session="", focus=Non
 
         if not ok:
             print(f"review rejected the rewrite: {problems}", file=sys.stderr)
-            # the docs may well cover it; the draft just could not be verified
-            shortlist = ship_shortlist(meta["focus"].needs, message) if searching else None
-            if shortlist:
-                return shortlist[0], "SHORTLIST", shortlist[1]
-
             return REPLIES["UNVERIFIED"], "UNVERIFIED", []
 
     history += [{"role": "user", "content": message}, {"role": "assistant", "content": reply}]

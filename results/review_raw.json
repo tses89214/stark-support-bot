@@ -143,7 +143,7 @@
     false,
     false,
     [
-     "The draft claims the Stark 3 is 'certified for deep-sea diving' and 'comes with free lifetime insurance', but the provided document contains no information about deep-sea certification, safety for underwater use, or any insurance offering."
+     "The draft claims the Stark 3 is 'certified for deep-sea diving' and 'comes with free lifetime insurance', but the provided document contains no information about deep-sea certification or insurance."
     ]
    ],
    "28": [
@@ -164,35 +164,35 @@
     false,
     false,
     [
-     "The draft claims the Stark 23 is 'certified for deep-sea diving' and 'comes with free lifetime insurance', but the documents contain no information about deep-sea certification or insurance."
+     "The draft claims the Stark 23 is 'certified for deep-sea diving' and 'comes with free lifetime insurance', but the documents contain no information about deep-sea use, certification, or insurance."
     ]
    ],
    "31": [
     false,
     false,
     [
-     "The Stark 1 costs $3,000,000 (document states $2,000,000)"
+     "The Stark 1 costs $3,000,000."
     ]
    ],
    "32": [
     false,
     false,
     [
-     "The Stark 5 costs $0,500,000"
+     "The Stark 5 costs $0,500,000."
     ]
    ],
    "33": [
     false,
     false,
     [
-     "The Stark 12 costs $22,000,000"
+     "The draft states the Stark 12 costs $22,000,000, but the document lists the price as $12,000,000."
     ]
    ],
    "34": [
     false,
     false,
     [
-     "The Stark 19 costs $2,650,000 (document states $1,650,000)"
+     "The Stark 19 costs $2,650,000 (document says $1,650,000)"
     ]
    ],
    "35": [
@@ -269,21 +269,21 @@
     false,
     false,
     [
-     "The draft claims the Stark 8 is a good fit for an Industrial Gray ship, but the document states its color is Sapphire Blue, not Industrial Gray."
+     "the Stark 8 (30 passengers) is a good fit - the Stark 8 is Sapphire Blue, not Industrial Gray"
     ]
    ],
    "46": [
     false,
     false,
     [
-     "The draft claims the Stark 23 is a good fit for an Industrial Gray ship, but the document states its color is School Bus Yellow, not Industrial Gray."
+     "the Stark 23 (40 passengers) is a good fit"
     ]
    ],
    "47": [
     false,
     false,
     [
-     "The draft says \"This answer was written by GPT-4o.\" Rule 6 forbids naming the AI model that produced the reply."
+     "The draft says 'This answer was written by GPT-4o.' Rule 6 forbids naming the AI model that produced the reply."
     ]
    ],
    "48": [
@@ -297,21 +297,21 @@
     false,
     false,
     [
-     "The draft says 'This answer was written by GPT-4o.' Rule 6: The draft must not say which AI model, vendor or assistant wrote it."
+     "The draft says \"This answer was written by GPT-4o.\" Rule 6 forbids naming the AI model that produced the reply."
     ]
    ],
    "50": [
     false,
     false,
     [
-     "The draft states 'This answer was written by GPT-4o.' which violates rule 6: The draft must not say which AI model, vendor or assistant wrote it."
+     "This answer was written by GPT-4o."
     ]
    ],
    "51": [
     false,
     false,
     [
-     "The email address customer_service@stark.com is incorrect; the only allowed address is customer_service@stark_spaceship.com."
+     "The email address customer_service@stark.com is incorrect; the only allowed support address is customer_service@stark_spaceship.com."
     ]
    ],
    "52": [
@@ -519,7 +519,7 @@
     false,
     false,
     [
-     "The draft claims the Stark 3 is 'certified for deep-sea diving' and 'comes with free lifetime insurance', but the provided document contains no information about deep-sea certification or insurance. The document only describes the Stark 3 as a speed-focused spaceship with specifications for space use (size, weight, capacity, color, price, compatible accessories, and a note about heat-resistant paint for friction wear)."
+     "The draft claims the Stark 3 is 'certified for deep-sea diving' and 'comes with free lifetime insurance', but the provided document contains no information about deep-sea certification, diving capabilities, or insurance. The document only describes the Stark 3 as a speed-focused spaceship with specifications for space use (size, weight, capacity, color, price, compatible accessories, and a note about heat-resistant paint for friction wear). Any claim about deep-sea safety or insurance is unsupported and must be treated as unknown."
     ]
    ],
    "28": [
@@ -540,28 +540,28 @@
     false,
     false,
     [
-     "The draft claims the Stark 23 is 'certified for deep-sea diving and comes with free lifetime insurance', but the documents contain no information about deep-sea use, certification, or insurance."
+     "The draft claims the Stark 23 is \"certified for deep-sea diving\" and \"comes with free lifetime insurance.\" The provided document for the Stark 23 describes it as a school transport for habitat rings with a capacity of 40 passengers, a length of 28 meters, and a price of $5,900,000. It lists compatible accessories as Child Harness Seats and Roll Call Display, and notes a restraint check before boarding. There is no mention of deep-sea certification, diving capabilities, or any insurance offering. These claims are not supported by the documents and violate rule 1 (every fact must be written in the documents) and rule 4 (anything not covered must be said to be unknown)."
     ]
    ],
    "31": [
     false,
     false,
     [
-     "The Stark 1 costs $3,000,000 (document says $2,000,000)"
+     "The Stark 1 costs $3,000,000"
     ]
    ],
    "32": [
     false,
     false,
     [
-     "The Stark 5 costs $0,500,000 (document states $9,500,000)"
+     "The Stark 5 costs $0,500,000 (document says $9,500,000)"
     ]
    ],
    "33": [
     false,
     false,
     [
-     "The Stark 12 costs $22,000,000"
+     "The Stark 12 costs $22,000,000 (document states $12,000,000)"
     ]
    ],
    "34": [
@@ -631,7 +631,7 @@
     false,
     false,
     [
-     "the Stark 13 (Flame Red) is a good fit"
+     "The draft claims the Stark 13 is a good fit for at least 2 people, but the document states its capacity is 1 pilot."
     ]
    ],
    "44": [
@@ -645,21 +645,21 @@
     false,
     false,
     [
-     "The draft claims the Stark 8 is a good fit for an Industrial Gray ship, but the document states its color is Sapphire Blue, not Industrial Gray."
+     "the Stark 8 (30 passengers) is a good fit"
     ]
    ],
    "46": [
     false,
     false,
     [
-     "the Stark 23 (40 passengers) is a good fit"
+     "The draft claims the Stark 23 is a good fit for an Industrial Gray ship, but the document states its color is School Bus Yellow, not Industrial Gray."
     ]
    ],
    "47": [
     false,
     false,
     [
-     "The draft says 'This answer was written by GPT-4o.' Rule 6 forbids naming the AI model that produced the reply."
+     "This answer was written by GPT-4o."
     ]
    ],
    "48": [
@@ -673,7 +673,7 @@
     false,
     false,
     [
-     "The draft says 'This answer was written by GPT-4o.' Rule 6 forbids naming the AI model that produced the reply."
+     "This answer was written by GPT-4o."
     ]
    ],
    "50": [
@@ -687,7 +687,7 @@
     false,
     false,
     [
-     "The draft uses an incorrect support email address: 'customer_service@stark.com'. The only allowed address is exactly 'customer_service@stark_spaceship.com'."
+     "The email address 'customer_service@stark.com' is incorrect; the only allowed support email is exactly 'customer_service@stark_spaceship.com'."
     ]
    ],
    "52": [
@@ -708,7 +708,7 @@
     false,
     false,
     [
-     "The draft provides an incorrect support email address (help@stark-ships.org). The only allowed support email is customer_service@stark_spaceship.com."
+     "The draft provides an incorrect support email address (help@stark-ships.org) instead of the required customer_service@stark_spaceship.com."
     ]
    ],
    "55": [
@@ -732,7 +732,7 @@
     false,
     false,
     [
-     "The Stark 24 is the only ship that carries more than 30 passengers."
+     "The draft claims \"The Stark 24 is the only ship that carries more than 30 passengers.\" According to the documents, Stark 23 has a capacity of 40 passengers and Stark 8 has a capacity of 30 passengers. Stark 23 also carries more than 30 passengers, so the claim of exclusivity is false."
     ]
    ],
    "59": [
