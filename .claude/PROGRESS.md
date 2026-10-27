@@ -356,3 +356,11 @@
 ## 2026-10-27 最終程式的 eval 補跑（排程觸發）
 - `eval_review 2`：64/64 擋下、誤擋 0/60、審查呼叫失敗 0。`eval_conversations 4`：56/56 chats、92/92 turns。兩者都用含 `find_models`、資料夾文件清單、中文字體規則的最終程式；報告裡的數字不變，不需改報告。
 - 下次待辦：無排程中的項目。仍未做：露營題「唯一」（1/56、無法重現）、目錄只看前約 160 字（設計取捨）、部署（決定不做）。
+
+## 2026-10-27 推薦型搜尋：模型挑短名單、程式驗證（分支 `fix/shortlist-as-search`，未 push）
+- 取消 `SHORTLIST` 路由；`ship_candidates()` 由 LLM 在座位夠的型號中挑最多 5 款（壞挑選退回座位數最接近），回答與審查者只讀這 5 份。第一版（程式排序）品質差，改成現行做法，見 DECISIONS。
+- 露營對話重放 ×4：第二輪 3 次 ANSWER、1 次 UNVERIFIED（草稿寫「唯一」與文件沒有的「完整型錄」）；挑到 Stark 4，漏了 Stark 6、11。
+- 測試 40 ok、ruff 乾淨；`eval_answers` 17/17；`eval_conversations 4`（刪掉舊 partial 全部重跑）56/56、92/92；`eval_review` 沒重跑（審查提示沒改，沿用 64/64、0/60）。
+- 中文報告（`results/report.html`）與英文報告（`report.en.html`）的「第三條路」加了「推薦型搜尋：模型挑，程式把關」與驗證兩段；Artifact 已到 Version 99。
+- Demo 在 :8010（帶 `MLFLOW_TRACKING_URI`，trace 看 :5001）。8000 埠仍是舊程式。
+- 下次可做：短名單漏選（Stark 6、11）可試提示加「舒適＝描述提到 comfort、luxury」；草稿「唯一」仍偶爾出現。

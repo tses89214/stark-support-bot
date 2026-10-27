@@ -93,7 +93,7 @@ CASES = [
             ("我想找個飛船", {"route": {"CLARIFY"}}),
             (
                 "三人小家庭、日常家庭旅行偶爾露營",
-                {"route": {"ANSWER", "SHORTLIST"}, "any": ["Stark "], "forbid": EXCLUSIVE, "lang": "zh"},
+                {"route": {"ANSWER"}, "any": ["Stark "], "forbid": EXCLUSIVE, "lang": "zh"},
             ),
         ],
     ),
