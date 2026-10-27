@@ -605,7 +605,7 @@ rerank = [top[j] for j in sorted(range(10), key=lambda j: -scores[j])] + h[10:]<
     </tbody></table></div>
   <p>做法：目錄型問題（一次讀到 6 款以上）時，模型把問題寫成條件，例如 <code>{"field":"seats","op":">=","value":30}</code>。查詢工具 <code>find_models</code> 逐份讀文件，回傳符合<b>全部</b>條件的型號，附在規格表尾，回答和審查者看到同一份名單。可查載客量、價格、長度、重量（≥ ≤ &gt; &lt;）和顏色（包含）。條件不合法會被程式丟掉，不會變成錯的名單；沒有精確條件的問題（「適合露營」「最便宜」）不產生條件。</p>
   <div class="tbl"><table>
-    <thead><tr><th>同一題「載 30 人」重放 8 次</th><th>三款都列</th><th>審查退稿</th><th>每題 LLM 呼叫</th></tr></thead>
+    <thead><tr><th>同一題「載 30 人」重放 8 次</th><th>回答正確</th><th>審查退稿</th><th>每題 LLM 呼叫</th></tr></thead>
     <tbody>
       <tr><td class="wrap">只有排序行（模型自己取）</td><td class="num">7/8</td><td class="num">3 次</td><td class="num">4.75</td></tr>
       <tr><td class="wrap"><b>排序行 + 查詢工具</b></td><td class="num"><b>8/8</b></td><td class="num"><b>1 次</b></td><td class="num"><b>5.25</b></td></tr>
